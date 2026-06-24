@@ -343,19 +343,19 @@ const bankSoal = [
         update(); startTimer(timerDuration);
     }
     function update() {
-        const s = bank[idx]; document.getElementById('main-q').innerHTML = `Soal ${idx+1}:<br>${s.q}`;
+        const s = bankSoal[idx]; document.getElementById('main-q').innerHTML = `Soal ${idx+1}:<br>${s.q}${s.v ? '<div style="margin-top:15px">'+s.v+'</div>' : ''}`;
         let h = ""; s.o.forEach((opt, i) => {
             const sel = userAns[idx] === i ? 'selected' : '';
             h += `<div class="opt-box ${sel}" onclick="pilih(${i})"><span class="prefix">${String.fromCharCode(65+i)}.</span> ${opt}</div>`;
         });
         document.getElementById('main-opts').innerHTML = h;
-        document.getElementById('btn-next').innerText = idx === bank.length-1 ? "SELESAI" : "LANJUT";
+        document.getElementById('btn-next').innerText = idx === bankSoal.length-1 ? "SELESAI" : "LANJUT";
         nav();
     }
-    function pilih(i) { userAns[idx] = i; update(); if(idx < bank.length-1) setTimeout(()=>arah(1), 200); }
-    function arah(n) { if(n===1 && idx===bank.length-1) return finish(); idx+=n; update(); }
+    function pilih(i) { userAns[idx] = i; update(); if(idx < bankSoal.length-1) setTimeout(()=>arah(1), 200); }
+    function arah(n) { if(n===1 && idx===bankSoal.length-1) return finish(); idx+=n; update(); }
     function nav() {
-        let h = ""; bank.forEach((_, i) => {
+        let h = ""; bankSoal.forEach((_, i) => {
             let c = (i===idx)?"nav-item active":"nav-item"; if(userAns[i]!==undefined) c+=" filled";
             h += `<div class="${c}" onclick="idx=${i};update();">${i+1}</div>`;
         }); document.getElementById('nav-nums').innerHTML = h;
@@ -370,11 +370,11 @@ const bankSoal = [
     function finish() {
         document.getElementById('page-quiz').style.display='none'; document.getElementById('page-result').style.display='block';
         let benar = 0; let dHtml = "";
-        bank.forEach((s, i) => {
+        bankSoal.forEach((s, i) => {
             if(userAns[i] === s.a) benar++;
             dHtml += `<div class="teach-box"><b>NO ${i+1}</b><p>${s.q}</p><b>Kunci: ${String.fromCharCode(65+s.a)}</b><br>${s.h}</div>`;
         });
-        document.getElementById('score-big').innerText = "SKOR: " + Math.round((benar/bank.length)*100);
+        document.getElementById('score-big').innerText = "SKOR: " + Math.round((benar/100)*100);
         document.getElementById('discussion-list').innerHTML = dHtml;
     }
 </script>
