@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Verbal - Persona Research And Consulting</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #1a4a7a; --bg: #f0f2f5; --accent: #1e4b82; }
+        body { font-family: 'Arial', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        
+        /* Footer Tetap */
+        .app-footer { text-align: center; padding: 25px; color: #666; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .app-footer b { color: #222; font-size: 15px; }
+
+        /* Login Screen */
+        .login-container { max-width: 450px; margin: 60px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .logo-pc { background: #000; color: white; width: 70px; height: 70px; line-height: 70px; border-radius: 15px; margin: 0 auto 20px; font-weight: bold; font-size: 28px; }
+        
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn-main { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px; }
+        
+        /* Layout Quiz */
+        .wrapper { display: none; max-width: 1200px; margin: 20px auto; padding: 20px; display: flex; gap: 25px; }
+        .content-area { flex: 3; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); min-height: 500px; }
+        .sidebar-right { flex: 1; background: white; padding: 25px; border-radius: 15px; height: fit-content; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
+
+        /* Questions & Options */
+        .q-text { font-size: 22px; font-weight: bold; margin-bottom: 25px; color: #111; line-height: 1.4; }
+        .opt-box { padding: 15px 20px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; font-size: 18px; transition: 0.2s; }
+        .opt-box:hover { background: #f0f7ff; border-color: var(--primary); }
+        .opt-box.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .prefix { font-weight: bold; margin-right: 15px; width: 25px; }
+
+        /* Navigasi Kotak */
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
+        .nav-item { padding: 10px; border: 1px solid #ddd; text-align: center; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 13px; }
+        .nav-item.filled { background: var(--accent); color: white; border-color: var(--accent); }
+        .nav-item.active { border: 2px solid #ff9800; background: #fff3e0; }
+
+        /* Hasil & Pembahasan */
+        .teach-box { background: #fffdf0; border-left: 8px solid #f1c40f; padding: 30px; margin-bottom: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .teach-text { font-size: 20px; line-height: 1.8; color: #333; }
+        .correct-label { color: #27ae60; font-weight: bold; font-size: 19px; display: block; margin-bottom: 10px; }
+        
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="page-login" class="login-container">
+    <div class="logo-pc">PRC</div>
+    <h1 style="letter-spacing:2px; margin:10px 0;">TES KECERDASAN VERBAL</h1>
+    <div style="color:#666; margin-bottom:30px;">Persona Research And Consulting</div>
+    <input type="text" id="inName" placeholder="NAMA LENGKAP">
+    <input type="password" id="inPass" placeholder="PASSWORD">
+    <button class="btn-main" onclick="mulaiTes()">MASUK SESI</button>
+    <div class="app-footer">
+        <b>Persona Research and Consulting 2026</b><br>
+        Copyright &copy; All Rights Reserved<br>
+        WA: 0877-4251-5786
+    </div>
+</div>
+
+<div id="page-quiz" style="display:none;">
+    <div class="wrapper" id="quizWrapper">
+        <div class="content-area">
+            <div id="main-q" class="q-text"></div>
+            <div id="main-opts"></div>
+            <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                <button class="btn-main" style="width: 150px; background: #666;" onclick="arah(-1)">Kembali</button>
+                <button class="btn-main" style="width: 150px;" id="btn-next" onclick="arah(1)">Lanjut</button>
+            </div>
+        </div>
+        <div class="sidebar-right">
+            <div id="timer" style="text-align: center; font-size: 26px; font-weight: bold; color: #d9534f; margin-bottom: 20px;">30:00</div>
+            <h4 style="margin: 0 0 10px 0;">Navigasi Soal</h4>
+            <div class="nav-grid" id="nav-nums"></div>
+        </div>
+    </div>
+    <div class="app-footer">
+        <b>Persona Research And Consulting 2026</b> | WA: 0877-4251-5786
+    </div>
+</div>
+
+<div id="page-result" style="display:none; max-width: 950px; margin: 40px auto; background: white; padding: 40px; border-radius: 20px;">
+    <div id="pdf-content">
+        <h2 style="text-align:center;">HASIL TES KECERDASAN VERBAL</h2>
+        <div id="user-info" style="background:#f4f4f4; padding:20px; border-radius:10px; margin-bottom:20px; line-height: 1.8;"></div>
+        <div id="score-big" style="text-align:center; font-size:70px; font-weight:bold; color:var(--accent); margin-bottom: 20px;">0</div>
+        <hr>
+        <h3 style="font-size:26px; color:#444; margin-top: 30px;">PEMBAHASAN ANALITIS (GAYA GURU)</h3>
+        <div id="discussion-list"></div>
+    </div>
+    <button class="btn-main no-print" onclick="downloadPDF()" style="background:#27ae60; margin-top: 20px;">Download Jawaban & Pembahasan (PDF)</button>
+    <div class="app-footer">
+        <b>Persona Research And Consulting 2026</b> | WA: 0877-4251-5786
+    </div>
+</div>
+
+<script>
+    let idx = 0;
+    let userAns = {};
+    const bank = [
+        { q: "BONAFIDE =", o: ["Surat berharga", "Dapat dipercaya", "Catatan hukum", "Keuntungan besar", "Saksi kunci"], a: 1, h: "Kata 'Bonafide' berasal dari bahasa Latin yang berarti 'dengan niat baik'. Dalam konteks profesional dan umum, bonafide diartikan sebagai sesuatu yang dapat dipercaya, asli, atau memiliki kredibilitas tinggi tanpa ada unsur penipuan." },
+        { q: "ESKAPISME =", o: ["Tindakan kriminal", "Cara pandang", "Kehendak bebas", "Keinginan menghindar", "Proses penguapan"], a: 3, h: "Eskapisme adalah perilaku atau kecenderungan seseorang untuk mencari hiburan atau pengalih perhatian guna menghindari kenyataan hidup yang pahit, membosankan, atau menekan. Hal ini sering dilakukan melalui fantasi atau aktivitas hiburan yang intens." },
+        { q: "KLEPTOFOBIA ><", o: ["Takut pencuri", "Gila belanja", "Suka mencuri", "Takut ketinggian", "Senang menolong"], a: 2, h: "Kleptofobia adalah ketakutan yang abnormal atau berlebihan terhadap pencurian. Lawan katanya (antonim) yang paling tepat dalam konteks perilaku adalah kecenderungan atau penyakit mental suka mencuri (Kleptomania)." },
+        { q: "SKEPTIS ><", o: ["Ragu", "Yakin", "Curiga", "Apatis", "Teliti"], a: 1, h: "Skeptis adalah sikap meragukan kebenaran informasi sebelum ada bukti yang nyata. Lawan kata yang paling kontras adalah Yakin, yang berarti sudah percaya sepenuhnya tanpa ada keraguan lagi." },
+        { q: "TELINGA : ANTING = ... : ...", o: ["Leher : Kalung", "Tangan : Jam", "Kaki : Sepatu", "Kepala : Rambut", "Mata : Lensa"], a: 0, h: "Analogi ini menggunakan hubungan 'Tempat : Perhiasan Spesifik'. Anting dikenakan khusus sebagai perhiasan di Telinga. Maka padanan yang setara adalah Kalung yang merupakan perhiasan khusus di Leher." },
+        { q: "REKALSITRAN =", o: ["Penurut", "Membangkang", "Sabar", "Cerdas", "Lalai"], a: 1, h: "Rekalsitran adalah kata serapan yang merujuk pada sikap yang sangat sulit diatur, keras kepala, atau terang-terangan membangkang terhadap otoritas atau perintah." },
+        { q: "ADAGIO : ... = ... : CEPAT", o: ["Lambat - Allegro", "Musik - Tempo", "Suara - Ritme", "Biola - Piano", "Lagu - Melodi"], a: 0, h: "Hubungan analogi ini adalah 'Istilah Musik : Makna'. Adagio berarti tempo musik yang Lambat, sedangkan Allegro adalah istilah musik yang berarti tempo Cepat." },
+        { q: "Semua singa pemakan daging. Sebagian pemakan daging adalah hewan buas. Kesimpulan?", o: ["Semua singa hewan buas", "Sebagian singa hewan buas", "Ada pemakan daging yang bukan singa", "Hewan buas pasti singa", "Singa bukan hewan buas"], a: 2, h: "Logikanya: Kelompok Singa berada di dalam kelompok Pemakan Daging. Karena hanya 'sebagian' pemakan daging yang buas, kita tidak bisa memastikan semua singa buas. Namun, pasti benar bahwa ada anggota kelompok pemakan daging yang bukan merupakan singa." },
+        { q: "Manakah yang tidak termasuk kelompoknya?", o: ["Prolog", "Epilog", "Monolog", "Dialog", "Intermezzo"], a: 4, h: "Prolog, Epilog, Monolog, dan Dialog adalah istilah teknis yang berkaitan dengan struktur naskah dan percakapan. Intermezzo adalah selingan (biasanya musik) di tengah pertunjukan, sehingga fungsinya berbeda." },
+        { q: "INSOMNIA : TIDUR = ... : ...", o: ["Anemia : Darah", "Amensia : Ingatan", "Lapar : Makan", "Haus : Air", "Pusing : Obat"], a: 1, h: "Hubungan 'Penyakit : Kehilangan Fungsi'. Insomnia berakibat pada kehilangan kemampuan tidur. Amnesia berakibat pada kehilangan fungsi ingatan." },
+        { q: "KONTRAKTOR : BETON = ... : ...", o: ["Guru : Murid", "Tukang : Kayu", "Penjahit : Benang", "Supir : Ban", "Dokter : Pasien"], a: 2, h: "Hubungan 'Profesi : Bahan Baku Utama'. Kontraktor menggunakan beton sebagai bahan bangunan utama. Penjahit menggunakan benang sebagai bahan dasar utama dalam menjahit pakaian." },
+        { q: "DEGRADASI ><", o: ["Erosi", "Promosi", "Reduksi", "Inflasi", "Kemunduran"], a: 1, h: "Degradasi berarti penurunan pangkat, mutu, atau status. Lawan katanya adalah Promosi, yang berarti kenaikan pangkat atau kenaikan status ke tingkat yang lebih tinggi." },
+        { q: "VIRTUAL =", o: ["Nyata", "Maya", "Asli", "Padat", "Indah"], a: 1, h: "Virtual dalam KBBI berarti secara nyata (tetapi bukan yang sebenarnya) atau yang ada dalam bentuk citra digital/maya. Sinonim yang paling tepat adalah Maya." },
+        { q: "Pedagogi adalah ilmu tentang...", o: ["Hukum", "Pendidikan", "Tanaman", "Bumi", "Cuaca"], a: 1, h: "Pedagogi secara spesifik adalah ilmu atau seni dalam menjadi seorang pengajar dan merupakan studi tentang metode pendidikan dan cara mengajar anak-anak." },
+        { q: "KAKA TUA : MERPATI = ... : ...", o: ["Hiu : Paus", "Gajah : Semut", "Singa : Naga", "Jerapah : Gajah", "Elang : Kupu"], a: 3, h: "Analogi 'Satu Rumpun'. Kaka Tua dan Merpati sama-sama jenis Burung. Jerapah dan Gajah sama-sama jenis Mamalia Darat besar." },
+        { q: "NOMADIK : MENETAP = ... : ...", o: ["Cair : Beku", "Pindah : Diam", "Gersang : Subur", "Lapar : Kenyang", "Teratur : Kacau"], a: 1, h: "Nomadik (berpindah-pindah) adalah antonim dari Menetap. Maka cari pasangan kata kerja yang berlawanan, yaitu Pindah lawan Diam." },
+        { q: "EKSPLISIT ><", o: ["Jelas", "Gamblang", "Tersirat", "Terbuka", "Luas"], a: 2, h: "Eksplisit berarti gamblang, tegas, dan tidak berbelit-belit (terang-terangan). Lawannya adalah Implisit atau Tersirat, yang berarti tersimpan secara tersembunyi." },
+        { q: "PRETENSI =", o: ["Tujuan", "Pura-pura", "Kemampuan", "Harapan", "Masalah"], a: 1, h: "Pretensi adalah sikap berpura-pura, sok, atau upaya menonjolkan sesuatu yang sebenarnya tidak dimiliki agar terlihat lebih hebat/penting." },
+        { q: "KONKRET ><", o: ["Nyata", "Padat", "Abstrak", "Asli", "Kaku"], a: 2, h: "Konkret berarti nyata, benar-benar ada, dan dapat dilihat/diraba. Lawannya adalah Abstrak, yang berarti tidak berwujud dan hanya ada dalam pikiran/teori." },
+        { q: "MATAHARI : TERIK = ... : ...", o: ["Bulan : Malam", "Lampu : Silau", "Api : Panas", "Es : Dingin", "Angin : Kencang"], a: 3, h: "Hubungan 'Subjek : Sifat Dasar Mutlak'. Matahari itu Terik (sifat panas yang menyengat). Es itu Dingin (sifat suhu dasar). Api juga panas, tapi 'Terik' lebih dekat ke rasa suhu lingkungan seperti 'Dingin'." },
+        { q: "PROMINEN =", o: ["Biasa", "Kecil", "Terkenal", "Rahasia", "Mewah"], a: 2, h: "Prominen berarti menonjol, utama, atau terkemuka. Dalam konteks sosial, orang prominen adalah orang yang terkenal atau memiliki posisi penting." },
+        { q: "INSINUASI =", o: ["Tuduhan", "Sindiran", "Sanjungan", "Ajakan", "Hinaan"], a: 1, h: "Insinuasi adalah sindiran secara tidak langsung terhadap seseorang, biasanya bertujuan untuk menjatuhkan atau memberikan tuduhan secara tersembunyi." },
+        { q: "ABOLISI ><", o: ["Grasi", "Amnesti", "Rehabilitasi", "Pemberatan", "Pengurangan"], a: 3, h: "Abolisi adalah penghapusan proses hukum atau hukuman. Lawan katanya dalam konteks sanksi adalah Pemberatan atau eksekusi hukuman yang lebih serius." },
+        { q: "EVAPORASI : AIR = ... : ...", o: ["Pembekuan : Es", "Pencairan : Salju", "Oksidasi : Karat", "Kondensasi : Uap", "Pembakaran : Api"], a: 3, h: "Hubungan 'Proses Perubahan'. Evaporasi mengubah Air menjadi uap. Kondensasi mengubah Uap kembali menjadi titik-titik air (embun)." },
+        { q: "SEKULER ><", o: ["Duniawi", "Tradisional", "Keagamaan", "Modern", "Kuno"], a: 2, h: "Sekuler berarti bersifat duniawi atau kebendaan (tidak bersifat keagamaan). Maka lawan katanya adalah yang bersifat spiritual atau Keagamaan." },
+        { q: "ITERASI =", o: ["Hubungan", "Pengulangan", "Tekanan", "Pencapaian", "Interaksi"], a: 1, h: "Iterasi adalah istilah teknis yang berarti pengulangan kembali suatu proses, langkah, atau perhitungan dalam sebuah urutan." },
+        { q: "Semua atlet sehat. Susi tidak sehat.", o: ["Susi atlet", "Susi bukan atlet", "Susi suka olahraga", "Atlet harus sakit", "Susi perokok"], a: 1, h: "Silogisme (Modus Tollens): Semua A adalah B. C bukan B. Maka C bukan A. Karena semua atlet pasti sehat, dan Susi tidak sehat, maka Susi bukan atlet." },
+        { q: "TANGAN : JARI = ... : ...", o: ["Kepala : Rambut", "Kaki : Jempol", "Pohon : Ranting", "Rumah : Atap", "Buku : Teks"], a: 2, h: "Analogi 'Anggota Tubuh : Percabangan'. Jari adalah bagian dari Tangan. Ranting adalah bagian percabangan dari Pohon." },
+        { q: "HETEROGEN ><", o: ["Beragam", "Bervariasi", "Homogen", "Unik", "Campuran"], a: 2, h: "Heterogen berarti beraneka ragam atau terdiri atas berbagai unsur yang berbeda. Lawannya adalah Homogen, yang berarti seragam atau sejenis." },
+        { q: "FILATELI : PERANGKO = ... : ...", o: ["Arkeologi : Candi", "Numismatik : Koin", "Astronomi : Bintang", "Biologi : Sel", "Geologi : Batu"], a: 1, h: "Hubungan 'Nama Hobi : Objek Koleksi'. Filateli adalah hobi mengoleksi Perangko. Numismatik adalah hobi mengoleksi mata uang lama atau Koin." },
+        { q: "AMBIGU =", o: ["Jelas", "Tegas", "Bermakna ganda", "Salah arti", "Lupa"], a: 2, h: "Ambigu adalah kondisi suatu kata atau kalimat yang memiliki lebih dari satu penafsiran sehingga menimbulkan ketidakjelasan." },
+        { q: "DENDROLOGI : POHON = ... : ...", o: ["Ikhtiologi : Ikan", "Entomologi : Hewan", "Sosiologi : Desa", "Patologi : Hutan", "Biologi : Alat"], a: 0, h: "Hubungan 'Cabang Ilmu : Objek Studi'. Dendrologi ilmu tentang pohon. Ikhtiologi ilmu tentang ikan." },
+        { q: "IMPAS ><", o: ["Laba", "Rugi", "Sama", "Untung", "Saldo"], a: 1, h: "Impas berarti posisi di mana tidak ada untung dan tidak ada rugi. Lawan kata yang paling relevan dalam konteks keuangan adalah Rugi." },
+        { q: "OVAL : ELIPS = ... : ...", o: ["Bulat : Bola", "Persegi : Kotak", "Segitiga : Prisma", "Lingkaran : Bundar", "Garis : Titik"], a: 3, h: "Hubungan 'Sinonim Bentuk'. Oval dan Elips adalah bentuk yang mirip/sama. Lingkaran dan Bundar juga merupakan sinonim bentuk dua dimensi." },
+        { q: "PRESTISE =", o: ["Hadiah", "Wibawa", "Kekayaan", "Usaha", "Gengsi"], a: 1, h: "Prestise bermakna martabat, kehormatan, atau wibawa yang dimiliki seseorang di mata publik." },
+        { q: "REDUKSI ><", o: ["Diskon", "Pemotongan", "Penambahan", "Penyusutan", "Perbaikan"], a: 2, h: "Reduksi berarti pengurangan atau pemotongan. Lawan kata yang paling tepat adalah Penambahan." },
+        { q: "SARJANA : SKRIPSI = ... : ...", o: ["Dokter : Obat", "Magister : Tesis", "Siswa : Ujian", "Guru : Kelas", "Buruh : Gaji"], a: 1, h: "Hubungan 'Lulusan : Tugas Akhir'. Sarjana wajib menulis Skripsi. Magister wajib menulis Tesis." },
+        { q: "STAGNAN ><", o: ["Diam", "Berhenti", "Dinamis", "Kaku", "Tetap"], a: 2, h: "Stagnan berarti berhenti, tidak bergerak, atau jalan di tempat. Lawan katanya adalah Dinamis, yang berarti penuh gerak dan perubahan." },
+        { q: "HIBRIDA =", o: ["Asli", "Unggul", "Cepat", "Persilangan", "Lokal"], a: 3, h: "Hibrida adalah hasil perkawinan atau persilangan antara dua jenis yang berbeda (tanaman atau hewan) untuk mendapatkan sifat tertentu." },
+        { q: "OTODIDAK =", o: ["Belajar sendiri", "Guru besar", "Sekolah tinggi", "Ilmu pasti", "Teknik mesin"], a: 0, h: "Otodidak adalah orang yang memperoleh keahlian atau pengetahuan dengan belajar sendiri tanpa bimbingan guru atau sekolah formal." },
+        { q: "KONTRA ><", o: ["Lawan", "Setuju", "Pro", "Beda", "Tolak"], a: 2, h: "Kontra berarti menentang atau tidak setuju. Lawannya adalah Pro, yang berarti mendukung atau setuju." },
+        { q: "PESAWAT : PILOT = ... : ...", o: ["Masinis : Kereta", "Kapal : Nahkoda", "Bus : Supir", "Kereta : Masinis", "Sepeda : Gowes"], a: 1, h: "Hubungan 'Kendaraan : Pengendali Utama'. Pesawat dikendalikan oleh Pilot. Kapal dikendalikan oleh Nahkoda." },
+        { q: "DONOR : DARAH = ... : ...", o: ["Zakat : Harta", "Tabungan : Bank", "Siswa : Buku", "Petani : Padi", "Pasar : Uang"], a: 0, h: "Hubungan 'Tindakan Sosial : Objek yang Diberikan'. Donor dilakukan dengan memberikan darah. Zakat dilakukan dengan memberikan sebagian harta." },
+        { q: "EGALITER =", o: ["Sombong", "Sederajat", "Berkuasa", "Kaya", "Miskin"], a: 1, h: "Egaliter bermakna bersifat sama, sederajat, atau menganut prinsip bahwa semua orang sama kedudukannya." },
+        { q: "ANOMALI ><", o: ["Aneh", "Normal", "Sesuai", "Beda", "Unik"], a: 1, h: "Anomali adalah penyimpangan atau kelainan dari kondisi biasa. Lawannya adalah Normal." },
+        { q: "HUJAN : BANJIR = ... : ...", o: ["Lampu : Terang", "Api : Panas", "Luka : Nyeri", "Makan : Lapar", "Tidur : Mimpi"], a: 2, h: "Hubungan 'Sebab : Akibat'. Hujan yang ekstrem menyebabkan banjir. Luka fisik menyebabkan rasa nyeri." },
+        { q: "KULINER : MAKANAN = ... : ...", o: ["Otomotif : Mesin", "Busana : Pakaian", "Properti : Tanah", "Medis : Obat", "Seni : Lukis"], a: 1, h: "Hubungan 'Bidang : Objek Fokus'. Kuliner berfokus pada makanan. Busana berfokus pada pakaian." },
+        { q: "Persona Research Consulting berlokasi di tahun...", o: ["2024", "2025", "2026", "2027", "2028"], a: 2, h: "Sesuai dengan data branding yang tercantum pada sistem dan footer: 2026." },
+        { q: "KOMALEM =", o: ["Keadaan", "Keseimbangan", "Kesenangan", "Kenikmatan", "Kebiasaan"], a: 1, h: "Komalem merupakan istilah (jarang) yang merujuk pada kondisi seimbang atau keseimbangan sistem." },
+        { q: "NAHKODA : KAPAL = MASINIS : ...", o: ["Bus", "Pesawat", "Kereta Api", "Mobil", "Motor"], a: 2, h: "Analogi pengendara: Nahkoda mengemudikan Kapal, Masinis mengemudikan Kereta Api." }
+    ];
+
+    function mulaiTes() {
+        const name = document.getElementById('inName').value;
+        const pass = document.getElementById('inPass').value;
+        if(!name || !pass) return alert("Harap isi Nama dan Password!");
+        document.getElementById('page-login').style.display = 'none';
+        document.getElementById('page-quiz').style.display = 'block';
+        update();
+        timer(1800);
+    }
+
+    function update() {
+        const s = bank[idx];
+        document.getElementById('main-q').innerHTML = `Soal ${idx+1}:<br>${s.q}`;
+        let h = "";
+        s.o.forEach((opt, i) => {
+            const sel = userAns[idx] === i ? 'selected' : '';
+            h += `<div class="opt-box ${sel}" onclick="pilih(${i})"><span class="prefix">${String.fromCharCode(65+i)}.</span> ${opt}</div>`;
+        });
+        document.getElementById('main-opts').innerHTML = h;
+        document.getElementById('btn-next').innerText = idx === bank.length-1 ? "SELESAI" : "LANJUT";
+        nav();
+    }
+
+    function pilih(i) { 
+        userAns[idx] = i; 
+        update(); 
+        setTimeout(() => {
+            if (idx < bank.length - 1) {
+                idx++;
+                update();
+            }
+        }, 300); // Responsif 300ms
+    }
+
+    function arah(n) {
+        if(n === 1 && idx === bank.length-1) { if(confirm("Yakin ingin mengakhiri sesi?")) finish(); return; }
+        idx += n; if(idx < 0) idx = 0; if(idx >= bank.length) idx = bank.length-1;
+        update();
+    }
+
+    function nav() {
+        let h = "";
+        bank.forEach((_, i) => {
+            let c = (i === idx) ? "nav-item active" : "nav-item";
+            if(userAns[i] !== undefined) c += " filled";
+            h += `<div class="${c}" onclick="idx=${i};update();">${i+1}</div>`;
+        });
+        document.getElementById('nav-nums').innerHTML = h;
+    }
+
+    function timer(s) {
+        let clock = setInterval(() => {
+            let m = Math.floor(s/60); let sec = s%60;
+            document.getElementById('timer').innerText = `${m}:${sec<10?'0':''}${sec}`;
+            if(s>0) s--; else { clearInterval(clock); finish(); }
+        }, 1000);
+    }
+
+    function finish() {
+        document.getElementById('page-quiz').style.display = 'none';
+        document.getElementById('page-result').style.display = 'block';
+        let benar = 0; let dHtml = "";
+        bank.forEach((s, i) => {
+            const uStr = userAns[i] !== undefined ? String.fromCharCode(65+userAns[i]) : "KOSONG";
+            if(userAns[i] === s.a) benar++;
+            dHtml += `<div class="teach-box">
+                <p><b>SOAL NO ${i+1}</b></p>
+                <p style="font-size:19px;">${s.q}</p>
+                <p><b>Jawaban Anda:</b> ${uStr}</p>
+                <span class="correct-label">Jawaban Benar: ${String.fromCharCode(65+s.a)}</span>
+                <div class="teach-text"><b>Penjelasan Detail:</b><br>${s.h}</div>
+            </div>`;
+        });
+        const tgl = new Date();
+        document.getElementById('user-info').innerHTML = `
+            <b>Nama Peserta:</b> ${document.getElementById('inName').value}<br>
+            <b>Waktu Selesai:</b> ${tgl.toLocaleTimeString('id-ID')} WIB
+        `;
+        document.getElementById('score-big').innerText = "SKOR: " + Math.round((benar/bank.length)*100);
+        document.getElementById('discussion-list').innerHTML = dHtml;
+        window.scrollTo(0,0);
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('pdf-content');
+        const opt = {
+            margin: 10,
+            filename: `Hasil_Verbal_PRC_${document.getElementById('inName').value}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+</body>
+</html>

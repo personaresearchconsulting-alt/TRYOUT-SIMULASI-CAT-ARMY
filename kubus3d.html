@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRC - Advanced Solid Cube Test v4</title>
+    <style>
+        :root { --navy: #0f172a; --gold: #b5935b; --bg: #f1f5f9; }
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); overflow: hidden; }
+
+        .header { background: white; padding: 0 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; height: 65px; position: relative; z-index: 100; }
+        .brand { font-weight: 800; color: var(--navy); font-size: 14px; letter-spacing: 1px; }
+        
+        .main-wrapper { display: flex; height: calc(100vh - 65px); flex-direction: row-reverse; } 
+        .question-panel { flex: 1; background: white; padding: 35px; overflow-y: auto; border-left: 1px solid #e2e8f0; }
+        .visual-panel { flex: 1.2; background: #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+        .visual-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 650px; text-align: center; }
+        .q-text { font-size: 19px; font-weight: 700; color: var(--navy); margin-bottom: 25px; line-height: 1.5; min-height: 80px; }
+        
+        .option-btn { padding: 15px; border: 2px solid #f1f5f9; border-radius: 12px; cursor: pointer; display: flex; align-items: center; background: #f8fafc; font-weight: 600; margin-bottom: 10px; transition: 0.2s; position: relative; }
+        .option-btn:hover { border-color: var(--gold); }
+        .option-btn.selected { background: var(--navy) !important; color: white !important; }
+        .opt-char { font-weight: 900; margin-right: 15px; color: var(--gold); }
+
+        .btn-nav { padding: 15px 30px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; background: var(--navy); color: white; width: 100%; margin-top: 10px; }
+        
+        .dot-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
+        .dot { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 12px; background: white; cursor: pointer; transition: 0.2s; font-weight: 600; }
+        .dot:hover { border-color: var(--gold); color: var(--gold); }
+        .dot.active { border: 2px solid var(--gold); background: #fffbeb; color: var(--gold); }
+        .dot.done { background: var(--navy); color: white; border: none; }
+
+        #screen-result { display: none; padding: 40px; text-align: center; background: white; position: fixed; inset: 0; overflow-y: auto; z-index: 2000; }
+        .rev-box { text-align: left; max-width: 850px; margin: 15px auto; padding: 25px; background: #f8fafc; border-radius: 15px; border-left: 8px solid var(--navy); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .rev-q { font-weight: 800; color: var(--navy); margin-bottom: 10px; font-size: 18px; }
+        .rev-p { font-size: 15px; line-height: 1.6; color: #475569; padding-top: 10px; border-top: 1px dashed #cbd5e1; margin-top: 10px; }
+    </style>
+</head>
+<body oncontextmenu="return false">
+
+<div id="screen-login" style="position:fixed; inset:0; background:var(--navy); z-index:3000; display:flex; align-items:center; justify-content:center; color:white;">
+    <div style="background:white; color:black; padding:40px; border-radius:20px; width:90%; max-width:400px; text-align:center;">
+        <h2 style="margin:0; color:var(--navy)">Persona Research & Consulting</h2>
+        <p style="color:var(--gold); font-weight:bold; font-size:11px; letter-spacing:2px; margin-bottom:30px;">Logika bangun ruang kubus 3D</p>
+        <input type="text" id="uname" placeholder="Masukkan Nama" style="width:100%; padding:15px; margin-bottom:20px; border:2px solid #eee; border-radius:10px; text-align:center; font-weight:bold;">
+        <button onclick="start()" class="btn-nav">MULAI SIMULASI</button>
+    </div>
+</div>
+
+<div id="screen-quiz" style="display:none">
+    <div class="header">
+        <div class="brand">Persona Research & Consulting</div>
+        <div id="timer" style="font-weight:900; color:#e11d48; font-size:20px;">20:00</div>
+    </div>
+    <div class="main-wrapper">
+        <div class="visual-panel">
+            <div class="visual-card">
+                <svg viewBox="0 0 400 350" style="width:100%">
+                    <defs>
+                        <linearGradient id="gTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient>
+                        <linearGradient id="gFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#0f172a"/></linearGradient>
+                        <linearGradient id="gSide" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#1e293b"/></linearGradient>
+                    </defs>
+                    <g transform="translate(140, 140)">
+                        <rect x="80" y="-40" width="40" height="40" fill="#94a3b8" opacity="0.2" stroke="#fff"/>
+                        <path d="M0 0 L120 0 L180 -60 L60 -60 Z" fill="url(#gTop)" stroke="#fff" stroke-width="1.5"/>
+                        <path d="M0 0 L0 120 L120 120 L120 0 Z" fill="url(#gFront)" stroke="#fff" stroke-width="1.5"/>
+                        <path d="M120 0 L180 -60 L180 60 L120 120 Z" fill="url(#gSide)" stroke="#fff" stroke-width="1.5"/>
+                        <g stroke="#ffffff55" stroke-width="1">
+                            <line x1="40" y1="0" x2="40" y2="120"/><line x1="80" y1="0" x2="80" y2="120"/>
+                            <line x1="0" y1="40" x2="120" y2="40"/><line x1="0" y1="80" x2="120" y2="80"/>
+                            <line x1="140" y1="-20" x2="140" y2="100"/><line x1="160" y1="-40" x2="160" y2="80"/>
+                        </g>
+                        <g transform="translate(40, 40)">
+                            <text x="20" y="25" text-anchor="middle" fill="white" font-weight="900" font-size="20">M</text>
+                        </g>
+                    </g>
+                </svg>
+                <div style="font-size:12px; font-weight:bold; color:var(--navy); margin-top:10px;">PERSPEKTIF ISOMETRIC KUBUS PADAT (3x3x3)</div>
+            </div>
+        </div>
+        <div class="question-panel">
+            <div id="q-no" style="color:var(--gold); font-weight:800; font-size:12px; margin-bottom:10px;">SOAL 1</div>
+            <div class="q-text" id="q-txt"></div>
+            <div id="opt-box"></div>
+            <div class="dot-grid" id="dot-box"></div>
+            <button onclick="finish()" class="btn-nav" style="background:#64748b; margin-top:30px;">SELESAI UJIAN</button>
+        </div>
+    </div>
+</div>
+
+<div id="screen-result">
+    <h1 style="color:var(--navy); margin-bottom:0;">HASIL EVALUASI SPASIAL</h1>
+    <p id="res-name" style="color:var(--gold); font-weight:bold;"></p>
+    <div id="final-score" style="font-size:100px; font-weight:900; color:var(--navy); margin:10px 0;">0</div>
+    <div id="review-area"></div>
+    <button onclick="location.reload()" class="btn-nav" style="max-width:300px; margin-top:40px;">ULANGI SIMULASI</button>
+</div>
+
+<script>
+    let cur = 0, answers = {}, timeLeft = 1200;
+    const bank = [
+        { q: "Berapakah jumlah total balok satuan yang menyusun kubus padat 3x3x3 tersebut?", o: ["9","18","26","27","30"], a: "27", p: "Volume kubus dihitung dengan Sisi x Sisi x Sisi. Karena ini kubus 3x3x3, maka totalnya adalah 3 x 3 x 3 = 27 balok satuan." },
+        { q: "Berdasarkan diagram 'Sentuhan Bidang (6 Arah)', berapa banyakkah sisi balok 'M' yang bersentuhan dengan balok lainnya?", o: ["3 Sisi","4 Sisi","5 Sisi","6 Sisi","2 Sisi"], a: "5 Sisi", p: "Balok M berada di tengah lapisan depan. Sisi yang bersentuhan adalah: Atas, Bawah, Kiri, Kanan, dan Belakang. Hanya sisi Depan yang terbuka ke udara." },
+        { q: "Berapa jumlah balok satuan yang sama sekali tidak terlihat dari luar (terkurung di tengah)?", o: ["0 Balok","1 Balok","2 Balok","3 Balok","4 Balok"], a: "1 Balok", p: "Pada kubus 3x3x3, hanya ada 1 balok 'inti' di pusat yang tertutup sepenuhnya oleh 26 balok lainnya." },
+        { q: "Jika seluruh lapisan atas (tingkat 3) dihilangkan, berapakah sisa balok yang ada?", o: ["9","12","15","18","21"], a: "18", p: "Satu lapisan kubus 3x3 terdiri dari 9 balok. Jika satu lapisan dibuang, maka 27 - 9 = 18 balok tersisa." },
+        { q: "Berapa jumlah balok satuan yang hanya memiliki 3 sisi terbuka (terlihat dari luar)?", o: ["4 Balok","6 Balok","8 Balok","12 Balok","1 Balok"], a: "8 Balok", p: "Hanya balok di setiap pojok/sudut kubus yang memiliki 3 sisi terbuka. Kubus memiliki 8 sudut, jadi ada 8 balok." },
+        { q: "Berapakah jumlah balok yang bersentuhan langsung dengan lantai (lapisan paling bawah)?", o: ["3","6","9","12","27"], a: "9", p: "Karena ini kubus padat, seluruh lapisan dasar (3x3) bersentuhan dengan lantai. Jadi ada 9 balok." },
+        { q: "Jika balok di pojok kanan-atas-depan diambil, berapakah jumlah bidang sentuh antar balok yang hilang?", o: ["1","2","3","4","6"], a: "3", p: "Balok pojok bersentuhan dengan 3 balok tetangganya (Bawah, Belakang, Kiri). Jika diambil, 3 bidang sentuh tersebut hilang." },
+        { q: "Menggunakan 'Teknik Kolom', jika kita melihat satu kolom vertikal di tengah, berapa total balok pada kolom tersebut?", o: ["1","2","3","4","9"], a: "3", p: "Dalam kubus 3x3x3, setiap kolom vertikal terdiri dari 3 balok (Dasar, Tengah, Atas)." },
+        { q: "Berapa banyak balok satuan yang memiliki tepat 2 sisi terbuka ke luar?", o: ["6","8","10","12","14"], a: "12", p: "Balok yang berada di rusuk kubus (selain pojok) memiliki 2 sisi terbuka. Ada 1 balok per rusuk, dan kubus punya 12 rusuk. Total 12 balok." },
+        { q: "Berapa banyak balok yang memiliki tepat 1 sisi terbuka ke luar?", o: ["1","3","6","9","12"], a: "6", p: "Balok yang berada di tengah permukaan setiap sisi memiliki 1 sisi terbuka. Kubus punya 6 sisi, maka ada 6 balok." },
+        { q: "Jika kita membelah kubus ini secara vertikal tepat di tengah, berapa balok yang akan terpotong?", o: ["3","6","9","12","15"], a: "9", p: "Belahan vertikal di tengah kubus 3x3x3 akan melewati 1 lapisan penuh berisi 3x3 balok. Jadi 9 balok." },
+        { q: "Berapa jumlah balok satuan yang menyusun diagonal ruang dari pojok kiri-bawah-depan ke pojok kanan-atas-belakang?", o: ["2","3","4","5","6"], a: "3", p: "Diagonal ruang pada kubus 3x3x3 akan melewati 3 balok satuan." },
+        { q: "Jika balok 'M' dihilangkan, berapakah jumlah balok yang masih memiliki 5 sisi tertutup/bersentuhan?", o: ["0","1","2","3","4"], a: "0", p: "Hanya balok inti yang punya 6 sisi tertutup. Balok lain maksimal punya 5 sisi tertutup (menghadap luar). Jika M hilang, balok di belakangnya kini hanya punya 4 sisi tertutup." },
+        { q: "Berapa total luas permukaan luar kubus ini jika satu sisi balok satuan adalah 1 unit?", o: ["9","27","54","81","108"], a: "54", p: "Satu sisi kubus besar adalah 3x3=9 unit. Kubus punya 6 sisi, jadi 6 x 9 = 54 unit luas." },
+        { q: "Jika kubus ini dicelupkan ke cat merah, berapa banyak balok satuan yang tidak terkena cat sama sekali?", o: ["0","1","2","3","4"], a: "1", p: "Hanya balok pusat/inti yang tidak terekspos ke permukaan luar, sehingga tidak akan terkena cat." },
+        { q: "Berapa banyak balok yang terkena cat tepat di dua sisinya?", o: ["8","10","12","14","16"], a: "12", p: "Ini merujuk pada balok di rusuk (non-pojok). Kubus punya 12 rusuk, masing-masing 1 balok. Total 12." },
+        { q: "Jika kita ingin membuat kubus 4x4x4, berapa banyak balok satuan tambahan yang diperlukan?", o: ["27","37","47","64","16"], a: "37", p: "Kubus 4x4x4 butuh 64 balok. Kita sudah punya 27. Maka tambahan: 64 - 27 = 37 balok." },
+        { q: "Berapa jumlah balok yang membentuk 'kerangka' terluar kubus (seluruh rusuk dan pojok)?", o: ["18","20","26","27","12"], a: "20", p: "8 pojok + 12 rusuk (masing-masing 1 balok tengah rusuk) = 20 balok." },
+        { q: "Berapa jumlah bidang sentuh antar balok secara vertikal di seluruh kubus?", o: ["9","18","27","36","54"], a: "18", p: "Ada 2 celah horizontal antar lapisan. Tiap celah memiliki 9 bidang sentuh vertikal. Total 2 x 9 = 18." },
+        { q: "Jika balok di posisi paling tengah dasar diambil, apakah stabilitas balok 'M' akan terganggu secara langsung?", o: ["Ya","Tidak","Mungkin","Tergantung","Tidak Ada Balok"], a: "Tidak", p: "Balok dasar tengah menopang balok inti, bukan balok M yang berada di lapisan paling depan." }
+    ];
+
+    function start() {
+        const nameInput = document.getElementById('uname');
+        if(!nameInput.value.trim()) return alert("Silakan masukkan nama Anda!");
+        document.getElementById('screen-login').style.display = 'none';
+        document.getElementById('screen-quiz').style.display = 'block';
+        load(); 
+        startTimer();
+    }
+
+    function load() {
+        const q = bank[cur];
+        document.getElementById('q-no').innerText = `SOAL ${cur+1} / 20`;
+        document.getElementById('q-txt').innerText = q.q;
+        
+        const ob = document.getElementById('opt-box'); 
+        ob.innerHTML = "";
+        q.o.forEach((v, i) => {
+            const b = document.createElement('div');
+            b.className = 'option-btn' + (answers[cur] === v ? ' selected' : '');
+            b.innerHTML = `<span class="opt-char">${String.fromCharCode(65+i)}</span> ${v}`;
+            b.onclick = () => select(v);
+            ob.appendChild(b);
+        });
+        updateDots();
+    }
+
+    function select(v) {
+        answers[cur] = v;
+        load(); // Update tampilan opsi terpilih
+        setTimeout(() => {
+            if(cur < 19) { 
+                cur++; 
+                load(); 
+            } else { 
+                finish(); 
+            }
+        }, 400); 
+    }
+
+    function goTo(index) {
+        cur = index;
+        load();
+    }
+
+    function updateDots() {
+        const db = document.getElementById('dot-box'); 
+        db.innerHTML = "";
+        bank.forEach((_, i) => {
+            const d = document.createElement('div');
+            // Tambahkan class 'done' jika sudah dijawab, 'active' jika sedang dibuka
+            d.className = 'dot' + (answers[i] ? ' done' : '') + (i === cur ? ' active' : '');
+            d.innerText = i+1;
+            // Pasang fungsi klik untuk navigasi manual
+            d.onclick = () => goTo(i);
+            db.appendChild(d);
+        });
+    }
+
+    function startTimer() {
+        const itv = setInterval(() => {
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(timeLeft <= 0) { 
+                clearInterval(itv); 
+                finish(); 
+            }
+            timeLeft--;
+        }, 1000);
+    }
+
+    function finish() {
+        if(Object.keys(answers).length < 20) {
+            if(!confirm("Beberapa soal belum dijawab. Yakin ingin mengakhiri?")) return;
+        }
+        document.getElementById('screen-quiz').style.display = 'none';
+        document.getElementById('screen-result').style.display = 'block';
+        document.getElementById('res-name').innerText = document.getElementById('uname').value;
+        let score = 0, html = "";
+        bank.forEach((q, i) => {
+            const isCorr = answers[i] === q.a;
+            if(isCorr) score += 5;
+            html += `<div class="rev-box">
+                <div class="rev-q">${i+1}. ${q.q}</div>
+                <div style="font-weight:bold; color:${isCorr?'#059669':'#e11d48'}">Jawaban Anda: ${answers[i] || 'Tidak dijawab'}</div>
+                <div style="color:#0f172a; margin-top:5px;">Jawaban Benar: ${q.a}</div>
+                <div class="rev-p"><b>Pembahasan:</b> ${q.p}</div>
+            </div>`;
+        });
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('review-area').innerHTML = html;
+    }
+</script>
+</body>
+</html>

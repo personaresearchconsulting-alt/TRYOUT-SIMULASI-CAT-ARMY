@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Inventori Kepribadian Personel (100 Soal) - Persona Research & Consulting</title>
+    <style>
+        :root { 
+            --primary: #000033; /* Deep Midnight Navy */
+            --accent: #7A8B5B;  /* Army Military Luxury (Olive Drab Gold) */
+            --accent-dark: #4B5320; /* Deep Army Olive */
+            --bg: #F4F6F0;      /* Tactical Light Gray-Green */
+            --text: #222222; 
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; user-select: none; 
+        }
+        #quiz-container { 
+            width: 95%; max-width: 900px; 
+            background: #fff; padding: 30px; 
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,51,0.15); 
+            border-top: 8px solid var(--accent); position: relative; margin-bottom: 50px; 
+        }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 15px; }
+        .header h2 { color: var(--primary); margin: 0; letter-spacing: 2px; text-transform: uppercase; font-size: 1.4em; }
+        .header p { margin: 5px 0 0; color: var(--accent-dark); font-weight: bold; letter-spacing: 1px; }
+        
+        #login-area { text-align: center; padding: 20px; }
+        .instruction-box { text-align: left; background: #f9faf7; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid var(--primary); font-size: 0.95em; line-height: 1.6; }
+        
+        input[type="text"] { width: 80%; padding: 12px; margin: 10px 0; border: 2px solid #ccc; border-radius: 5px; font-size: 1em; text-align: center; outline: none; }
+        input[type="text"]:focus { border-color: var(--accent); }
+        
+        #test-content { display: none; }
+        .question-box { display: none; margin: 20px 0; animation: fadeIn 0.4s ease; }
+        .question-box.active { display: block; }
+        
+        .option { padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1.05em; line-height: 1.4; }
+        .option:hover { border-color: var(--accent); background: #f4f6f0; }
+        .option.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
+        
+        .nav-controls { display: flex; justify-content: space-between; margin-top: 30px; }
+        button { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; text-transform: uppercase; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #000055; }
+        
+        #question-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 5px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .grid-item { font-size: 10px; height: 30px; display: flex; align-items: center; justify-content: center; background: #eee; border-radius: 4px; cursor: pointer; color: #555; }
+        .grid-item.filled { background: var(--accent); color: white; font-weight: bold; }
+        .grid-item.current { border: 2px solid var(--primary); font-weight: bold; background: #fff; color: var(--primary); }
+        
+        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.85em; color: #666; width: 100%; border-top: 1px solid #ddd; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body oncontextmenu="return false">
+
+<div id="quiz-container">
+    <div class="header">
+        <h2>Persona Research & Consulting</h2>
+        <p>MILITARY PERSONALITY INVENTORY - 100 UNIQUE ITEMS</p>
+    </div>
+    
+    <div id="login-area">
+        <h3>Formulir Peserta & Petunjuk</h3>
+        <div class="instruction-box">
+            <strong>Petunjuk Pengerjaan:</strong><br>
+            1. Tes ini terdiri dari **100 nomor** pernyataan pilihan wajib (<em>Forced-Choice</em>). Pilih pernyataan (A atau B) yang paling mencerminkan perilaku kerja Anda dalam situasi dinas.<br>
+            2. Klik pada kotak pernyataan pilihan Anda. Sistem akan menyimpan jawaban dan berpindah ke nomor berikutnya secara otomatis.<br>
+            3. Anda dapat memantau progres atau mengubah jawaban melalui indikator kotak nomor (grid) di bagian bawah.<br>
+            4. Pastikan seluruh 100 nomor terisi lengkap (berubah menjadi warna hijau militer) sebelum mengakhiri simulasi ini.
+        </div>
+        <input type="text" id="user-name" placeholder="Ketik Nama Lengkap Anda..." required>
+        <br><br>
+        <button class="btn-primary" onclick="startTest()">MULAI TES SIMULASI</button>
+    </div>
+
+    <div id="test-content">
+        <div id="progress-text" style="text-align: right; font-weight: bold; color: var(--primary); margin-bottom: 10px;"></div>
+        <div id="questions-wrapper"></div>
+        <div class="nav-controls">
+            <button id="prevBtn" onclick="changeQuestion(-1)">KEMBALI</button>
+            <button id="nextBtn" class="btn-primary" onclick="changeQuestion(1)">BERIKUTNYA</button>
+        </div>
+        <div id="question-grid"></div>
+    </div>
+
+    <div id="result-area" style="display:none; text-align:center; padding: 40px;">
+        <h2 id="thank-you-msg">Terima Kasih!</h2>
+        <p>Seluruh data lembar jawaban Anda telah tersimpan dengan aman oleh sistem. Silakan unduh file hasil tes untuk diserahkan ke bagian admin scoring.</p>
+        <button class="btn-primary" onclick="downloadResults()">UNDUH FILE HASIL (.TXT)</button>
+    </div>
+</div>
+
+<footer>
+    &copy; 2026 Persona Research & Consulting | Sistem Asesmen Karakter Mandiri
+</footer>
+
+<script>
+    // 100 PASANG SOAL UNIK DENGAN PENYETARAAN DESIRABILITAS SOSIAL & IMPLEMENTASI VALIDITAS EKSTERNAL
+    const questions = [
+        { "id": 1, "scaleA": "DIS", "scaleB": "INT", "a": "Saya mengikuti jadwal penyusunan laporan berkala secara ketat.", "b": "Saya memeriksa ulang validitas data laporan meskipun memakan waktu lama." },
+        { "id": 2, "scaleA": "INT", "scaleB": "LOY", "a": "Saya mencatat setiap penggunaan materi operasional sekecil apa pun sesuai fakta.", "b": "Saya memprioritaskan keberlangsungan target jangka panjang kesatuan kerja saya." },
+        { "id": 3, "scaleA": "LOY", "scaleB": "EMS", "a": "Saya menerima perpindahan penugasan lintas unit tanpa meminta pengecualian.", "b": "Saya menyampaikan umpan balik korektif kepada rekan sekerja tanpa luapan emosional." },
+        { "id": 4, "scaleA": "EMS", "scaleB": "SCD", "a": "Saya mempertahankan fokus kendali kognitif saat merespons keluhan eksternal.", "b": "Saya menerapkan pola manajemen energi mandiri agar stamina kerja tetap konsisten." },
+        { "id": 5, "scaleA": "SCD", "scaleB": "DJU", "a": "Saya membatasi konsumsi atau kenyamanan pribadi saat berada dalam masa siaga dinas.", "b": "Saya mengalokasikan waktu luang untuk mendalami kembali petunjuk taktis yang rumit." },
+        { "id": 6, "scaleA": "DJU", "scaleB": "KST", "a": "Saya meneruskan pergerakan fisik operasional dalam kondisi kelelahan parah.", "b": "Saya mengkondisikan konsentrasi pengerjaan berkas di lingkungan yang bising." },
+        { "id": 7, "scaleA": "KST", "scaleB": "KSTM", "a": "Saya menganalisis parameter data secara runtut dalam pembatasan waktu yang ketat.", "b": "Saya mengintegrasikan masukan teknis dari personel junior dalam skema kerja regu." },
+        { "id": 8, "scaleA": "KSTM", "scaleB": "LEA", "a": "Saya memastikan distribusi beban kerja operasional terbagi rata dalam kelompok.", "b": "Saya mengorganisir penugasan anggota tim berdasarkan spesifikasi kompetensi mereka." },
+        { "id": 9, "scaleA": "LEA", "scaleB": "KBM", "a": "Saya mengambil alih kendali koordinasi tim saat pimpinan utama tidak di tempat.", "b": "Saya mengemukakan keberatan logis jika instruksi kerja berisiko melanggar aturan baku." },
+        { "id": 10, "scaleA": "KBM", "scaleB": "KOM", "a": "Saya mengambil tindakan korektif ketika mendeteksi adanya deviasi prosedur oleh personel lain.", "b": "Saya menjaga tata krama komunikasi formal dengan setiap tingkat hierarki organisasi." },
+        { "id": 11, "scaleA": "KOM", "scaleB": "ADA", "a": "Saya menjalankan perintah mutasi mendadak tanpa menuntut penjelasan personal.", "b": "Saya mempelajari norma sosial dan bahasa lokal di wilayah penugasan baru." },
+        { "id": 12, "scaleA": "ADA", "scaleB": "OPR", "a": "Saya menyesuaikan pola istirahat dengan fasilitas akomodasi lapangan seadanya.", "b": "Saya mengevaluasi metrik capaian performa teknis secara berkala untuk perbaikan." },
+        { "id": 13, "scaleA": "OPR", "scaleB": "PBD", "a": "Saya menetapkan target pengembangan kapasitas kerja di atas standar minimal unit.", "b": "Saya mengajukan diri dalam operasi kemanusiaan dan penanggulangan dampak bencana." },
+        { "id": 14, "scaleA": "PBD", "scaleB": "KWP", "a": "Saya meluangkan waktu libur untuk mendukung program pembinaan komunitas eksternal.", "b": "Saya memantau setiap perubahan detail fisik di sekitar area pengamanan perimeter." },
+        { "id": 15, "scaleA": "KWP", "scaleB": "DIS", "a": "Saya melakukan verifikasi fisik berulang pada sistem pengamanan logistik vital.", "b": "Saya memastikan penggunaan kelengkapan seragam dan atribut dinas sesuai regulasi." },
+        { "id": 16, "scaleA": "DIS", "scaleB": "LOY", "a": "Saya mematuhi urutan metode kerja operasional secara kaku dibandingkan metode instan.", "b": "Saya meluruskan persepsi keliru pihak luar mengenai kredibilitas satuan kerja saya." },
+        { "id": 17, "scaleA": "INT", "scaleB": "EMS", "a": "Saya menyajikan laporan evaluasi kinerja sesuai dengan data aktual di lapangan.", "b": "Saya menjaga ketenangan sikap saat menghadapi perubahan skenario tugas yang mendadak." },
+        { "id": 18, "scaleA": "LOY", "scaleB": "SCD", "a": "Saya menaruh prioritas pada penyelesaian tugas unit dibandingkan kepentingan personal.", "b": "Saya menahan diri untuk tidak mengeluhkan kebijakan kedinasan di ruang publik." },
+        { "id": 19, "scaleA": "EMS", "scaleB": "DJU", "a": "Saya tidak membalas tindakan tidak menyenangkan secara impulsif demi etika dinas.", "b": "Saya melakukan uji coba berulang terhadap prosedur kerja baru yang belum berhasil." },
+        { "id": 20, "scaleA": "SCD", "scaleB": "KST", "a": "Saya menyimak arahan pimpinan dengan saksama tanpa melakukan interupsi prematur.", "b": "Saya menangani beberapa berkas administrasi secara paralel tanpa kehilangan ketelitian." },
+        { "id": 21, "scaleA": "DJU", "scaleB": "KSTM", "a": "Saya menambah porsi latihan fisik mandiri di luar jadwal wajib organisasi.", "b": "Saya menyelaraskan cara kerja pribadi dengan kesepakatan metode operasional regu." },
+        { "id": 22, "scaleA": "KST", "scaleB": "LEA", "a": "Saya mempertahankan performa psikologis yang stabil selama isolasi tugas panjang.", "b": "Saya menegakkan sanksi kedinasan secara objektif kepada anggota yang melanggar." },
+        { "id": 23, "scaleA": "KSTM", "scaleB": "KBM", "a": "Saya bersedia menggantikan jadwal piket jaga rekan unit yang berhalangan tetap.", "b": "Saya menolak memvalidasi laporan keuangan yang tidak didukung bukti transaksi riil." },
+        { "id": 24, "scaleA": "LEA", "scaleB": "KOM", "a": "Saya memberikan arahan motivasi saat moral kerja anggota tim mengalami penurunan.", "b": "Saya menggunakan gestur dan postur formal saat berinteraksi dengan atasan kesatuan." },
+        { "id": 25, "scaleA": "KBM", "scaleB": "ADA", "a": "Saya menyampaikan kesaksian objektif dalam sidang internal meskipun di bawah tekanan.", "b": "Saya menyesuaikan konsumsi pangan harian dengan ketersediaan bahan makanan lokal." },
+        { "id": 26, "scaleA": "KOM", "scaleB": "OPR", "a": "Saya meneruskan pesan instruksi komando kepada jajaran staf secara presisi tanpa modifikasi.", "b": "Saya mengikuti program pelatihan sertifikasi teknis untuk menunjang promosi kerja." },
+        { "id": 27, "scaleA": "ADA", "scaleB": "PBD", "a": "Saya membangun relasi dialogis dengan pemuka masyarakat di area penugasan baru.", "b": "Saya mengutamakan pengamanan keselamatan warga sipil saat terjadi situasi kritis." },
+        { "id": 28, "scaleA": "OPR", "scaleB": "KWP", "a": "Saya menyusun strategi pencapaian target kerja tahunan agar mendapat predikat terbaik.", "b": "Saya mengidentifikasi pergerakan mencurigakan personel tidak dikenal di area steril." },
+        { "id": 29, "scaleA": "PBD", "scaleB": "DIS", "a": "Saya menolak menerima fasilitas tambahan di luar hak kedinasan dari masyarakat.", "b": "Saya mengembalikan setiap peralatan inventaris ke tempat penyimpanan semula segera." },
+        { "id": 30, "scaleA": "KWP", "scaleB": "INT", "a": "Saya melakukan pengecekan periodik terhadap masa operasional logistik pertahanan.", "b": "Saya memastikan pemanfaatan aset dinas murni untuk kepentingan operasional unit." },
+        { "id": 31, "scaleA": "DIS", "scaleB": "EMS", "a": "Saya tiba di lokasi penugasan berkala sebelum batas waktu yang ditentukan.", "b": "Saya menanggapi evaluasi kritis atas hasil kerja saya tanpa bersikap defensif." },
+        { "id": 32, "scaleA": "INT", "scaleB": "SCD", "a": "Saya memegang teguh komitmen kerahasiaan informasi internal yang dipercayakan.", "b": "Saya mengelola alokasi finansial pribadi secara ketat untuk kebutuhan masa depan." },
+        { "id": 33, "scaleA": "LOY", "scaleB": "DJU", "a": "Saya membatasi pembicaraan mengenai ranah kerja internal saat berinteraksi di luar.", "b": "Saya menjalankan tugas pemantauan lapangan dalam kondisi cuaca buruk yang konstan." },
+        { "id": 34, "scaleA": "EMS", "scaleB": "KST", "a": "Saya memisahkan dinamika hubungan personal dengan tanggung jawab penugasan profesi.", "b": "Saya menyusun kembali rencana kerja taktis secara cepat pasca perubahan target." },
+        { "id": 35, "scaleA": "SCD", "scaleB": "KSTM", "a": "Saya mempertahankan disiplin ibadah ritual pribadi di tengah kepadatan jadwal dinas.", "b": "Saya menarik diri dari obrolan internal yang berpotensi memicu konflik kelompok." },
+        { "id": 36, "scaleA": "DJU", "scaleB": "LEA", "a": "Saya mencari solusi mandiri untuk mengatasi keterbatasan sarana pendukung tugas.", "b": "Saya mengambil posisi di barisan depan saat memimpin implementasi rencana berisiko." },
+        { "id": 37, "scaleA": "KST", "scaleB": "KBM", "a": "Saya mempertahankan akurasi analisis data berkas kerja meskipun lembur berhari-hari.", "b": "Saya melakukan tindakan intervensi langsung untuk menghentikan perselisihan di mes." },
+        { "id": 38, "scaleA": "KSTM", "scaleB": "KOM", "a": "Saya menjalankan peran pendukung operasional dengan optimal demi keberhasilan tim.", "b": "Saya menghentikan perdebatan teknis setelah keputusan komando disahkan resmi." },
+        { "id": 39, "scaleA": "LEA", "scaleB": "ADA", "a": "Saya memediasi perbedaan pandangan tajam antar kepala unit di organisasi.", "b": "Saya mengadopsi penggunaan sistem aplikasi pelaporan digital baru secara cepat." },
+        { "id": 40, "scaleA": "KBM", "scaleB": "OPR", "a": "Saya mengusulkan rekonstruksi metode kerja dinas yang sudah tidak efisien.", "b": "Saya menggunakan waktu luang untuk mempelajari literatur taktik operasional global." },
+        { "id": 41, "scaleA": "KOM", "scaleB": "PBD", "a": "Saya menepati panggilan apel kesiapan unit dalam rentang waktu yang ditentukan.", "b": "Saya menjaga kebersihan lingkungan barak bersama dengan standar ketat." },
+        { "id": 42, "scaleA": "ADA", "scaleB": "KWP", "a": "Saya berkolaborasi secara produktif dalam tim gabungan antar lembaga birokrasi.", "b": "Saya memperbarui sandi pengaman jaringan komunikasi berkala untuk cegah kebocoran." },
+        { "id": 43, "scaleA": "OPR", "scaleB": "DIS", "a": "Saya memodifikasi alur administrasi kerja unit agar waktu proses menjadi lebih singkat.", "b": "Saya merapikan tata ruang dokumen tanpa perlu menunggu instruksi berkala." },
+        { "id": 44, "scaleA": "PBD", "scaleB": "INT", "a": "Saya menampung keluhan masyarakat di wilayah perbatasan dengan penuh kesabaran.", "b": "Saya mempertahankan akurasi data pengujian meskipun bertentangan dengan opini umum." },
+        { "id": 45, "scaleA": "KWP", "scaleB": "LOY", "a": "Saya memverifikasi validitas surat izin akses setiap personel eksternal yang datang.", "b": "Saya mengawal implementasi kebijakan baru organisasi secara konsisten di lapangan." },
+        { "id": 46, "scaleA": "DIS", "scaleB": "SCD", "a": "Saya mengisolasi urusan personal dari jam pengerjaan tugas kedinasan di kantor.", "b": "Saya menunda pengeluaran dana untuk kebutuhan sekunder demi kepentingan operasional." },
+        { "id": 47, "scaleA": "INT", "scaleB": "DJU", "a": "Saya membatasi penggunaan kendaraan dinas hanya untuk pergerakan operasional resmi.", "b": "Saya menuntaskan misi pemantauan lapangan meskipun kondisi fisik sangat lelah." },
+        { "id": 48, "scaleA": "LOY", "scaleB": "KST", "a": "Saya mengalokasikan bantuan moral dan material bagi keluarga rekan unit yang tertimpa musibah.", "b": "Saya merespons tekanan interogasi dalam simulasi latihan dengan taktik bertahan yang tenang." },
+        { "id": 49, "scaleA": "EMS", "scaleB": "KSTM", "a": "Saya mengelola gejolak kecemasan internal saat menunggu perintah misi berisiko tinggi.", "b": "Saya memberikan ruang bagi evaluasi dua arah pasca selesainya proyek kerja tim." },
+        { "id": 50, "scaleA": "SCD", "scaleB": "LEA", "a": "Saya mempertahankan posisi pengamatan statis dalam durasi waktu yang panjang.", "b": "Saya memastikan pemenuhan kebutuhan logistik anggota sebelum penugasan luar dimulai." },
+        { "id": 51, "scaleA": "DJU", "scaleB": "KBM", "a": "Saya menyusun kembali strategi pengembangan diri pasca penundaan promosi jabatan.", "b": "Saya memaparkan keterbatasan estimasi data intelijen yang ada di depan forum rapat." },
+        { "id": 52, "scaleA": "KST", "scaleB": "KOM", "a": "Saya menjaga fokus penyelesaian tugas utama di tengah desakan opini publik.", "b": "Saya melaksanakan tugas piket tambahan pada malam hari tanpa mengeluhkan situasi." },
+        { "id": 53, "scaleA": "KSTM", "scaleB": "ADA", "a": "Saya mentransfer keahlian taktis baru yang saya miliki kepada anggota regu lainnya.", "b": "Saya menyesuaikan arah pergerakan pasukan ketika rute utama terhambat cuaca buruk." },
+        { "id": 54, "scaleA": "LEA", "scaleB": "OPR", "a": "Saya berani mengambil keputusan krusial di lapangan demi menyelamatkan target unit.", "b": "Saya meminta masukan performa kerja secara formal kepada atasan sebagai bahan evaluasi." },
+        { "id": 55, "scaleA": "KBM", "scaleB": "PBD", "a": "Saya menyuarakan argumentasi penolakan jika rencana rapat dirasa membahayakan keselamatan umum.", "b": "Saya mengamankan area pos perbatasan terpencil dengan penuh tanggung jawab profesi." },
+        { "id": 56, "scaleA": "KOM", "scaleB": "KWP", "a": "Saya mematuhi batasan wilayah demiliterisasi sesuai hukum internasional yang berlaku.", "b": "Saya mengaktifkan sistem proteksi enkripsi berlapis pada pangkalan data unit." },
+        { "id": 57, "scaleA": "ADA", "scaleB": "DIS", "a": "Saya cepat menyelaraskan diri dengan rotasi jadwal penugasan yang berubah dinamis.", "b": "Saya mendokumentasikan rincian agenda harian agar tidak ada kewajiban yang terlewat." },
+        { "id": 58, "scaleA": "OPR", "scaleB": "INT", "a": "Saya merancang skenario latihan mandiri dengan tingkat kesulitan di atas standar.", "b": "Saya menonjolkan kontribusi tim daripada klaim keberhasilan personal kepada pimpinan." },
+        { "id": 59, "scaleA": "PBD", "scaleB": "LOY", "a": "Saya memberikan penanganan medis darurat kepada pengungsi tanpa memandang latar belakang.", "b": "Saya menjaga kerahasiaan operasional satuan lama meskipun telah dipindahkan ke unit baru." },
+        { "id": 60, "scaleA": "KWP", "scaleB": "EMS", "a": "Saya menyelidiki kemunculan sinyal radio tidak dikenal yang masuk ke jalur internal.", "b": "Saya merespons tuduhan pelanggaran prosedur dengan klarifikasi data yang objektif." },
+        { "id": 61, "scaleA": "DIS", "scaleB": "DJU", "a": "Saya memelihara kerapian pakaian dinas dan kelengkapan atribut sesuai instruksi harian.", "b": "Saya meluangkan waktu belajar mandiri untuk menguasai teknologi persenjataan terbaru." },
+        { "id": 62, "scaleA": "INT", "scaleB": "KST", "a": "Saya menyerahkan material temuan di area operasi kepada bagian logistik tanpa kurang.", "b": "Saya mengisolasi perhatian dari distorasi lingkungan untuk menganalisis peta taktis." },
+        { "id": 63, "scaleA": "LOY", "scaleB": "KSTM", "a": "Saya mendampingi dan membela hak anggota unit yang mendapat penilaian sepihak dari luar.", "b": "Saya menyelaraskan ambisi performa individu demi tercapainya keharmonisan kerja regu." },
+        { "id": 64, "scaleA": "EMS", "scaleB": "LEA", "a": "Saya mengendalikan ekspresi mikro wajah agar tetap netral saat menerima kabar darurat.", "b": "Saya menugaskan koordinator cadangan untuk mengantisipasi risiko absennya pimpinan." },
+        { "id": 65, "scaleA": "SCD", "scaleB": "KBM", "a": "Saya membatasi penggunaan alat komunikasi pribadi pada malam hari agar istirahat optimal.", "b": "Saya menolak melaksanakan instruksi lapangan yang secara nyata melanggar hukum pidana." },
+        { "id": 66, "scaleA": "DJU", "scaleB": "KOM", "a": "Saya melanjutkan tes ketahanan fisik meskipun mengalami kram otot ringan.", "b": "Saya menghentikan aktivitas pribadi secara instan saat mendengar tanda alarm apel." },
+        { "id": 67, "scaleA": "KST", "scaleB": "ADA", "a": "Saya mempertahankan objektivitas analisis intelijen di bawah tekanan kelelahan fisik.", "b": "Saya menyesuaikan pola koordinasi kerja dengan gaya kepemimpinan komandan baru." },
+        { "id": 68, "scaleA": "KSTM", "scaleB": "OPR", "a": "Saya mengintegrasikan perspektif teknis dari anggota junior dalam pemecahan masalah.", "b": "Saya meneliti efisiensi langkah kerja administrasi untuk mereduksi durasi proses." },
+        { "id": 69, "scaleA": "LEA", "scaleB": "PBD", "a": "Saya memimpin tim di posisi depan saat pembukaan rute di kawasan rawan konflik.", "b": "Saya membagi porsi logistik konsumsi cadangan untuk kebutuhan darurat warga sipil." },
+        { "id": 70, "scaleA": "KBM", "scaleB": "KWP", "a": "Saya menegur rekan perwira yang mengabaikan prosedur baku pengamanan amunisi.", "b": "Saya mencermati perubahan anomali bayangan vegetasi di sekitar pagar pembatas barak." },
+        { "id": 71, "scaleA": "KOM", "scaleB": "DIS", "a": "Saya menerapkan sikap hormat militer secara sempurna saat memberikan laporan formal.", "b": "Saya memastikan pengembalian kunci sarana logistik tepat pada waktu yang dijadwalkan." },
+        { "id": 72, "scaleA": "ADA", "scaleB": "INT", "a": "Saya mengadopsi metode pendekatan sosiologis yang sesuai dengan kultur warga setempat.", "b": "Saya melaporkan kelebihan transfer dana tunjangan kerja kepada unit keuangan bendahara." },
+        { "id": 73, "scaleA": "OPR", "scaleB": "LOY", "a": "Saya mengejar pencapaian skor kualifikasi kemahiran menembak di atas target standar.", "b": "Saya mempertahankan posisi tugas di kesatuan lama meskipun ada tawaran penempatan strategis.", "c": null },
+        { "id": 74, "scaleA": "PBD", "scaleB": "EMS", "a": "Saya membersihkan area barak yang kotor secara mandiri tanpa menunggu perintah berkala.", "b": "Saya mempertahankan stabilitas proses berpikir kognitif saat diaudit oleh tim eksternal." },
+        { "id": 75, "scaleA": "KWP", "scaleB": "SCD", "a": "Saya melakukan penyisiran teknis di ruang rapat guna mendeteksi perangkat penyadap.", "b": "Saya menahan diri untuk tidak memotong pemaparan taktis rekan lain sebelum selesai." },
+        { "id": 76, "scaleA": "DIS", "scaleB": "KSTM", "a": "Saya mengenakan kelengkapan pakaian dinas upacara secara presisi sesuai regulasi.", "b": "Saya membagi jatah cadangan air minum pribadi saat pasokan regu menipis di lapangan." },
+        { "id": 77, "scaleA": "INT", "scaleB": "LEA", "a": "Saya menolak memanipulasi kuitansi pengadaan suku cadang kendaraan taktis dinas.", "b": "Saya mengambil alih tanggung jawab penuh di depan pimpinan atas kegagalan proyek tim." },
+        { "id": 78, "scaleA": "LOY", "scaleB": "KBM", "a": "Saya tetap siaga di pos pengamanan meskipun waktu pergantian piket mengalami keterlambatan.", "b": "Saya berani melaporkan dugaan penyimpangan prosedur operasional yang dilakukan rekan kerja." },
+        { "id": 79, "scaleA": "EMS", "scaleB": "KOM", "a": "Saya tidak terpengaruh oleh provokasi verbal massa saat menjaga barisan pengamanan.", "b": "Saya menyampaikan instruksi tugas kelompok dengan volume suara yang lantang dan lugas." },
+        { "id": 80, "scaleA": "SCD", "scaleB": "ADA", "a": "Saya mempraktikkan teknik regulasi pernapasan mandiri untuk menjaga fokus ketahanan.", "b": "Saya menerima keputusan pemindahan mendadak ke mess penugasan darurat tanpa keluhan." },
+        { "id": 81, "scaleA": "DJU", "scaleB": "OPR", "a": "Saya mengulang simulasi bongkar pasang senjata hingga mencapai catatan waktu tercepat.", "b": "Saya menyusun rute patroli alternatif yang lebih efisien dalam penggunaan bahan bakar." },
+        { "id": 82, "scaleA": "KST", "scaleB": "PBD", "a": "Saya mengatasi kelelahan kantuk yang berat demi memantau pergerakan radar pertahanan.", "b": "Saya menyalurkan bantuan kemanusiaan kepada warga di daerah konflik secara tulus." },
+        { "id": 83, "scaleA": "KSTM", "scaleB": "KWP", "a": "Saya meredam kesalahan komunikasi minor dari rekan tim demi menjaga kekompakan unit.", "b": "Saya memastikan penguncian ganda pada pintu ruang arsip rahasia saat jam pulang." },
+        { "id": 84, "scaleA": "LEA", "scaleB": "DIS", "a": "Saya menetapkan target operasional tim secara objektif sesuai kapasitas anggota jajaran.", "b": "Saya menyerahkan berkas administrasi harian tepat waktu tanpa menunda pengerjaan." },
+        { "id": 85, "scaleA": "KBM", "scaleB": "INT", "a": "Saya berani menolak instruksi pimpinan yang terbukti melanggar kode etik profesi.", "b": "Saya menyerahkan seluruh material sitaan operasi kepada penyidik sesuai daftar aktual." },
+        { "id": 86, "scaleA": "KOM", "scaleB": "LOY", "a": "Saya mengambil sikap siap sempurna secara instan saat komandan memasuki ruangan.", "b": "Saya memproteksi nama baik rekan sejawat dari rumor negatif yang berkembang di luar." },
+        { "id": 87, "scaleA": "ADA", "scaleB": "EMS", "a": "Saya cepat mengadaptasi norma adat masyarakat setempat di tempat penugasan luar daerah.", "b": "Saya melakukan jeda penenangan diri sebelum merespons situasi lapangan yang chaos." },
+        { "id": 88, "scaleA": "OPR", "scaleB": "SCD", "a": "Saya menganalisis titik lemah pertahanan pos menggunakan proyeksi peta satelit digital.", "b": "Saya menghindari aktivitas begadang larut malam yang dapat menurunkan kebugaran fisik." },
+        { "id": 89, "scaleA": "PBD", "scaleB": "DJU", "a": "Saya bersedia ditempatkan di garis depan pengamanan wilayah perbatasan terluar negara.", "b": "Saya terus mencoba melewati rintangan halang-rintang fisik sampai dinyatakan lulus." },
+        { "id": 90, "scaleA": "KWP", "scaleB": "KST", "a": "Saya mencatat identitas plat nomor setiap kendaraan tak dikenal yang melintasi pos utama.", "b": "Saya memelihara fokus perhatian visual secara penuh saat tugas pengintaian malam hari." },
+        { "id": 91, "scaleA": "DIS", "scaleB": "LEA", "a": "Saya mengikuti seluruh rangkaian upacara dan apel pagi secara konsisten tanpa dispensasi.", "b": "Saya membagi porsi tanggung jawab penugasan lapangan secara adil sesuai kompetensi jajaran." },
+        { "id": 92, "scaleA": "INT", "scaleB": "KBM", "a": "Saya mengembalikan sisa dana operasional dinas kepada bendahara tanpa rekayasa nota.", "b": "Saya menyuarakan argumentasi kebenaran fakta di forum koordinasi meskipun berbeda dari mayoritas." },
+        { "id": 93, "scaleA": "LOY", "scaleB": "KOM", "a": "Saya bersedia mengajukan penundaan cuti tahunan demi menjaga stabilitas keamanan kesatuan.", "b": "Saya konsisten menggunakan diksi bahasa yang santun namun tegas dalam memberikan laporan." },
+        { "id": 94, "scaleA": "EMS", "scaleB": "ADA", "a": "Saya meregulasi kestabilan emosi saat menerima surat perintah mutasi kerja mendadak.", "b": "Saya menikmati konsumsi ragam kuliner khas daerah baru tanpa kendala penyesuaian diri." },
+        { "id": 95, "scaleA": "SCD", "scaleB": "OPR", "a": "Saya menyeimbangkan ritme kerja dan pemulihan energi agar performa klinis tidak turun.", "b": "Saya mempelajari dokumentasi taktik operasi khusus dari kasus-kasus terdahulu." },
+        { "id": 96, "scaleA": "DJU", "scaleB": "PBD", "a": "Saya menolak menghentikan program latihan lari sebelum jarak target terpenuhi penuh.", "b": "Saya berpartisipasi aktif donor darah dalam program aksi sosial keselamatan masyarakat." },
+        { "id": 97, "scaleA": "KST", "scaleB": "KWP", "a": "Saya mengabaikan keletihan fisik demi menuntaskan berkas laporan administrasi penting.", "b": "Saya memeriksa kelayakan fungsi mekanis kendaraan taktis operasional sebelum digunakan." },
+        { "id": 98, "scaleA": "KSTM", "scaleB": "DIS", "a": "Saya bertindak sebagai mediator untuk meredam friksi perselisihan internal antar rekan.", "b": "Saya menyusun penempatan perlengkapan pribadi di lemari asrama secara presisi simetris." },
+        { "id": 99, "scaleA": "LEA", "scaleB": "INT", "a": "Saya memandu koordinasi pergerakan personel tim berbasis data koordinat yang valid.", "b": "Saya konsisten menolak pemberian gratifikasi dalam bentuk apa pun saat bertugas di lapangan." },
+        { "id": 100, "scaleA": "KBM", "scaleB": "LOY", "a": "Saya siap menghadapi segala konsekuensi kedinasan demi menegakkan aturan hukum yang berlaku.", "b": "Saya menjaga kerahasiaan formasi strategi operasi unit dari kebocoran informasi ke luar." }
+    ];
+
+    let currentIdx = 0;
+    let userAnswers = new Array(100).fill(null);
+    let userName = "";
+
+    function startTest() {
+        userName = document.getElementById('user-name').value.trim();
+        if (userName === "") { alert("Harap isi nama lengkap Anda terlebih dahulu."); return; }
+        document.getElementById('login-area').style.display = 'none';
+        document.getElementById('test-content').style.display = 'block';
+        init();
+    }
+
+    function init() {
+        const wrapper = document.getElementById('questions-wrapper');
+        const grid = document.getElementById('question-grid');
+        wrapper.innerHTML = "";
+        grid.innerHTML = "";
+
+        questions.forEach((q, index) => {
+            const div = document.createElement('div');
+            div.className = `question-box ${index === 0 ? 'active' : ''}`;
+            div.innerHTML = `
+                <p style="font-weight:bold; color:var(--primary); font-size:1.1em;">Pernyataan Nomor ${q.id}</p>
+                <div class="option" onclick="selectOption(${index}, 'A')">A. ${q.a}</div>
+                <div class="option" onclick="selectOption(${index}, 'B')">B. ${q.b}</div>
+            `;
+            wrapper.appendChild(div);
+
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerText = q.id;
+            gridItem.onclick = () => jumpTo(index);
+            grid.appendChild(gridItem);
+        });
+        updateNav();
+    }
+
+    function selectOption(idx, choice) {
+        userAnswers[idx] = choice;
+        const opts = document.querySelectorAll('.question-box')[idx].querySelectorAll('.option');
+        opts.forEach(o => o.classList.remove('selected'));
+        choice === 'A' ? opts[0].classList.add('selected') : opts[1].classList.add('selected');
+        
+        document.querySelectorAll('.grid-item')[idx].classList.add('filled');
+        setTimeout(() => changeQuestion(1), 200);
+    }
+
+    function changeQuestion(step) {
+        const boxes = document.querySelectorAll('.question-box');
+        if (currentIdx + step >= boxes.length) {
+            if(currentIdx === boxes.length - 1){ finishTest(); }
+            return;
+        }
+        if (currentIdx + step < 0) return;
+
+        boxes[currentIdx].classList.remove('active');
+        currentIdx += step;
+        boxes[currentIdx].classList.add('active');
+        updateNav();
+    }
+
+    function jumpTo(idx) {
+        const boxes = document.querySelectorAll('.question-box');
+        boxes[currentIdx].classList.remove('active');
+        currentIdx = idx;
+        boxes[currentIdx].classList.add('active');
+        updateNav();
+    }
+
+    function updateNav() {
+        document.getElementById('prevBtn').disabled = (currentIdx === 0);
+        document.getElementById('nextBtn').innerText = (currentIdx === questions.length - 1) ? "SELESAI" : "BERIKUTNYA";
+        document.getElementById('progress-text').innerText = `Nomor: ${currentIdx + 1} / 100 | Terjawab: ${userAnswers.filter(a => a !== null).length}/100`;
+        
+        const gridItems = document.querySelectorAll('.grid-item');
+        gridItems.forEach(item => item.classList.remove('current'));
+        if(gridItems[currentIdx]) gridItems[currentIdx].classList.add('current');
+    }
+
+    function finishTest() {
+        const unanswered = userAnswers.filter(a => a === null).length;
+        if (unanswered > 0) {
+            alert(`Peringatan: Masih ada ${unanswered} nomor pernyataan yang belum Anda jawab. Silakan periksa kembali kotak navigasi.`);
+            return;
+        }
+        document.getElementById('test-content').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('thank-you-msg').innerText = `Terima Kasih, ${userName}!`;
+    }
+
+    function downloadResults() {
+        let text = "ANALISIS LEMBAR JAWABAN - INVENTORI KEPRIBADIAN MILITER\n";
+        text += "======================================================\n";
+        text += `NAMA PESERTA : ${userName}\n`;
+        text += `WAKTU SELESAI: ${new Date().toLocaleString('id-ID')}\n`;
+        text += "======================================================\n\n";
+        
+        userAnswers.forEach((ans, i) => {
+            text += `No. ${i+1} : [${ans}]\n`;
+        });
+
+        const blob = new Blob([text], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `HASIL_TES_MILITER_100_${userName.replace(/\s+/g, '_')}.txt`;
+        link.click();
+    }
+</script>
+</body>
+</html>

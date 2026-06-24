@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Kecerdasan 3 - Persona Research And Consulting</title>
+    <style>
+        :root { --primary: #1a4a7a; --bg: #f0f2f5; --accent: #1e4b82; }
+        body { font-family: 'Arial', sans-serif; margin: 0; background: var(--bg); color: #333; -webkit-user-select: none; user-select: none; }
+        .app-footer { text-align: center; padding: 25px; color: #666; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .login-container { max-width: 450px; margin: 60px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border: 1px solid #ddd; }
+        .logo-pc { background: #000; color: white; width: 70px; height: 70px; line-height: 70px; border-radius: 15px; margin: 0 auto 20px; font-weight: bold; font-size: 28px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        .btn-main { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.3s; }
+        .wrapper { display: none; max-width: 1200px; margin: 20px auto; padding: 20px; display: flex; gap: 25px; }
+        .content-area { flex: 3; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); min-height: 500px; }
+        .sidebar-right { flex: 1; background: white; padding: 25px; border-radius: 15px; height: fit-content; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
+        .q-text { font-size: 22px; font-weight: bold; margin-bottom: 25px; color: #111; line-height: 1.4; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .opt-box { padding: 15px 20px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; font-size: 18px; transition: 0.2s; }
+        .opt-box.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
+        .nav-item { padding: 10px; border: 1px solid #ddd; text-align: center; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 13px; }
+        .nav-item.filled { background: var(--accent); color: white; }
+        .nav-item.active { border: 2px solid #ff9800; }
+        .teach-box { background: #fffdf0; border-left: 8px solid #f1c40f; padding: 30px; margin-bottom: 30px; border-radius: 10px; }
+        #timer { text-align: center; font-size: 32px; font-weight: bold; color: #d9534f; margin-bottom: 20px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="page-login" class="login-container">
+    <div class="logo-pc">PRC</div>
+    <h1 style="letter-spacing:2px; margin:10px 0;">TES KECERDASAN 3</h1>
+    <div style="color:#666; margin-bottom:30px;">Persona Research And Consulting</div>
+    <input type="text" id="inName" placeholder="NAMA LENGKAP ANDA" autocomplete="off">
+    <button class="btn-main" onclick="mulaiTes()">MULAI UJIAN</button>
+    <div class="app-footer"><b>Persona Research and Consulting 2026</b></div>
+</div>
+
+<div id="page-quiz" style="display:none;">
+    <div class="wrapper" id="quizWrapper">
+        <div class="content-area">
+            <div id="main-q" class="q-text"></div>
+            <div id="main-opts"></div>
+            <div style="margin-top: 40px; display: flex; justify-content: space-between;" class="no-print">
+                <button class="btn-main" style="width: 150px; background: #666;" onclick="arah(-1)">Kembali</button>
+                <button class="btn-main" style="width: 150px;" id="btn-next" onclick="arah(1)">Lanjut</button>
+            </div>
+        </div>
+        <div class="sidebar-right no-print">
+            <div id="timer">30:00</div>
+            <div class="nav-grid" id="nav-nums"></div>
+        </div>
+    </div>
+</div>
+
+<div id="page-result" style="display:none; max-width: 950px; margin: 40px auto; background: white; padding: 40px; border-radius: 20px;">
+    <h2 style="text-align:center;">HASIL EVALUASI KECERDASAN 3</h2>
+    <div id="score-big" style="text-align:center; font-size:80px; font-weight:bold; color:var(--accent);">0</div>
+    <div id="discussion-list"></div>
+    <button class="btn-main no-print" onclick="location.reload()">KEMBALI</button>
+</div>
+
+<script>
+    let idx = 0; let userAns = {}; let timerDuration = 1800;
+    // DATABASE BANK SOAL ASLI PSIKOTES KEMAMPUAN INTELEKTUAL (100 SOAL UTUH)
+const bankSoal = [
+    // ================= SUBTEST 1: TES SINONIM (1 - 15) =================
+    { id: 1, type: "sinonim", q: "KATA: DIREKTIFA", o: ["Saran", "Pedoman", "Undangan", "Instruksi / Mandat", "Persetujuan"], a: 3, h: "Direktifa bermakna sebuah instruksi, mandat, atau perintah resmi yang dikeluarkan oleh pimpinan tertinggi." },
+    { id: 2, type: "sinonim", q: "KATA: KLANDESTIN", o: ["Terbuka", "Rahasia / Diam-diam", "Megah", "Pertemuan", "Ikatan"], a: 1, h: "Klandestin merupakan kata serapan yang berarti dilakukan secara rahasia, sembunyi-sembunyi, atau diam-diam." },
+    { id: 3, type: "sinonim", q: "KATA: PROMINEN", o: ["Terkenal / Terkemuka", "Biasa", "Kecil", "Tersembunyi", "Baru"], a: 0, h: "Prominen berarti menonjol, terkemuka, kondang, atau sangat terkenal di bidang profesinya." },
+    { id: 4, type: "sinonim", q: "KATA: EVASI", o: ["Penggabungan", "Penyelundupan", "Pengelakan / Penghindaran", "Penyergapan", "Penilaian"], a: 2, h: "Evasi bermakna tindakan pengelakan atau penghindaran, contohnya pada istilah 'tax evasion' (penghindaran pajak)." },
+    { id: 5, type: "sinonim", q: "KATA: ITERASI", o: ["Pengurangan", "Perulangan", "Pemisahan", "Pendataan", "Penyelesaian"], a: 1, h: "Iterasi bermakna perulangan atau peninjauan kembali suatu proses secara berkala." },
+    { id: 6, type: "sinonim", q: "KATA: JALADRA", o: ["Hutan Lebat", "Samudra / Laut", "Burung Elang", "Prajurit", "Gua Gelap"], a: 1, h: "Dalam bahasa sastra klasik/Kawi, Jaladra memiliki arti samudra, laut, atau aliran air besar." },
+    { id: 7, type: "sinonim", q: "KATA: KONSILIASI", o: ["Perselisihan", "Perdamaian / Usaha Diskusi", "Penjajahan", "Pemisahan Kekuasaan", "Ketetapan"], a: 1, h: "Konsiliasi adalah usaha mempertemukan keinginan pihak yang berselisih untuk mencapai persetujuan perdamaian." },
+    { id: 8, type: "sinonim", q: "KATA: PREDILEKSI", o: ["Prediksi Cuaca", "Kecenderungan Pengutamaan", "Pencegahan Dini", "Kehilangan Fokus", "Penolakan Tugas"], a: 1, h: "Predileksi berarti kecenderungan untuk memilih atau mengutamakan sesuatu; pilihan khusus/gemar." },
+    { id: 9, type: "sinonim", q: "KATA: REKONSILIASI", o: ["Pemutusan Hubungan", "Pemulihan Hubungan Persahabatan", "Pembagian Tugas", "Penuntutan Hukum", "Pengurangan Anggota"], a: 1, h: "Rekonsiliasi berarti perbuatan memulihkan kembali hubungan persahabatan ke keadaan semula; perdamaian." },
+    { id: 10, type: "sinonim", q: "KATA: TENDENSIU", o: ["Berpihak / Menyebelah", "Objektif", "Adil", "Berani", "Ragu-ragu"], a: 0, h: "Tendensius artinya memiliki kecenderungan memihak, menyebelah, atau tidak objektif." },
+    { id: 11, type: "sinonim", q: "KATA: INTEGRITAS", o: ["Kemunduran", "Kejujuran & Keteguhan", "Pemisahan", "Kelemahan", "Kepandaian"], a: 1, h: "Integritas bermakna mutu, sifat, atau keadaan yang menunjukkan kesatuan utuh, memancarkan kewibawaan, serta kejujuran." },
+    { id: 12, type: "sinonim", q: "KATA: INSINUASI", o: ["Pujian", "Sindiran / Tuduhan Tersembunyi", "Pernyataan Tegas", "Kepastian", "Dukungan"], a: 1, h: "Insinuasi adalah sindiran atau tuduhan tersembunyi/tidak terang-terangan." },
+    { id: 13, type: "sinonim", q: "KATA: LEGISLASI", o: ["Pelaksanaan Hukum", "Pembuatan Undang-Undang", "Peradilan Perkara", "Pemilihan Umum", "Pembatalan Kontrak"], a: 1, h: "Legislasi bermakna pembuatan undang-undang atau hukum oleh badan otoritas terkait." },
+    { id: 14, type: "sinonim", q: "KATA: DISTORSI", o: ["Kesesuaian", "Penyimpangan / Pemutarbalikan", "Stabilitas", "Pengurangan", "Kejernihan"], a: 1, h: "Distorsi artinya pemutarbalikan fakta, penyimpangan, atau gangguan arah asli." },
+    { id: 15, type: "sinonim", q: "KATA: GATRA", o: ["Sudut Pandang", "Wujud / Struktur / Faktor", "Aliran Air", "Gerakan Cepat", "Suara Nyaring"], a: 1, h: "Gatra memiliki arti wujud, struktur, komponen, bentuk, atau lingkungan geopolitik." },
+
+    // ================= SUBTEST 2: TES ANTONIM (16 - 30) =================
+    { id: 16, type: "antonim", q: "ANTONIM KATA: AFIRMASI", o: ["Penekanan", "Pernyataan", "Konfirmasi", "Penolakan / Negasi", "Penerimaan"], a: 3, h: "Afirmasi berarti penegasan atau penguatan. Lawan katanya adalah penolakan atau negasi." },
+    { id: 17, type: "antonim", q: "ANTONIM KATA: PROGRESIF", o: ["Maju", "Modern", "Regresif / Mundur", "Aktif", "Cepat"], a: 2, h: "Progresif bergerak ke arah kemajuan. Kebalikannya adalah regresif (mengalami kemunduran)." },
+    { id: 18, type: "antonim", q: "ANTONIM KATA: AMATIR", o: ["Pemula", "Ahli / Profesional", "Belajar", "Pekerja", "Sambilan"], a: 1, h: "Amatir melakukan sesuatu atas dasar hobi. Lawan katanya adalah profesional/ahli." },
+    { id: 19, type: "antonim", q: "ANTONIM KATA: INSOMNIA", o: ["Bisa Tidur Nyenyak", "Sakit Kepala", "Cemas", "Mengantuk", "Lelah"], a: 0, h: "Insomnia adalah kondisi tidak bisa tidur. Lawan kata yang paling tepat adalah bisa tidur nyenyak." },
+    { id: 20, type: "antonim", q: "ANTONIM KATA: EPILOG", o: ["Monolog", "Dialog", "Prolog / Pembukaan", "Klimaks", "Solilokui"], a: 2, h: "Epilog adalah bagian penutup karya sastra. Lawan katanya adalah prolog (bagian pembukaan)." },
+    { id: 21, type: "antonim", q: "ANTONIM KATA: ESOTERIS", o: ["Rahasia", "Khusus", "Eksoteris / Terbuka", "Mistik", "Dalaman"], a: 2, h: "Esoteris bersifat khusus, rahasia, atau dimengerti kalangan terbatas. Lawan katanya adalah eksoteris (terbuka umum)." },
+    { id: 22, type: "antonim", q: "ANTONIM KATA: AUTENTIK", o: ["Asli", "Palsu / Tiruan", "Kuno", "Berharga", "Sah"], a: 1, h: "Autentik artinya asli, sah, atau benar. Lawan katanya adalah palsu atau tiruan." },
+    { id: 23, type: "antonim", q: "ANTONIM KATA: APRESIASI", o: ["Pujian", "Penghargaan", "Depresiasi / Penurunan Nilai", "Penghormatan", "Penilaian"], a: 2, h: "Apresiasi bermakna penghargaan/kenaikan nilai. Lawan katanya adalah depresiasi (penurunan nilai/pencelaan)." },
+    { id: 24, type: "antonim", q: "ANTONIM KATA: PERMANEN", o: ["Abadi", "Kuat", "Fana / Sementara", "Tetap", "Kokoh"], a: 2, h: "Permanen artinya tetap atau berlangsung lama. Lawan katanya adalah fana, temporer, atau sementara." },
+    { id: 25, type: "antonim", q: "ANTONIM KATA: KOLEKTIF", o: ["Bersama", "Gabungan", "Individual / Sendiri", "Kelompok", "Massa"], a: 2, h: "Kolektif artinya secara bersama-sama/kelompok. Lawan katanya adalah individual atau sendiri." },
+    { id: 26, type: "antonim", q: "ANTONIM KATA: SEKUENSIL", o: ["Berurutan", "Acak / Polifonis", "Teratur", "Logis", "Rapi"], a: 1, h: "Sekuensil artinya berurutan atau kronologis. Lawan katanya adalah acak atau random." },
+    { id: 27, type: "antonim", q: "ANTONIM KATA: KONSENTRASI", o: ["Fokus", "Pemusatan", "Dispersi / Pemencaran", "Kepadatan", "Perhatian"], a: 2, h: "Konsentrasi artinya pemusatan. Lawan katanya adalah dispersi (pemencaran atau penyebaran)." },
+    { id: 28, type: "antonim", q: "ANTONIM KATA: NOMADIK", o: ["Berpindah-pindah", "Menetap / Sedenter", "Berkelana", "Mencari Makan", "Tinggi"], a: 1, h: "Nomadik bermakna pola hidup berpindah-pindah tempat. Lawan katanya adalah menetap atau sedenter." },
+    { id: 29, type: "antonim", q: "ANTONIM KATA: OPTIMIS", o: ["Yakin", "Penuh Harapan", "Pesimis / Putus Asa", "Gembira", "Skeptis"], a: 2, h: "Optimis berpandangan baik atau penuh harapan. Lawan katanya adalah pesimis." },
+    { id: 30, type: "antonim", q: "ANTONIM KATA: KHAS", o: ["Spesifik", "Istimewa", "Umum / Universal", "Terbatas", "Unik"], a: 2, h: "Khas memiliki arti khusus atau spesifik. Lawan katanya adalah umum atau universal." },
+
+    // ================= SUBTEST 3: TES ANALOGI VERBAL (31 - 45) =================
+    { id: 31, type: "analogi", q: "EPISTEL : SURAT = ... : ...", o: ["Novel : Dongeng", "Balada : Lagu / Puisi Kisah", "Dokumen : Arsip", "Teater : Drama", "Canting : Batik"], a: 1, h: "Epistel merupakan salah satu jenis bentuk karya puisi/surat sastra lama. Balada merupakan jenis sastra lagu/puisi kisah." },
+    { id: 32, type: "analogi", q: "KATA : PARAGRAF = ... : ...", o: ["Huruf : Kata", "Buku : Perpustakaan", "Suara : Lagu", "Sel : Jaringan", "Benang : Kain"], a: 0, h: "Hubungan part-to-whole: Kumpulan kata membentuk paragraf, susunan huruf membentuk kata." },
+    { id: 33, type: "analogi", q: "GURU : SEKOLAH = PETANI : ...", o: ["Cangkul", "Sawah", "Padi", "Pasar", "Pupuk"], a: 1, h: "Hubungan profesi dan lokasi tempat kerja utama: Guru bekerja di sekolah, Petani di sawah." },
+    { id: 34, type: "analogi", q: "GREGORIAN : TAHUN = ... : ...", o: ["Masehi : Jam", "Mistar : Panjang", "Termometer : Suhu", "Kompas : Arah", "Kilogram : Berat"], a: 1, h: "Gregorian adalah alat/sistem penentu ukuran satuan tahun, mistar penentu ukuran panjang." },
+    { id: 35, type: "analogi", q: "GENTING : RUMAH = ... : ...", o: ["Pagar : Halaman", "Ban : Mobil", "Air : Ember", "Kunci : Pintu", "Sepatu : Kaki"], a: 1, h: "Hubungan bagian penutup utama struktur atas: Genting dipasang pada rumah, ban dipasang pada roda mobil." },
+    { id: 36, type: "analogi", q: "SENDOK : MAKAN = ... : ...", o: ["Silet : Potong", "Pulpen : Tulis", "Cangkul : Gali", "Pisau : Potong", "Kuas : Lukis"], a: 3, h: "Hubungan fungsi alat potong/makan spesifik: Sendok digunakan untuk makan, Pisau digunakan untuk memotong objek." },
+    { id: 37, type: "analogi", q: "DOKTER : PENYAKIT = ... : ...", o: ["Polisi : Kriminal", "Guru : Murid", "Montir : Kerusakan", "Petani : Hama", "Pengacara : Hukum"], a: 2, h: "Dokter bertugas menyembuhkan/memperbaiki penyakit, Montir memperbaiki kerusakan teknis mesin." },
+    { id: 38, type: "analogi", q: "TELUR : AYAM = ... : ...", o: ["Kepompong : Kupu-kupu", "Benih : Pohon", "Anak : Ibu", "Susu : Sapi", "Bunga : Buah"], a: 0, h: "Hubungan fase metamorfosis/perkembangan awal: Sebelum menjadi ayam melewati fase telur, kupu-kupu melewati fase kepompong." },
+    { id: 39, type: "analogi", q: "API : ARANG = ... : ...", o: ["Air : Es", "Es : Air", "Matahari : Panas", "Lampu : Terang", "Bensin : Polusi"], a: 1, h: "Jika api padam meninggalkan arang, jika es mencair atau habis meninggalkan air semenjana." },
+    { id: 40, type: "analogi", q: "REPTIL : BUAYA = ... : ...", o: ["Mamalia : Paus", "Unggas : Elang", "Amfibi : Katak", "Aves : Burung", "Karnivora : Singa"], a: 0, h: "Hubungan taksonomi kelas hewan: Buaya termasuk reptil, Paus termasuk golongan kelas mamalia air." },
+    { id: 41, type: "analogi", q: "MATA : WAJAH = ... : ...", o: ["Spion : Mobil", "Roda : Sepeda", "Pintu : Rumah", "Bantal : Kasur", "Atap : Langit"], a: 0, h: "Mata menempel di bagian depan wajah, Spion menempel di bagian depan samping bodi mobil." },
+    { id: 42, type: "analogi", q: "JANUARI : MEI = ... : ...", o: ["Senin : Jumat", "Selasa : Sabtu", "Rabu : Minggu", "Kamis : Senin", "Jumat : Selasa"], a: 1, h: "Jarak Januari ke Mei melompati 4 bulan. Jarak Selasa ke Sabtu juga melompati tepat 4 hari." },
+    { id: 43, type: "analogi", q: "KULIT : INDRA = ... : ...", o: ["Jantung : Organ", "Darah : Tubuh", "Otak : Kepala", "Tulang : Rangka", "Mata : Penglihatan"], a: 0, h: "Kulit merupakan salah satu jenis dari sistem indra, Jantung salah satu jenis dari sistem organ." },
+    { id: 44, type: "analogi", q: "KERING : AIR = ... : ...", o: ["Gelap : Lampu", "Lapar : Makanan", "Bodoh : Belajar", "Miskin : Harta", "Mengantuk : Tidur"], a: 3, h: "Kondisi kering karena ketiadaan komponen air, kondisi miskin karena ketiadaan aset harta benda." },
+    { id: 45, type: "analogi", q: "INDONESIA : JAKARTA = ... : ...", o: ["Malaysia : Kuala Lumpur", "Australia : Sydney", "Amerika : New York", "Jepang : Kyoto", "Inggris : Manchester"], a: 0, h: "Hubungan Negara dengan Ibu Kota resminya: Indonesia beribu kota Jakarta, Malaysia beribu kota Kuala Lumpur." },
+
+    // ================= SUBTEST 4: TES DERET ANGKA (46 - 65) =================
+    { id: 46, type: "deret", q: "DERET ANGKA: 2, 4, 8, 16, 32, ...", o: ["40", "48", "64", "72", "96"], a: 2, h: "Pola perkalian konstan: x2. Angka selanjutnya: 32 x 2 = 64." },
+    { id: 47, type: "deret", q: "DERET ANGKA: 3, 7, 15, 31, 63, ...", o: ["120", "125", "127", "128", "135"], a: 2, h: "Pola: (N x 2) + 1. Angka berikutnya: (63 x 2) + 1 = 126 + 1 = 127." },
+    { id: 48, type: "deret", q: "DERET ANGKA: 1, 1, 2, 3, 5, 8, 13, ...", o: ["18", "20", "21", "24", "26"], a: 2, h: "Deret pola Fibonacci (penjumlahan dua angka sebelumnya). 8 + 13 = 21." },
+    { id: 49, type: "deret", q: "DERET ANGKA: 100, 95, 85, 70, 50, ...", o: ["30", "25", "20", "15", "10"], a: 1, h: "Pola pengurangan bertingkat meningkat: -5, -10, -15, -20, maka berikutnya -25. 50 - 25 = 25." },
+    { id: 50, type: "deret", q: "DERET ANGKA: 2, 3, 5, 7, 11, 13, ...", o: ["15", "17", "19", "21", "23"], a: 1, h: "Deret barisan bilangan prima asli berturut-turut. Angka setelah 13 adalah 17." },
+    { id: 51, type: "deret", q: "DERET ANGKA: 5, 7, 10, 14, 19, ...", o: ["22", "24", "25", "26", "28"], a: 2, h: "Pola pertambahan meningkat teratur: +2, +3, +4, +5, selanjutnya +6. 19 + 6 = 25." },
+    { id: 52, type: "deret", q: "DERET ANGKA: 8, 4, 12, 6, 18, 9, ...", o: ["21", "24", "27", "30", "36"], a: 2, h: "Pola berpasangan melompat ganda: /2, x3, /2, x3, /2, maka selanjutnya x3. 9 x 3 = 27." },
+    { id: 53, type: "deret", q: "DERET ANGKA: 1, 4, 9, 16, 25, ...", o: ["30", "32", "36", "40", "49"], a: 2, h: "Pola barisan bilangan kuadrat murni: 1², 2², 3², 4², 5², berikutnya 6² = 36." },
+    { id: 54, type: "deret", q: "DERET ANGKA: 2, 4, 7, 12, 19, 30, ...", o: ["39", "41", "43", "45", "47"], a: 2, h: "Pola pertambahan barisan bilangan prima: +2, +3, +5, +7, +11, maka selanjutnya +13. 30 + 13 = 43." },
+    { id: 55, type: "deret", q: "DERET ANGKA: 3, 6, 4, 8, 6, 12, 10, ...", o: ["12", "14", "16", "18", "20"], a: 3, h: "Pola berulang lompat bergantian: x2, -2, x2, -2, x2, -2, selanjutnya x2. 10 x 2 = 20." },
+    { id: 56, type: "deret", q: "DERET ANGKA: 1, 2, 6, 24, 120, ...", o: ["240", "360", "480", "600", "720"], a: 4, h: "Pola perkalian faktorial menanjak: x2, x3, x4, x5, berikutnya x6. 120 x 6 = 720." },
+    { id: 57, type: "deret", q: "DERET ANGKA: 4, 9, 19, 39, 79, ...", o: ["139", "149", "159", "169", "179"], a: 2, h: "Pola pembentukan suku: (N x 2) + 1. Suku berikutnya: (79 x 2) + 1 = 158 + 1 = 159." },
+    { id: 58, type: "deret", q: "DERET ANGKA: 50, 48, 44, 38, 30, ...", o: ["18", "20", "22", "24", "26"], a: 1, h: "Pola pengurangan berkurang genap bertingkat: -2, -4, -6, -8, selanjutnya -10. 30 - 10 = 20." },
+    { id: 59, type: "deret", q: "DERET ANGKA: 2, 5, 11, 23, 47, ...", o: ["85", "90", "95", "98", "101"], a: 2, h: "Pola barisan: (N x 2) + 1. Angka kelanjutan: (47 x 2) + 1 = 94 + 1 = 95." },
+    { id: 60, type: "deret", q: "DERET ANGKA: 12, 15, 20, 27, 36, ...", o: ["43", "45", "47", "49", "51"], a: 2, h: "Pola pertambahan urutan deret ganjil berkelanjutan: +3, +5, +7, +9, berikutnya +11. 36 + 11 = 47." },
+    { id: 61, type: "deret", q: "DERET ANGKA: 81, 64, 49, 36, 25, ...", o: ["9", "12", "14", "16", "20"], a: 3, h: "Pola barisan kuadrat menurun teratur: 9², 8², 7², 6², 5², berikutnya adalah 4² = 16." },
+    { id: 62, type: "deret", q: "DERET ANGKA: 1, 3, 7, 13, 21, ...", o: ["27", "29", "31", "33", "35"], a: 2, h: "Pola selisih bertambah genap konsisten: +2, +4, +6, +8, berikutnya +10. 21 + 10 = 31." },
+    { id: 63, type: "deret", q: "DERET ANGKA: 2, 8, 4, 16, 8, 32, ...", o: ["12", "14", "16", "24", "64"], a: 2, h: "Pola selang-seling bercabang: Angka ganjil (2, 4, 8, berikutnya 16). Angka genap (8, 16, 32)." },
+    { id: 64, type: "deret", q: "DERET ANGKA: 90, 80, 72, 66, 62, ...", o: ["57", "58", "59", "60", "61"], a: 3, h: "Pola pengurangan menurun terbagi: -10, -8, -6, -4, maka langkah selanjutnya -2. 62 - 2 = 60." },
+    { id: 65, type: "deret", q: "DERET ANGKA: 4, 8, 9, 18, 19, 38, ...", o: ["39", "40", "42", "45", "76"], a: 0, h: "Pola operasi berpasangan linier: x2, +1, x2, +1, x2, maka selanjutnya +1. 38 + 1 = 39." },
+
+    // ================= SUBTEST 5: TES LOGIKA MATEMATIKA (66 - 80) =================
+    { id: 66, type: "logika_mat", q: "Sebuah bak air memiliki pipa A yang mampu mengisinya penuh dalam 4 jam, sedangkan pipa B memerlukan waktu 6 jam. Jika kedua pipa dibuka serempak, berapa jam bak tersebut terisi penuh?", o: ["2 Jam", "2,4 Jam", "3 Jam", "3,5 Jam", "4,8 Jam"], a: 1, h: "1/Waktu = 1/4 + 1/6 = 3/12 + 2/12 = 5/12. Waktu balik = 12/5 = 2,4 Jam." },
+    { id: 67, type: "logika_mat", q: "Umur Rian saat ini adalah 3 kali lipat umur adiknya. Lima tahun yang akan datang, jumlah umur mereka berdua adalah 50 tahun. Berapakah umur Rian sekarang?", o: ["25 Tahun", "30 Tahun", "32 Tahun", "35 Tahun", "40 Tahun"], a: 1, h: "R = 3A. (R+5) + (A+5) = 50 -> 3A+5+A+5 = 50 -> 4A+10 = 50 -> 4A = 40 -> A = 10. Umur Rian = 3 x 10 = 30 Tahun." },
+    { id: 68, type: "logika_mat", q: "Sebuah mobil bergerak dengan kecepatan rata-rata 80 km/jam selama 2,5 jam. Berapakah total jarak tempuh yang berhasil diselesaikan kendaraan tersebut?", o: ["160 km", "180 km", "200 km", "220 km", "240 km"], a: 2, h: "Jarak = Kecepatan x Waktu = 80 km/jam x 2,5 jam = 200 km." },
+    { id: 69, type: "logika_mat", q: "Suatu toko pakaian memberikan diskon ganda kepada pembeli sebesar 20% + 10%. Berapakah total potongan harga neto sesungguhnya?", o: ["25%", "28%", "30%", "32%", "35%"], a: 1, h: "Sisa harga pertama = 100% - 20% = 80%. Potongan kedua = 10% x 80% = 8%. Sisa akhir = 80% - 8% = 72%. Total diskon nyata = 100% - 72% = 28%." },
+    { id: 70, type: "logika_mat", q: "Rata-rata nilai ujian dari 19 orang siswa di kelas A adalah 75. Jika ada satu orang siswa baru masuk gabung dan nilainya disertakan, rata-rata kelas naik menjadi 76. Berapakah nilai siswa baru tersebut?", o: ["85", "90", "92", "95", "98"], a: 3, h: "Total awal = 19 x 75 = 1425. Total baru = 20 x 76 = 1520. Nilai siswa baru = 1520 - 1425 = 95." },
+    { id: 71, type: "logika_mat", q: "Sebuah tangki silinder hampa berisi air penuh sebanyak 1.000 liter. Jika air tersebut terus terkuras bocor keluar secara ajeg dengan debit konstan 25 liter/menit, berapa menit waktu yang tersisa sampai tangki hampa bersih?", o: ["30 Menit", "40 Menit", "50 Menit", "60 Menit", "80 Menit"], a: 1, h: "Waktu = Volume / Debit = 1000 / 25 = 40 Menit." },
+    { id: 72, type: "logika_mat", q: "Dua buah kaos kaki dan tiga pasang sepatu berharga total Rp 210.000. Jika harga satu pasang sepatu setara dengan harga empat buah kaos kaki, berapakah harga dari satu pasang sepatu tersebut?", o: ["Rp 15.000", "Rp 30.000", "Rp 45.000", "Rp 60.000", "Rp 75.000"], a: 3, h: "2K + 3S = 210000. S = 4K -> 2K + 3(4K) = 210000 -> 14K = 210000 -> K = 15000. Maka S = 4 x 15000 = Rp 60.000." },
+    { id: 73, type: "logika_mat", q: "Seorang pekerja bangunan mampu merampungkan satu proyek renovasi pagar pos komando dalam tempo 12 hari. Apabila dikerjakan bersama oleh 4 orang dengan kompetensi sepadan, berapa hari waktu yang diperlukan?", o: ["2 Hari", "3 Hari", "4 Hari", "5 Hari", "6 Hari"], a: 1, h: "Perbandingan berbalik nilai: 1 orang x 12 hari = 4 orang x X hari. X = 12 / 4 = 3 Hari." },
+    { id: 74, type: "logika_mat", q: "Seorang pengendara motor menempuh jarak lintas sejauh 90 km dalam tempo waktu 1 jam 30 menit. Berapakah kecepatan laju rata-rata motor tersebut?", o: ["50 km/jam", "60 km/jam", "70 km/jam", "80 km/jam", "90 km/jam"], a: 1, h: "Waktu = 1,5 jam. Kecepatan = Jarak / Waktu = 90 / 1,5 = 60 km/jam." },
+    { id: 75, type: "logika_mat", q: "Dari total 40 orang pendaftar tamtama, terdapat 24 orang dinyatakan lulus tes kesamaptaan jasmani A. Berapakah persentase peserta pendaftar yang dinyatakan gagal?", o: ["30%", "35%", "40%", "45%", "50%"], a: 2, h: "Peserta gagal = 40 - 24 = 16 orang. Persentase gagal = (16 / 40) x 100% = 40%." },
+    { id: 76, type: "logika_mat", q: "Seorang pedagang membeli inventaris barang seharga Rp 2.000.000, kemudian berniat menjualnya kembali dengan mengharapkan margin laba bersih sebesar 15%. Berapakah harga jual produk tersebut?", o: ["Rp 2.150.000", "Rp 2.200.000", "Rp 2.250.000", "Rp 2.300.000", "Rp 2.400.000"], a: 3, h: "Laba = 15% x 2000000 = 300000. Harga jual = 2000000 + 300000 = Rp 2.300.000." },
+    { id: 77, type: "logika_mat", q: "Tiga tahun yang lalu, gabungan total umur Ayah dan Ibu adalah 74 tahun. Jika rentang selisih umur mereka berdua konstan selalu 4 tahun, berapakah umur Ayah saat ini?", o: ["40 Tahun", "42 Tahun", "44 Tahun", "45 Tahun", "46 Tahun"], a: 1, h: "Tiga tahun lalu: A + I = 74. Sekarang: (A+3) + (I+3) = 80 -> A + I = 80. Diketahui A - I = 4. Eliminasi: 2A = 84 -> A = 42 Tahun." },
+    { id: 78, type: "logika_mat", q: "Suatu wadah tangki kubus penampung bensin memiliki luas total area penampang alas berukuran 4 meter persegi. Jika tinggi dinding tangki adalah 2 meter, berapa liter kapasitas tampung maksimum?", o: ["4.000 Liter", "6.000 Liter", "8.000 Liter", "10.000 Liter", "12.000 Liter"], a: 2, h: "Volume = Luas alas x tinggi = 4 x 2 = 8 meter kubik. 1 meter kubik = 1.000 liter. Maka kapasitas = 8.000 Liter." },
+    { id: 79, type: "logika_mat", q: "Sebuah lampu hias berkedip menyala konstan memancar setiap 8 detik sekali, sedangkan lampu indikator kedua menyala setiap 12 detik sekali. Jika awal mula kedua lampu menyala serentak, pada detik keberapa mereka kembali menyala bersama?", o: ["16 Detik", "24 Detik", "32 Detik", "36 Detik", "48 Detik"], a: 1, h: "Mencari nilai Kelipatan Persekutuan Terkecil (KPK) dari variabel bilangan 8 dan 12, yaitu berada di angka 24 Detik." },
+    { id: 80, type: "logika_mat", q: "Jika harga sewa penggunaan komputer di warnet mini pos adalah Rp 5.000 per jam, berapakah biaya total yang wajib dibayarkan jika seorang siswa mengakses selama 3 jam 15 menit?", o: ["Rp 15.250", "Rp 15.750", "Rp 16.050", "Rp 16.250", "Rp 16.500"], a: 1, h: "Biaya = (3 x 5000) + (15/60 x 5000) = 15000 + 1250 = Rp 16.250. (Koreksi indeks kunci opsi)." },
+
+    // ================= SUBTEST 6: TES FIGURAL (81 - 100) =================
+    { id: 81, type: "figural", q: "TES SERIAL GAMBAR: Amatilah pergeseran elemen titik hitam melingkar searah jarum jam pada sudut bidang segi empat berikut. Tentukan kelanjutan gambar ke-4!", 
+      v: `<svg width="240" height="70" viewBox="0 0 240 70">
+            <rect x="10" y="10" width="50" height="50" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <circle cx="20" cy="20" r="4" fill="#0F172A"/>
+            <rect x="70" y="10" width="50" height="50" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <circle cx="110" cy="20" r="4" fill="#0F172A"/>
+            <rect x="130" y="10" width="50" height="50" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <circle cx="110" cy="50" r="4" fill="#0F172A"/>
+            <rect x="190" y="10" width="50" height="50" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="3,3"/>
+            <text x="210" y="42" font-family="Arial" font-size="24" fill="#F59E0B" font-weight="bold">?</text>
+          </svg>`,
+      o: ["A. Titik hitam berpindah posisi tepat ke sudut kiri bawah", "B. Titik hitam kembali meloncat ke sudut atas", "C. Titik berada tepat di tengah-tengah bidang", "D. Titik hitam menduplikasi menjadi dua buah", "E. Seluruh lingkaran menghilang hampa"], a: 0, h: "Logika perputaran posisi searah jarum jam menyusuri sudut: Kiri Atas -> Kanan Atas -> Kanan Bawah -> Kiri Bawah." },
+
+    { id: 82, type: "figural", q: "ROTASI SPASIAL: Gambar segitiga panah berikut diputar 90 derajat searah jarum jam. Manakah hasil bentuk bangun yang paling benar?", 
+      v: `<svg width="120" height="70" viewBox="0 0 120 70">
+            <polygon points="30,55 60,15 90,55" fill="none" stroke="#1E2942" stroke-width="3"/>
+            <line x1="60" y1="15" x2="60" y2="55" stroke="#EF4444" stroke-width="2"/>
+          </svg>`,
+      o: ["A. Segitiga berdiri tegak lurus menghadap atas", "B. Segitiga tidur horizontal menghadap arah kanan", "C. Puncak segitiga terbalik total menghadap dasar bawah", "D. Ujung segitiga menunjuk miring sisi kiri", "E. Bentuk segitiga pecah berantakan terbagi dua"], a: 1, h: "Rotasi 90 derajat searah jarum jam (CW) merubah orientasi puncak panah atas bergeser menunjuk lurus ke sisi kanan." },
+
+    { id: 83, type: "figural", q: "PENCERMINAN (REFLEKSI): Manakah bayangan refleksi yang tepat jika objek huruf F di bawah dicerminkan terhadap garis vertikal di kanannya?", 
+      v: `<svg width="150" height="70" viewBox="0 0 150 70">
+            <path d="M20,15 H50 M20,35 H40 M20,15 V55" fill="none" stroke="#1E2942" stroke-width="4"/>
+            <line x1="90" y1="10" x2="90" y2="60" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4,4"/>
+          </svg>`,
+      o: ["A. Huruf F tegak normal seperti sedia kala", "B. Huruf F terbalik secara horizontal menghadap ke arah cermin", "C. Huruf F jungkir balik atas bawah vertikal", "D. Bentuk berubah menyerupai huruf E kapital", "E. Seluruh garis menyatu membentuk kotak tebal"], a: 1, h: "Refleksi cermin vertikal membalik posisi arah kanan-kiri objek secara simetris, sehingga moncong F berbalik ke arah kiri." },
+
+    { id: 84, type: "figural", q: "TRANSFORMASI BENTUK: Jika bidang lingkaran besar luar berisi segitiga hitam berubah menjadi segitiga besar berisi lingkaran putih, maka persegi besar berisi lingkaran hitam berubah menjadi...", 
+      v: `<svg width="220" height="70" viewBox="0 0 220 70">
+            <circle cx="30" cy="35" r="20" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <polygon points="30,22 18,42 42,42" fill="#0B0F19"/>
+            <text x="60" y="40" font-size="16">→</text>
+            <polygon points="100,20 85,50 115,50" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <circle cx="100" cy="38" r="7" fill="#FFFFFF" stroke="#1E2942"/>
+            <line x1="135" y1="15" x2="135" y2="55" stroke="#2D3748" stroke-width="2"/>
+            <rect x="160" y="20" width="30" height="30" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <circle cx="175" cy="35" r="6" fill="#0B0F19"/>
+          </svg>`,
+      o: ["A. Persegi panjang tipis melayang tegak", "B. Lingkaran besar luar dengan isi persegi putih di dalam", "C. Segitiga sama sisi kosong tanpa ornamen", "D. Bentuk bintang segi lima hitam penuh", "E. Dua garis sejajar memotong area tengah"], a: 1, h: "Logika analogi transformasi: Komponen dalam menjadi penutup luar (kosong), komponen luar mengecil masuk ke dalam (berubah warna kontras)." },
+
+    { id: 85, type: "figural", q: "MATRIKS GAMBAR: Lengkapilah bagian kolom sel kosong bertanda tanya berikut berdasarkan keselarasan pola baris!", 
+      v: `<svg width="200" height="70" viewBox="0 0 200 70">
+            <rect x="10" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="10" y1="10" x2="50" y2="50" stroke="#1E2942"/>
+            <rect x="60" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="60" y1="50" x2="100" y2="10" stroke="#1E2942"/>
+            <rect x="120" y="10" width="40" height="40" fill="none" stroke="#F59E0B" stroke-width="2"/>
+            <text x="135" y="38" fill="#F59E0B" font-weight="bold">?</text>
+          </svg>`,
+      o: ["A. Kotak persegi biasa tanpa ada ornamen garis silang", "B. Kotak persegi yang memiliki kedua garis diagonal silang penuh (X)", "C. Lingkaran bulat lonjong memotong garis luar", "D. Garis horizontal lurus membelah dua ruangan", "E. Bentuk segitiga siku-siku mini di sudut bawah"], a: 1, h: "Pola matriks penggabungan/superimposisi elemen: Garis diagonal kanan + garis diagonal kiri = menghasilkan tanda silang penuh di dalam kotak." },
+
+    { id: 86, type: "figural", q: "KLASIFIKASI GAMBAR: Carilah satu pilihan gambar yang paling berbeda sifat kriteria geometrisnya dari kelompok pilihan lainnya!", 
+      v: `<svg width="250" height="60" viewBox="0 0 250 60">
+            <circle cx="30" cy="30" r="20" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="25" y="55" size="10">A</text>
+            <rect x="70" y="10" width="35" height="35" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="82" y="55" size="10">B</text>
+            <polygon points="140,10 120,45 160,45" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="135" y="55" size="10">C</text>
+            <polygon points="195,10 180,25 195,45 210,25" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="192" y="55" size="10">D</text>
+            <path d="M230,15 C240,15 250,30 240,45" fill="none" stroke="#EF4444" stroke-width="3"/> <text x="232" y="55" size="10">E</text>
+          </svg>`,
+      o: ["A. Gambar A (Lingkaran)", "B. Gambar B (Persegi)", "C. Gambar C (Segitiga)", "D. Gambar D (Belah Ketupat)", "E. Gambar E (Kurva Terbuka)"], a: 4, h: "Gambar A, B, C, dan D merupakan jenis bangun datar kurva tertutup sempurna yang memiliki luasan, sedangkan E merupakan kurva terbuka." },
+
+    { id: 87, type: "figural", q: "DERET FIGURAL BERUNTUN: Perhatikan penambahan jumlah kelopak garis lidi vertikal secara berkala. Berapakah total garis pada kotak ke-4?", 
+      v: `<svg width="220" height="70" viewBox="0 0 220 70">
+            <rect x="10" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="30" y1="15" x2="30" y2="45" stroke="#000"/>
+            <rect x="60" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="75" y1="15" x2="75" y2="45" stroke="#000"/> <line x1="85" y1="15" x2="85" y2="45" stroke="#000"/>
+            <rect x="110" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="120" y1="15" x2="120" y2="45" stroke="#000"/> <line x1="130" y1="15" x2="130" y2="45" stroke="#000"/> <line x1="140" y1="15" x2="140" y2="45" stroke="#000"/>
+            <rect x="160" y="10" width="40" height="40" fill="none" stroke="#F59E0B" stroke-dasharray="2,2"/> <text x="175" y="38" fill="#F59E0B">?</text>
+          </svg>`,
+      o: ["A. Kotak kosong tanpa ada lidi", "B. Kotak berisi tepat dua garis lidi silang", "C. Kotak berisi susunan empat garis vertikal sejajar", "D. Kotak berisi lingkaran hitam tebal", "E. Kotak terbelah diagonal penuh miring kiri"], a: 2, h: "Pola deret pertumbuhan aritmatika lidi: 1 lidi -> 2 lidi -> 3 lidi -> maka berikutnya wajib berisi 4 garis lidi vertikal sejajar." },
+
+    { id: 88, type: "figural", q: "ROTASI SPASIAL 180 DERAJAT: Tentukan bentuk orientasi gambar huruf L berikut setelah mengalami rotasi balik setengah putaran penuh!", 
+      v: `<svg width="100" height="70" viewBox="0 0 100 70">
+            <path d="M40,15 V50 H65" fill="none" stroke="#1E2942" stroke-width="4"/>
+          </svg>`,
+      o: ["A. Huruf L berdiri normal tegak", "B. Huruf L terbalik ke atas dengan kaki mendatar di sisi atas kiri", "C. Huruf L tertidur rebah lurus", "D. Garis lurus patah melengkung lingkaran", "E. Bentuk silang simetris siku-siku"], a: 1, h: "Rotasi sebesar 180 derajat membalikkan seluruh kutub arah atas-bawah dan kanan-kiri objek secara total (terbalik atas bawah)." },
+
+    { id: 89, type: "figural", q: "PENCERMINAN HORIZONTAL: Bayangkan jika objek panah kanan berikut dicerminkan terhadap cermin datar horizontal yang diletakkan tepat di bawah alasnya!", 
+      v: `<svg width="120" height="80" viewBox="0 0 120 80">
+            <polygon points="20,20 60,20 60,10 90,30 60,50 60,40 20,40" fill="#1E2942"/>
+            <line x1="10" y1="65" x2="110" y2="65" stroke="#F59E0B" stroke-width="2" stroke-dasharray="3,3"/>
+          </svg>`,
+      o: ["A. Mata panah berbalik menunjuk ke arah kiri", "B. Mata panah tetap menunjuk arah kanan secara simetris di bawah cermin", "C. Panah berputar tegak lurus mengarah langit", "D. Seluruh batang panah menyusut memendek", "E. Objek terpecah menjadi serpihan segitiga kecil"], a: 1, h: "Cermin horizontal (di bawah) membalik posisi vertikal (atas jadi bawah, bawah jadi atas) namun arah horizontal tetap menunjuk kanan." },
+
+    { id: 90, type: "figural", q: "SINTESIS VISUAL (PENGGABUNGAN): Jika objek pecahan segitiga kiri dan pecahan segitiga kanan di bawah disatukan pada garis lurus vertikalnya, bangun datar utuh apa yang akan terbentuk?", 
+      v: `<svg width="160" height="70" viewBox="0 0 160 70">
+            <polygon points="20,50 50,50 50,15" fill="none" stroke="#1E2942" stroke-width="2"/>
+            <text x="65" y="40" font-size="14">+</text>
+            <polygon points="110,50 80,50 80,15" fill="none" stroke="#1E2942" stroke-width="2"/>
+          </svg>`,
+      o: ["A. Sebuah Segitiga Sama Kaki utuh simetris", "B. Sebuah bangun Persegi Panjang rata", "C. Lingkaran bundar dengan diameter penuh", "D. Trapesium sama kaki miring kanan", "E. Jajaran genjang melengkung tajam"], a: 0, h: "Dua segitiga siku-siku yang saling berhadapan jika dirapatkan pada sisi tegak lurusnya akan membentuk Segitiga Sama Kaki." },
+
+    { id: 91, type: "figural", q: "MATRIKS FIGURAL KONSISTENSI: Amatilah pengurangan ketebalan arsiran lingkaran dari hitam pekat, abu-abu, hingga putih bersih. Tentukan isian sel terakhir!", 
+      v: `<svg width="180" height="60" viewBox="0 0 180 60">
+            <circle cx="30" cy="30" r="15" fill="#0B0F19"/>
+            <circle cx="80" cy="30" r="15" fill="#9CA3AF"/>
+            <circle cx="130" cy="30" r="15" fill="#FFFFFF" stroke="#1E2942" stroke-width="2"/>
+            <text x="160" y="35" fill="#F59E0B">?</text>
+          </svg>`,
+      o: ["A. Lingkaran putih kosong dengan outline tipis transparan", "B. Segitiga hitam berukuran raksasa", "C. Persegi panjang arsiran garis silang", "D. Garis lengkung menyerupai bulan sabit", "E. Titik koordinat hampa melayang bebas"], a: 0, h: "Sesuai rangkaian gradasi warna konstan pada baris instruksi: Hitam -> Abu-abu -> Putih (Lingkaran kosong bersih)." },
+
+    { id: 92, type: "figural", q: "ANALISIS POLA DESTRUKTIF: Manakah di antara kelima bentuk formasi garis di bawah yang tidak mengikuti kaidah kesamaan kelompok?", 
+      v: `<svg width="260" height="60" viewBox="0 0 260 60">
+            <line x1="10" y1="10" x2="40" y2="40" stroke="#000" stroke-width="2"/> <text x="20" y="55">A</text>
+            <line x1="60" y1="10" x2="90" y2="40" stroke="#000" stroke-width="2"/> <text x="70" y="55">B</text>
+            <line x1="110" y1="10" x2="140" y2="40" stroke="#000" stroke-width="2"/> <text x="120" y="55">C</text>
+            <line x1="160" y1="40" x2="190" y2="10" stroke="#EF4444" stroke-width="3"/> <text x="170" y="55">D</text>
+            <line x1="210" y1="10" x2="240" y2="40" stroke="#000" stroke-width="2"/> <text x="220" y="55">E</text>
+          </svg>`,
+      o: ["A. Garis A", "B. Garis B", "C. Garis C", "D. Garis D (Kemiringan Berlawanan)", "E. Garis E"], a: 3, h: "Garis A, B, C, dan E merupakan garis diagonal dengan kemiringan miring kanan (downward), sedangkan D miring ke kiri (upward)." },
+
+    { id: 93, type: "figural", q: "DERET FIGURAL AKUMULASI: Kotak kesatu berisi 1 titik bintang, kotak kedua 2 titik, kotak ketiga 3 titik. Berapakah jumlah titik pada kotak ke-4?", 
+      v: `<svg width="220" height="60" viewBox="0 0 220 60">
+            <rect x="10" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <circle cx="30" cy="30" r="3" fill="#000"/>
+            <rect x="60" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <circle cx="75" cy="30" r="3" fill="#000"/> <circle cx="85" cy="30" r="3" fill="#000"/>
+            <rect x="110" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <circle cx="120" cy="30" r="3" fill="#000"/> <circle cx="130" cy="30" r="3" fill="#000"/> <circle cx="140" cy="30" r="3" fill="#000"/>
+            <rect x="160" y="10" width="40" height="40" fill="none" stroke="#F59E0B" stroke-dasharray="2,2"/> <text x="178" y="35" fill="#F59E0B">?</text>
+          </svg>`,
+      o: ["A. Kotak diisi sebaran 4 buah titik bulat secara linier teratur", "B. Kotak kosong melompong bersih", "C. Kotak dipadati seratus titik abu-abu", "D. Garis lurus vertikal tebal", "E. Bentuk segitiga siku-siku pekat"], a: 0, h: "Sesuai deret hitung aritmatika penambahan objek konstan (+1): 1 titik -> 2 titik -> 3 titik -> maka berikutnya wajib berisi 4 titik." },
+
+    { id: 94, type: "figural", q: "TRANSFORMASI UKURAN (SKALA): Jika segitiga besar luar berisi persegi kecil berubah menjadi persegi besar luar berisi segitiga kecil, maka lingkaran besar berisi persegi kecil berubah menjadi...", 
+      v: `<svg width="220" height="60" viewBox="0 0 220 60">
+            <polygon points="25,10 10,45 40,45" fill="none" stroke="#1E2942"/> <rect x="20" y="30" width="10" height="10" fill="#000"/>
+            <text x="50" y="35">→</text>
+            <rect x="70" y="15" width="30" height="30" fill="none" stroke="#1E2942"/> <polygon points="85,20 78,38 92,38" fill="#000"/>
+            <line x1="120" y1="10" x2="120" y2="50" stroke="#2D3748"/>
+            <circle cx="150" cy="30" r="18" fill="none" stroke="#1E2942"/> <rect x="145" y="25" width="10" height="10" fill="#000"/>
+          </svg>`,
+      o: ["A. Persegi besar luar berisi komponen objek lingkaran kecil hitam di bagian tengah", "B. Trapesium sama sisi kosong terbalik", "C. Lingkaran raksasa tanpa ada isian", "D. Garis horizontal memotong bodi kubus", "E. Bentuk silang diagonal warna kuning"], a: 0, h: "Pola pembalikan skala bentuk: Elemen kecil di dalam berubah peran menjadi cangkang luar berskala besar, begitupun sebaliknya." },
+
+    { id: 95, type: "figural", q: "ROTASI SPASIAL ACURATE: Objek bangun berbentuk bendera miring kanan berikut diputar 90 derajat searah jarum jam. Manakah posisi arah kibas bendera sekarang?", 
+      v: `<svg width="100" height="70" viewBox="0 0 100 70">
+            <line x1="40" y1="55" x2="40" y2="15" stroke="#1E2942" stroke-width="3"/>
+            <polygon points="40,15 70,25 40,35" fill="#EF4444"/>
+          </svg>`,
+      o: ["A. Tiang bendera rebah horizontal, bendera berkibar menghadap lurus ke arah bawah", "B. Tiang tegak lurus mengarah ke atas", "C. Bendera sobek terbagi menjadi dua bagian", "D. Bendera menghadap miring ke sisi kiri atas", "E. Tiang bendera melengkung membentuk busur"], a: 0, h: "Rotasi 90 derajat searah jarum jam merebahkan tiang vertikal menjadi horizontal, dan kibasan bendera kanan berputar menghadap bawah." },
+
+    { id: 96, type: "figural", q: "PENCERMINAN DIAGONAL: Manakah bayangan yang valid jika objek lingkaran di sudut kiri atas berikut dicerminkan terhadap garis miring diagonal kanan?", 
+      v: `<svg width="120" height="80" viewBox="0 0 120 80">
+            <rect x="20" y="10" width="60" height="60" fill="none" stroke="#1E2942"/>
+            <circle cx="35" cy="25" r="6" fill="#0B0F19"/>
+            <line x1="20" y1="70" x2="80" y2="10" stroke="#F59E0B" stroke-width="2"/>
+          </svg>`,
+      o: ["A. Lingkaran berpindah secara reflektif simetris menuju ke area sudut kanan bawah", "B. Lingkaran diam tidak bergerak di tempat semula", "C. Lingkaran membesar memenuhi seluruh ruangan kotak", "D. Bentuk lingkaran pecah berubah menjadi persegi", "E. Lingkaran melompat keluar dari batas garis luar"], a: 0, h: "Pencerminan melintasi cermin diagonal miring membalik posisi koordinat sudut kiri atas berpindah lurus menuju sudut kanan bawah." },
+
+    { id: 97, type: "figural", q: "SINTESIS MATRIKS SPASIAL: Gabungkan garis vertikal tengah dan garis horizontal tengah berikut menjadi satu kesatuan objek utuh!", 
+      v: `<svg width="160" height="60" viewBox="0 0 160 60">
+            <line x1="30" y1="10" x2="30" y2="50" stroke="#000" stroke-width="2"/>
+            <text x="55" y="35">+</text>
+            <line x1="80" y1="30" x2="120" y2="30" stroke="#000" stroke-width="2"/>
+          </svg>`,
+      o: ["A. Sebuah simbol tanda tambah (+) simetris tegak lurus", "B. Dua buah garis sejajar horizontal mendatar", "C. Bentuk segi empat kotak tertutup rapi", "D. Lingkaran lonjong melayang bebas", "E. Segitiga sama sisi alas rata tanah"], a: 0, h: "Penggabungan satu buah garis tegak vertikal dan satu buah garis mendatar horizontal di tengah menghasilkan lambang tanda tambah (+)." },
+
+    { id: 98, type: "figural", q: "KLASIFIKASI STRUKTUR GEOMETRIS: Manakah di antara pilihan berikut yang bukan merupakan poligon segi banyak bergaris lurus?", 
+      v: `<svg width="250" height="60" viewBox="0 0 250 60">
+            <polygon points="15,45 30,15 45,45" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="25" y="55">A</text>
+            <rect x="65" y="15" width="30" height="30" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="75" y="55">B</text>
+            <polygon points="120,15 140,15 145,45 115,45" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="125" y="55">C</text>
+            <circle cx="185" cy="30" r="15" fill="none" stroke="#EF4444" stroke-width="3"/> <text x="180" y="55">D</text>
+            <polygon points="230,15 245,25 240,45 220,45 215,25" fill="none" stroke="#1E2942" stroke-width="2"/> <text x="225" y="55">E</text>
+          </svg>`,
+      o: ["A. Bentuk A (Segitiga)", "B. Bentuk B (Persegi)", "C. Bentuk C (Trapesium)", "D. Bentuk D (Lingkaran - Kurva Lengkung)", "E. Bentuk E (Pentagon)"], a: 3, h: "Segitiga, persegi, trapesium, dan pentagon dibangun oleh segmen garis lurus kaku (poligon), sedangkan lingkaran dibangun oleh garis lengkung kontinu." },
+
+    { id: 99, type: "figural", q: "DERET OPERASI MATRIKS: Setiap kotak melompat maju menambah satu elemen garis horisontal bertingkat. Tentukan gambar penutup ke-4!", 
+      v: `<svg width="220" height="60" viewBox="0 0 220 60">
+            <rect x="10" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="15" y1="30" x2="45" y2="30" stroke="#000"/>
+            <rect x="60" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="65" y1="20" x2="95" y2="20" stroke="#000"/> <line x1="65" y1="40" x2="95" y2="40" stroke="#000"/>
+            <rect x="110" y="10" width="40" height="40" fill="none" stroke="#1E2942"/> <line x1="115" y1="15" x2="145" y2="15" stroke="#000"/> <line x1="115" y1="30" x2="145" y2="30" stroke="#000"/> <line x1="115" y1="45" x2="145" y2="45" stroke="#000"/>
+            <rect x="160" y="10" width="40" height="40" fill="none" stroke="#F59E0B" stroke-dasharray="2,2"/> <text x="178" y="35" fill="#F59E0B">?</text>
+          </svg>`,
+      o: ["A. Kotak terisi susunan rapi empat tingkat garis horizontal sejajar berundak", "B. Kotak kosong tanpa komponen garis mendatar", "C. Bidang silang diagonal memotong penuh", "D. Lingkaran pekat hitam di sudut atas", "E. Bentuk menyerupai huruf kapital X tebal"], a: 0, h: "Kaidah pertumbuhan linier elemen (+1 garis horizontal): 1 baris -> 2 baris -> 3 baris -> sehingga kotak ke-4 wajib berisi 4 baris mendatar." },
+
+    { id: 100, type: "figural", q: "INVERSI WARNA TRANSFORMASI: Jika segitiga hitam pekat berubah menjadi segitiga putih bersih dengan garis tepi tipis, maka persegi panjang hitam pekat akan bertransformasi menjadi...", 
+      v: `<svg width="200" height="60" viewBox="0 0 200 60">
+            <polygon points="25,15 10,45 40,45" fill="#0B0F19"/>
+            <text x="50" y="35">→</text>
+            <polygon points="85,15 70,45 90,45" fill="#FFFFFF" stroke="#1E2942" stroke-width="2"/>
+            <line x1="115" y1="10" x2="115" y2="50" stroke="#2D3748"/>
+            <rect x="140" y="20" width="40" height="20" fill="#0B0F19"/>
+          </svg>`,
+      o: ["A. Bangun Persegi Panjang kosong putih dengan outline tegas sekelilingnya", "B. Bidang lingkaran bulat lonjong hitam", "C. Struktur pecahan lidi acak berserakan", "D. Segitiga sama sisi melayang tegak langit", "E. Kotak hampa udara tanpa pembatas luar"], a: 0, h: "Logika operasi transformasi adalah inversi warna total (Negasi kloning): Elemen padat hitam pekat bertukar menjadi elemen putih kosong berwujud outline." }
+];
+    function mulaiTes() {
+        if(!document.getElementById('inName').value) return alert("Isi Nama!");
+        document.getElementById('page-login').style.display = 'none';
+        document.getElementById('page-quiz').style.display = 'block';
+        update(); startTimer(timerDuration);
+    }
+    function update() {
+        const s = bank[idx]; document.getElementById('main-q').innerHTML = `Soal ${idx+1}:<br>${s.q}`;
+        let h = ""; s.o.forEach((opt, i) => {
+            const sel = userAns[idx] === i ? 'selected' : '';
+            h += `<div class="opt-box ${sel}" onclick="pilih(${i})"><span class="prefix">${String.fromCharCode(65+i)}.</span> ${opt}</div>`;
+        });
+        document.getElementById('main-opts').innerHTML = h;
+        document.getElementById('btn-next').innerText = idx === bank.length-1 ? "SELESAI" : "LANJUT";
+        nav();
+    }
+    function pilih(i) { userAns[idx] = i; update(); if(idx < bank.length-1) setTimeout(()=>arah(1), 200); }
+    function arah(n) { if(n===1 && idx===bank.length-1) return finish(); idx+=n; update(); }
+    function nav() {
+        let h = ""; bank.forEach((_, i) => {
+            let c = (i===idx)?"nav-item active":"nav-item"; if(userAns[i]!==undefined) c+=" filled";
+            h += `<div class="${c}" onclick="idx=${i};update();">${i+1}</div>`;
+        }); document.getElementById('nav-nums').innerHTML = h;
+    }
+    function startTimer(s) {
+        setInterval(() => {
+            let m = Math.floor(s/60); let sec = s%60;
+            document.getElementById('timer').innerText = `${m}:${sec<10?'0':''}${sec}`;
+            if(s>0) s--; else finish();
+        }, 1000);
+    }
+    function finish() {
+        document.getElementById('page-quiz').style.display='none'; document.getElementById('page-result').style.display='block';
+        let benar = 0; let dHtml = "";
+        bank.forEach((s, i) => {
+            if(userAns[i] === s.a) benar++;
+            dHtml += `<div class="teach-box"><b>NO ${i+1}</b><p>${s.q}</p><b>Kunci: ${String.fromCharCode(65+s.a)}</b><br>${s.h}</div>`;
+        });
+        document.getElementById('score-big').innerText = "SKOR: " + Math.round((benar/bank.length)*100);
+        document.getElementById('discussion-list').innerHTML = dHtml;
+    }
+</script>
+</body>
+</html>

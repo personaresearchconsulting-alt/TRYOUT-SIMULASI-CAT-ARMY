@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRC - Advanced Block Logic Test</title>
+    <style>
+        :root { --navy: #0f172a; --gold: #b5935b; --bg: #f1f5f9; }
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: #1e293b; overflow: hidden; }
+
+        .header { background: white; padding: 0 25px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; height: 65px; position: relative; z-index: 100; }
+        .brand { font-weight: 800; color: var(--navy); font-size: 14px; letter-spacing: 1px; }
+        #timer { font-family: monospace; font-size: 1.5rem; font-weight: 900; color: #e11d48; }
+        
+        .main-wrapper { display: flex; height: calc(100vh - 65px); flex-direction: row-reverse; } 
+        .question-panel { flex: 1; background: white; padding: 35px; overflow-y: auto; display: flex; flex-direction: column; border-left: 1px solid #e2e8f0; }
+        .visual-panel { flex: 1.2; background: #cbd5e1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+        .visual-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); width: 100%; max-width: 650px; }
+        .q-text { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 25px; line-height: 1.5; min-height: 80px; }
+        
+        .options-grid { display: grid; gap: 10px; }
+        .option-btn { padding: 15px; border: 2px solid #f1f5f9; border-radius: 12px; cursor: pointer; display: flex; align-items: center; background: #f8fafc; font-weight: 600; transition: 0.2s; font-size: 15px; }
+        .option-btn:hover { border-color: var(--gold); }
+        .option-btn.selected { background: var(--navy) !important; color: white !important; }
+        .opt-char { font-weight: 900; margin-right: 15px; color: var(--gold); font-size: 17px; }
+
+        .btn-nav { padding: 15px 30px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; background: var(--navy); color: white; margin-top: 20px; width: 100%; }
+        .btn-finish { background: #059669 !important; }
+        
+        .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        .dot { width: 28px; height: 28px; border-radius: 5px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; background: white; }
+        .dot.active { border: 2px solid var(--gold); font-weight: bold; }
+        .dot.done { background: var(--navy); color: white; border: none; }
+
+        /* HALAMAN HASIL DENGAN FONT LEBIH BESAR */
+        #screen-result { 
+            display: none; 
+            padding: 40px 20px 100px 20px; 
+            text-align: center; 
+            background: white; 
+            position: fixed;
+            inset: 0;
+            overflow-y: auto !important;
+            z-index: 2000;
+        }
+        .rev-box { text-align: left; max-width: 850px; margin: 25px auto; padding: 25px; background: #f8fafc; border-radius: 15px; border-left: 8px solid var(--navy); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .rev-q { font-size: 19px; font-weight: 800; margin-bottom: 10px; color: var(--navy); }
+        .rev-ans { font-size: 16px; margin: 5px 0; font-weight: 600; }
+        .rev-detail { font-size: 17px; color: #334155; line-height: 1.6; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+        
+        input[type="text"] { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #eee; border-radius: 10px; outline: none; font-weight: bold; text-align: center; font-size: 16px; }
+    </style>
+</head>
+<body oncontextmenu="return false">
+
+<div id="screen-login" style="position:fixed; inset:0; background:var(--navy); z-index:3000; display:flex; align-items:center; justify-content:center; color:white;">
+    <div style="background:white; color:black; padding:40px; border-radius:20px; width:90%; max-width:400px; text-align:center;">
+        <h2 style="margin:0; color:var(--navy)">Persona Research</h2>
+        <p style="color:var(--gold); font-weight:bold; font-size:10px; letter-spacing:2px; margin-bottom:30px;">ADVANCED BLOCK LOGIC TEST</p>
+        <input type="text" id="uname" placeholder="Masukkan Nama">
+        <button onclick="start()" class="btn-nav">MULAI SIMULASI</button>
+    </div>
+</div>
+
+<div id="screen-quiz" style="display:none">
+    <div class="header">
+        <div class="brand">Persona Research & Consulting</div>
+        <div id="timer">15:00</div>
+    </div>
+    <div class="main-wrapper">
+        <div class="visual-panel">
+            <div class="visual-card" id="canvas-area"></div>
+        </div>
+        <div class="question-panel">
+            <div id="q-no" style="color:var(--gold); font-weight:800; font-size:12px; margin-bottom:10px;">SOAL 1</div>
+            <div class="q-text" id="q-txt"></div>
+            <div class="options-grid" id="opt-box"></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-nav" style="background:#64748b" onclick="nav(-1)">KEMBALI</button>
+                <button id="btn-next" class="btn-nav" onclick="nav(1)">LANJUTKAN</button>
+            </div>
+            <div class="dot-grid" id="dot-box"></div>
+        </div>
+    </div>
+</div>
+
+<div id="screen-result">
+    <h1 style="color:var(--navy); font-size: 32px;">ANALISIS HASIL AKHIR</h1>
+    <h3 id="display-name" style="color: var(--gold); letter-spacing: 1px;"></h3>
+    <div id="final-score" style="font-size:100px; font-weight:900; color:var(--navy); margin: 20px 0;">0</div>
+    <div id="review-area"></div>
+    <button onclick="location.reload()" class="btn-nav" style="max-width:300px; margin: 40px auto; display: block;">ULANGI SIMULASI</button>
+</div>
+
+<script>
+    let cur = 0, answers = {}, bank = [
+        { q: "Jika balok <b>G</b> dan <b>H</b> dihilangkan secara bersamaan, berapa banyak balok yang akan kehilangan tumpuan bawahnya secara total?", o: ["1","2","3","4","5"], a: "2", p: "Perhatikan susunan vertikalnya. Balok B berada tepat di atas G, dan balok C berada tepat di atas H. Jika G dan H kita tarik keluar, maka B dan C otomatis akan kehilangan pijakan bawahnya dan jatuh." },
+        { q: "Berapa total permukaan balok (sisi) yang saling bersentuhan dengan balok <b>M</b>?", o: ["2","3","4","5","6"], a: "3", p: "Mari kita hitung sisi yang menempel pada M: Sisi kiri menempel pada L, sisi kanan menempel pada N, dan sisi atas menempel pada H. Jadi ada 3 permukaan yang bersentuhan." },
+        { q: "Manakah balok yang memiliki jumlah sentuhan terbanyak dengan balok lainnya dalam grid ini?", o: ["G","H","M","L","I"], a: "H", p: "H adalah balok pusat. Ia bersentuhan dengan G (kiri), I (kanan), C (atas), dan M (bawah). Ini menjadikannya balok dengan titik kontak terbanyak dibandingkan balok pinggir." },
+        { q: "Jika kita memutar pandangan dan melihat dari sisi BELAKANG, balok manakah yang berada di posisi paling kanan atas?", o: ["A","E","K","O","C"], a: "A", p: "Bayangkan Anda berjalan ke belakang tumpukan. Balok E yang tadinya di kanan atas (depan) akan menjadi di kiri atas. Sebaliknya, balok A yang tadinya di kiri atas akan terlihat di posisi kanan atas dari arah belakang." },
+        { q: "Berapa banyak balok yang hanya menyentuh tepat 2 balok lainnya (posisi sudut)?", o: ["2","3","4","5","6"], a: "4", p: "Anak-anak, cari balok yang berada di paling pojok luar. Yaitu A (sentuh B,F), E (sentuh D,J), K (sentuh L,F), dan O (sentuh N,J). Hanya 4 balok ini yang memiliki kontak minimal." },
+        { q: "Jika balok <b>I</b> ditarik keluar, balok manakah yang akan tetap stabil (tidak jatuh)?", o: ["D saja","E saja","D dan E","Tidak ada","C dan D"], a: "Tidak ada", p: "Ini adalah efek domino. D menumpu pada I, dan E bersandar pada D. Jika fondasi I hilang, maka seluruh kolom di atasnya (D dan E) akan ikut runtuh." },
+        { q: "Berapa jumlah balok yang menyentuh balok <b>L</b> pada sisi vertikal (atas atau bawah)?", o: ["1","2","3","4","5"], a: "1", p: "Lihat balok L di baris bawah. Di bawahnya adalah lantai (kosong), sedangkan di atasnya menempel tepat pada balok G. Jadi hanya ada 1 kontak vertikal." },
+        { q: "Balok manakah yang berada di koordinat Baris 2, Kolom 4?", o: ["H","I","J","D","N"], a: "I", p: "Baris 2 terdiri dari F, G, H, I, J. Jika kita hitung dari kiri, kolom ke-4 jatuh pada balok I." },
+        { q: "Jika balok baris tengah (F-J) adalah kaca transparan, balok mana yang terlihat tepat di atas balok <b>M</b>?", o: ["H","C","M","L","Tidak ada"], a: "H", p: "Balok M berada di baris 3 kolom 3. Tepat di atasnya pada baris 2 adalah balok H. Jadi H adalah tumpuan langsung di atas M." },
+        { q: "Berapa banyak balok interior (tengah) yang menyentuh lebih dari 3 balok lainnya?", o: ["1","2","3","4","5"], a: "3", p: "Balok yang dikelilingi banyak teman adalah G, H, dan I. Masing-masing menyentuh 4 sisi (kiri, kanan, atas, bawah)." },
+        { q: "Jika baris atas (A-E) dipindahkan ke bawah baris K-O, balok <b>C</b> akan berada tepat di bawah balok apa?", o: ["M","L","N","H","K"], a: "M", p: "C berada di kolom 3. Baris paling bawah saat ini kolom 3 adalah M. Jadi jika C dipindah ke dasar, ia akan berada di bawah M." },
+        { q: "Berapa banyak balok yang bersentuhan langsung dengan balok <b>B</b>?", o: ["1","2","3","4","5"], a: "3", p: "Balok B di baris atas menyentuh A di kiri, C di kanan, dan menumpu pada G di bawahnya." },
+        { q: "Sebutkan balok yang berada tepat di posisi diagonal kiri-bawah dari balok <b>D</b>!", o: ["H","I","G","C","N"], a: "H", p: "D ada di baris 1 kolom 4. Turun satu baris dan geser satu kolom ke kiri, kita akan menemukan balok H di baris 2 kolom 3." },
+        { q: "Jika balok <b>K</b> dan <b>O</b> ditukar posisinya, hubungan spasial balok manakah yang paling berubah terhadap pusat (M)?", o: ["L","N","F","J","Semua salah"], a: "Semua salah", p: "Pertukaran K dan O hanya mengubah posisi ujung-ujung terjauh, namun tidak mengubah struktur tetangga dekat balok M." },
+        { q: "Berapa banyak balok yang membentuk 'kulit luar' tumpukan (tidak menyentuh 4 sisi)?", o: ["10","12","13","9","11"], a: "12", p: "Total ada 15 balok. Hanya 3 balok di tengah (G, H, I) yang terkunci di semua sisi. Jadi sisanya (15 - 3 = 12) adalah bagian luar." },
+        { q: "Balok manakah yang memiliki bidang kontak (permukaan nempel) paling sedikit?", o: ["A","M","G","H","Semua sama"], a: "A", p: "Sama seperti soal pojok, balok A hanya menempel pada 2 bidang (B dan F), menjadikannya balok dengan kontak paling minim." },
+        { q: "Jika kita mengecat balok <b>H</b>, berapa banyak balok lain yang akan terkena noda cat di sisinya?", o: ["3","4","5","6","2"], a: "4", p: "Semua yang menempel pada H akan kena noda: yaitu G, I, C, dan M. Ada 4 tetangga langsung." },
+        { q: "Berapa jumlah balok yang berjejer di sebelah KIRI balok <b>N</b> pada baris yang sama?", o: ["1","2","3","4","0"], a: "3", p: "Di baris paling bawah, urutannya K-L-M-N-O. Maka di sebelah kiri N terdapat 3 balok: K, L, dan M." },
+        { q: "Jika kolom 2 (B, G, L) diangkat, menjadi berapa bagiankah sisa tumpukan balok tersebut?", o: ["1","2","3","4","0"], a: "2", p: "Kolom 2 berada di tengah. Jika diambil, tumpukan akan terbelah menjadi dua sisi: kelompok kiri (A,F,K) dan kelompok kanan (C,D,E,H,I,J,M,N,O)." },
+        { q: "Balok manakah yang bertindak sebagai tumpuan tepat di atas balok <b>N</b>?", o: ["H","I","J","D","E"], a: "I", p: "N berada di kolom 4 baris paling bawah. Tepat di atasnya pada baris tengah adalah balok I." },
+        { q: "Berapa jumlah total tetangga yang bersentuhan dengan balok <b>J</b>?", o: ["1","2","3","4","5"], a: "3", p: "J berada di pinggir kanan tengah. Ia menyentuh I (kiri), E (atas), dan O (bawah)." },
+        { q: "Jika seluruh grid ini digulingkan 90 derajat ke arah kanan, balok mana yang menjadi dasar lantai?", o: ["A-E","E-O","K-O","A-K","C-M"], a: "A-E", p: "Bayangkan tumpukan ini jatuh ke kanan. Sisi kiri (A, B, C, D, E) yang tadinya berdiri tegak akan rebah menjadi alas tumpukan." },
+        { q: "Berapa banyak balok yang mengelilingi balok <b>G</b>?", o: ["2","3","4","5","6"], a: "4", p: "G menyentuh F (kiri), H (kanan), B (atas), dan L (bawah). Total ada 4 arah sentuhan." },
+        { q: "Balok manakah yang menempati posisi paling pojok kiri bawah?", o: ["K","A","O","E","F"], a: "K", p: "K adalah balok pertama di baris ke-3 (dasar) dan kolom ke-1 (paling kiri)." },
+        { q: "Dalam struktur 3 tingkat ini, balok <b>M</b> berada pada tingkat ke berapa dari bawah?", o: ["1","2","3","4","5"], a: "1", p: "Baris 3 (K-O) adalah tingkat dasar atau tingkat ke-1 jika dihitung dari lantai." },
+        { q: "Di antara balok <b>C</b> dan <b>E</b>, terdapat balok apa?", o: ["B","D","H","I","G"], a: "D", p: "Pada baris pertama, urutannya adalah A-B-C-D-E. Jadi di antara C dan E adalah D." },
+        { q: "Berapa banyak balok yang menyusun kolom paling kanan?", o: ["2","3","4","5","1"], a: "3", p: "Kolom terakhir (kanan) terdiri dari balok E (atas), J (tengah), dan O (bawah). Total 3 balok." },
+        { q: "Manakah di antara balok berikut yang posisinya tepat di sumbu tengah vertikal?", o: ["H","M","C","Semua Benar","G"], a: "Semua Benar", p: "Karena grid ini lebarnya 5 kolom, maka kolom ke-3 adalah tengahnya. Balok C, H, dan M semuanya berada di kolom ke-3." },
+        { q: "Berapa banyak bidang kontak yang dimiliki balok <b>F</b>?", o: ["1","2","3","4","5"], a: "3", p: "F menyentuh G di kanan, A di atas, dan K di bawah. Ada 3 permukaan yang menempel." },
+        { q: "Jika kita membuang seluruh fondasi baris bawah (K-O), balok mana yang akan jatuh?", o: ["H, I, J","C, D, E","F, G, H","Semua jatuh","Tidak ada"], a: "H, I, J", p: "H, I, dan J berada tepat di atas M, N, dan O. Jika tumpuan bawahnya (M, N, O) hilang, maka H, I, J tidak punya pilihan selain jatuh." }
+    ];
+
+    // Map jawaban huruf ke index opsi untuk rekap
+    function getChar(idx) { return String.fromCharCode(65 + idx); }
+
+    function drawGrid() {
+        let svg = `<svg viewBox="0 0 500 400" style="width:100%">`;
+        const labels = [["A","B","C","D","E"], ["F","G","H","I","J"], ["K","L","M","N","O"]];
+        labels.forEach((row, rIdx) => {
+            row.forEach((label, cIdx) => {
+                let x = 50 + (cIdx * 80) + (rIdx * 20);
+                let y = 50 + (rIdx * 50);
+                svg += `<g transform="translate(${x},${y})">
+                        <path d="M0 20 L40 0 L120 0 L80 20 Z" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
+                        <path d="M0 20 L80 20 L80 50 L0 50 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
+                        <path d="M80 20 L120 0 L120 30 L80 50 Z" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
+                        <text x="40" y="40" fill="#1e293b" font-weight="900" font-size="20" text-anchor="middle">${label}</text>
+                    </g>`;
+            });
+        });
+        svg += `</svg>`;
+        document.getElementById('canvas-area').innerHTML = svg;
+    }
+
+    function start() {
+        if(!document.getElementById('uname').value) return alert("Harap isi nama Anda!");
+        document.getElementById('screen-login').style.display='none';
+        document.getElementById('screen-quiz').style.display='block';
+        load(); timer();
+    }
+
+    function load() {
+        let q = bank[cur];
+        document.getElementById('q-no').innerText = `SOAL ${cur+1} / 30`;
+        document.getElementById('q-txt').innerHTML = q.q;
+        
+        let btnNext = document.getElementById('btn-next');
+        if(cur === 29) {
+            btnNext.innerText = "SELESAI & KIRIM";
+            btnNext.classList.add('btn-finish');
+        } else {
+            btnNext.innerText = "LANJUTKAN";
+            btnNext.classList.remove('btn-finish');
+        }
+
+        drawGrid();
+        
+        let b = document.getElementById('opt-box'); b.innerHTML = "";
+        q.o.forEach((v, i) => {
+            let d = document.createElement('div');
+            d.className = 'option-btn' + (answers[cur] === v ? ' selected' : '');
+            let char = getChar(i);
+            d.innerHTML = `<span class="opt-char">${char}</span> ${v}`;
+            d.onclick = () => { 
+                answers[cur] = v; 
+                load(); 
+                if(cur < 29) setTimeout(() => { nav(1); }, 300); 
+            };
+            b.appendChild(d);
+        });
+        dots();
+    }
+
+    function nav(s) {
+        if(s === 1 && cur === 29) { finish(); return; }
+        cur += s; if(cur < 0) cur = 0; if(cur > 29) cur = 29; load();
+    }
+
+    function dots() {
+        let d = document.getElementById('dot-box'); d.innerHTML = "";
+        bank.forEach((_, i) => {
+            let s = document.createElement('div');
+            s.className = 'dot' + (answers[i] ? ' done' : '') + (i === cur ? ' active' : '');
+            s.innerText = i+1;
+            s.onclick = () => { cur = i; load(); };
+            d.appendChild(s);
+        });
+    }
+
+    let timeLeft = 900;
+    function timer() {
+        let itv = setInterval(() => {
+            let m = Math.floor(timeLeft/60), sec = timeLeft%60;
+            document.getElementById('timer').innerText = `${m}:${sec<10?'0':''}${sec}`;
+            if(timeLeft<=0) { clearInterval(itv); finish(); } timeLeft--;
+        }, 1000);
+    }
+
+    function finish() {
+        document.getElementById('screen-quiz').style.display='none';
+        document.getElementById('screen-result').style.display='block';
+        document.getElementById('display-name').innerText = document.getElementById('uname').value.toUpperCase();
+        
+        let score = 0, html = "";
+        bank.forEach((q, i) => {
+            let userAnsValue = answers[i] || "Tidak Dijawab";
+            let correctAnsValue = q.a;
+            let isCorrect = userAnsValue === correctAnsValue;
+            
+            // Cari index huruf untuk tampilan rekap
+            let userChar = "-";
+            let correctChar = "-";
+            q.o.forEach((val, idx) => {
+                if(val === userAnsValue) userChar = getChar(idx);
+                if(val === correctAnsValue) correctChar = getChar(idx);
+            });
+
+            if(isCorrect) score++;
+
+            html += `
+                <div class="rev-box">
+                    <div class="rev-q">${i+1}. ${q.q}</div>
+                    <div class="rev-ans" style="color:${isCorrect ? '#059669' : '#dc2626'}">
+                        Jawaban Anda: <b>${userChar}</b> (${userAnsValue})
+                    </div>
+                    <div class="rev-ans" style="color:#0f172a">
+                        Jawaban Benar: <b>${correctChar}</b> (${correctAnsValue})
+                    </div>
+                    <div class="rev-detail">
+                        <b>Penjelasan:</b><br>${q.p}
+                    </div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('final-score').innerText = Math.round(score/30*100);
+        document.getElementById('review-area').innerHTML = html;
+        document.getElementById('screen-result').scrollTop = 0;
+    }
+</script>
+</body>
+</html>

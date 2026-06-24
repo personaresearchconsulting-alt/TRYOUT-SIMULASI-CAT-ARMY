@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Koran CAT - Persona Research & Consulting</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2c3e50; --accent-blue: #3498db; --bg-soft: #f4f7f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #ffffff; user-select: none; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { max-width: 800px; width: 100%; background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        .brand-name { color: #000; font-weight: 900; font-size: 24px; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase; }
+        .petunjuk-title { color: #2980b9; font-weight: 900; font-size: 16px; text-align: left; margin-bottom: 25px; text-transform: uppercase; }
+        .instruction-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; text-align: left; margin-bottom: 30px; }
+        .ins-item { border-left: 4px solid #3498db; padding-left: 15px; min-height: 70px; }
+        .ins-item h4 { font-weight: 900; margin-bottom: 5px; font-size: 15px; color: #000; }
+        .ins-item p { font-size: 13px; color: #444; line-height: 1.5; }
+        .speaker-note { color: #e74c3c; font-size: 13px; font-weight: 700; margin-bottom: 20px; }
+        .btn-cek { background: #b36b2d; color: white; border: none; padding: 15px; width: 100%; font-weight: 800; border-radius: 8px; cursor: pointer; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+        .btn-mulai { background: #2c3e50; color: white; border: none; padding: 15px; width: 100%; font-weight: 800; border-radius: 8px; cursor: pointer; font-size: 14px; text-transform: uppercase; }
+
+        /* --- BOARD & INTERFACE --- */
+        header { background-color: var(--primary); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 4px solid var(--accent-blue); }
+        .timer-box { font-family: monospace; font-size: 1.8em; color: var(--accent-blue); font-weight: 900; }
+        .container { flex: 1; display: flex; overflow-x: hidden; align-items: flex-start; position: relative; scroll-behavior: smooth; background: white; }
+        .lajur-frame { background: white; min-width: 100px; height: 100vh; border-right: 1px solid #eee; flex-shrink: 0; opacity: 0.15; transition: 0.4s ease; display: flex; flex-direction: column; }
+        .lajur-frame.active { opacity: 1; background: var(--bg-soft); border-left: 1px solid #ccc; }
+        .lajur-content { display: flex; flex-direction: column; transition: transform 0.1s ease-out; padding-top: 100px; }
+        .item { font-size: 28px; font-weight: 800; text-align: center; height: 55px; color: #000; position: relative; display: flex; justify-content: center; align-items: center; }
+        .ans-preview { position: absolute; left: 110%; top: 100%; transform: translate(-50%, -50%); font-size: 20px; color: #27ae60; font-weight: 900; opacity: 0.6; }
+        .active-pair { background-color: rgba(52, 152, 219, 0.2); }
+        .active-top { border: 2.5px solid var(--accent-blue); border-bottom: 0; border-radius: 12px 12px 0 0; }
+        .active-bottom { border: 2.5px solid var(--accent-blue); border-top: 0; border-radius: 0 0 12px 12px; }
+
+        /* KEYPAD */
+        .keypad { display: grid; grid-template-columns: repeat(3, 70px); gap: 12px; background: #232d37; padding: 20px; border-radius: 15px; position: fixed; z-index: 2000; right: 50px; top: 150px; }
+        .keypad-handle { grid-column: span 3; height: 20px; background: #1a2229; border-radius: 10px; cursor: move; }
+        .key { width: 70px; height: 70px; background: #2c3e50; color: white; border: 1px solid #3e4f5f; border-radius: 10px; font-size: 24px; font-weight: 700; cursor: pointer; }
+
+        /* RESULT SCREEN */
+        #result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 6000; padding: 30px; overflow-y: auto; }
+        .report-header { text-align: center; margin-bottom: 25px; border-bottom: 4px solid var(--primary); padding-bottom: 10px; }
+        .persona-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .persona-table th { background: var(--primary); color: white; padding: 12px; font-size: 14px; }
+        .persona-table td { border: 1px solid #ccc; padding: 12px; text-align: center; font-weight: 700; }
+        .category-row { background: #f1f4f6; color: var(--accent-blue); font-weight: 900 !important; }
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; }
+        .detail-table th, .detail-table td { border: 1px solid #eee; padding: 8px; text-align: center; }
+        footer { background: white; padding: 10px; text-align: center; font-size: 12px; font-weight: 800; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body oncontextmenu="return false">
+
+<div id="login-screen">
+    <div class="login-card">
+        <h1 class="brand-name">PERSONA RESEARCH & CONSULTING</h1>
+        <div class="petunjuk-title">PETUNJUK PENGERJAAN LENGKAP:</div>
+        <div class="instruction-grid">
+            <div class="ins-item"><h4>1. Cara Menjawab</h4><p>Jumlahkan 2 angka vertikal. Ketik angka satuannya saja (Contoh: 9+6=15, ketik 5).</p></div>
+            <div class="ins-item"><h4>2. Perpindahan Lajur</h4><p>Terdapat 20 lajur otomatis. Setiap lajur berdurasi 3 menit.</p></div>
+            <div class="ins-item"><h4>3. Sinyal Audio</h4><p>Dengarkan bunyi "Bip" 3 detik sebelum lajur berpindah secara otomatis.</p></div>
+            <div class="ins-item"><h4>4. Target Kerja</h4><p>Standar minimal pengerjaan adalah 2000 jawaban dengan akurasi tinggi.</p></div>
+        </div>
+        <p class="speaker-note">Pastikan Volume Speaker Anda Aktif.</p>
+        <button class="btn-cek" onclick="playBeep(600, 0.2)">📢 KLIK UNTUK TES SUARA (CEK SPEAKER)</button>
+        <button class="btn-mulai" onclick="startApp()">SAYA MENGERTI, MULAI TES</button>
+    </div>
+</div>
+
+<header>
+    <div style="font-weight:900;">TES KORAN CAT - PERSONA</div>
+    <div id="timer" class="timer-box">03:00</div>
+    <div style="font-weight:900;">LAJUR: <span id="lajur-count">1</span> / 20</div>
+</header>
+
+<div class="container" id="board"></div>
+
+<div id="keypad" class="keypad">
+    <div class="keypad-handle" id="drag-area"></div>
+    <button class="key" onclick="inputAnswer(1)">1</button><button class="key" onclick="inputAnswer(2)">2</button><button class="key" onclick="inputAnswer(3)">3</button>
+    <button class="key" onclick="inputAnswer(4)">4</button><button class="key" onclick="inputAnswer(5)">5</button><button class="key" onclick="inputAnswer(6)">6</button>
+    <button class="key" onclick="inputAnswer(7)">7</button><button class="key" onclick="inputAnswer(8)">8</button><button class="key" onclick="inputAnswer(9)">9</button>
+    <button class="key" style="grid-column: span 3; width: 100%" onclick="inputAnswer(0)">0</button>
+</div>
+
+<footer>PERSONA RESEARCH & CONSULTING | WA: 0877 425 5786</footer>
+
+<div id="result-screen">
+    <div id="pdf-content" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+        <div class="report-header">
+            <h1 style="color: var(--primary); font-weight: 900;">LAPORAN HASIL EVALUASI PSIKOLOGIS</h1>
+            <p>Persona Research & Consulting | Digital Competency Test</p>
+        </div>
+        <table class="persona-table">
+            <thead><tr><th>KATEGORI EVALUASI</th><th>TARGET STANDAR</th><th>HASIL PESERTA</th></tr></thead>
+            <tbody id="main-summary-body"></tbody>
+        </table>
+        <div style="height: 300px; margin: 20px 0;"><canvas id="staminaChart"></canvas></div>
+        <h3 style="margin: 20px 0 10px 0; border-left: 5px solid var(--accent-blue); padding-left: 10px;">RINCIAN PENGERJAAN PER LAJUR</h3>
+        <table class="detail-table">
+            <thead><tr style="background: #eee;"><th>LAJUR</th><th>JUMLAH KERJA</th><th>KESALAHAN</th><th>BENAR</th><th>AKURASI (%)</th></tr></thead>
+            <tbody id="detail-lajur-body"></tbody>
+        </table>
+        <div style="margin-top: 30px; padding: 20px; background: #f4f7f9; border-radius: 10px;">
+            <h4 style="font-weight: 900; color: var(--primary);">KESIMPULAN NARATIF & SARAN:</h4>
+            <p id="txt-kesimpulan" style="margin-top: 10px; line-height: 1.6;"></p>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 40px; padding-bottom: 50px;">
+        <button onclick="downloadPDF()" style="padding:15px 40px; background:#27ae60; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:900;">UNDUH LAPORAN (PDF)</button>
+        <button onclick="location.reload()" style="padding:15px 40px; background:#2c3e50; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:900; margin-left:10px;">ULANGI TES</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq = 600, duration = 0.2) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const TOTAL_LAJUR = 20, TIME_PER_LAJUR = 180;
+    let currentL = 0, currentB = 0, secondsLeft = TIME_PER_LAJUR, timerRef, testData = [];
+
+    function startApp() { document.getElementById('login-screen').style.display = 'none'; initBoard(); startTimer(); }
+
+    function initBoard() {
+        const board = document.getElementById('board'); board.innerHTML = '';
+        for (let l = 0; l < TOTAL_LAJUR; l++) {
+            testData[l] = { total: 0, correct: 0, wrong: 0 };
+            const frame = document.createElement('div'); frame.className = 'lajur-frame'; frame.id = `frame-${l}`;
+            const content = document.createElement('div'); content.className = 'lajur-content'; content.id = `content-${l}`;
+            let lastNum = Math.floor(Math.random() * 9) + 1;
+            for (let b = 0; b < 400; b++) {
+                const nextNum = Math.floor(Math.random() * 9) + 1;
+                const item = document.createElement('div'); item.className = 'item'; item.id = `L${l}-B${b}`;
+                item.innerHTML = `${lastNum}<div class="ans-preview" id="A${l}-B${b}"></div>`;
+                item.dataset.ans = (lastNum + nextNum) % 10;
+                content.appendChild(item); lastNum = nextNum;
+            }
+            frame.appendChild(content); board.appendChild(frame);
+        }
+        updateVisuals();
+    }
+
+    function startTimer() {
+        clearInterval(timerRef); secondsLeft = TIME_PER_LAJUR;
+        timerRef = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('timer').innerText = `${Math.floor(secondsLeft/60).toString().padStart(2,'0')}:${(secondsLeft%60).toString().padStart(2,'0')}`;
+            if (secondsLeft <= 3 && secondsLeft > 0) playBeep(800, 0.1);
+            if (secondsLeft <= 0) nextLajur();
+        }, 1000);
+    }
+
+    function updateVisuals() {
+        document.querySelectorAll('.lajur-frame').forEach(f => f.classList.remove('active'));
+        const activeFrame = document.getElementById(`frame-${currentL}`);
+        if(activeFrame) {
+            activeFrame.classList.add('active');
+            document.getElementById('board').scrollTo({ left: activeFrame.offsetLeft - (window.innerWidth/2) + 50, behavior: 'smooth' });
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active-pair','active-top','active-bottom'));
+            const top = document.getElementById(`L${currentL}-B${currentB}`);
+            const bottom = document.getElementById(`L${currentL}-B${currentB+1}`);
+            if(top && bottom) {
+                top.classList.add('active-pair','active-top'); bottom.classList.add('active-pair','active-bottom');
+                document.getElementById(`content-${currentL}`).style.transform = `translateY(-${currentB * 55}px)`;
+            }
+        }
+    }
+
+    function inputAnswer(val) {
+        const item = document.getElementById(`L${currentL}-B${currentB}`);
+        if(!item) return;
+        document.getElementById(`A${currentL}-B${currentB}`).innerText = val;
+        testData[currentL].total++;
+        if(val == item.dataset.ans) testData[currentL].correct++; else testData[currentL].wrong++;
+        currentB++; updateVisuals();
+    }
+
+    function nextLajur() {
+        if(currentL < TOTAL_LAJUR - 1) { currentL++; currentB = 0; document.getElementById('lajur-count').innerText = currentL + 1; startTimer(); updateVisuals(); }
+        else showResult();
+    }
+
+    function showResult() {
+        clearInterval(timerRef);
+        document.getElementById('result-screen').style.display = 'block';
+        const totalSemua = testData.reduce((a, b) => a + b.total, 0);
+        const totalSalah = testData.reduce((a, b) => a + b.wrong, 0);
+        const akurasi = totalSemua > 0 ? ((totalSemua - totalSalah) / totalSemua * 100).toFixed(1) : 0;
+        
+        // --- RUMUS SCORING PAULI ---
+        const mean = totalSemua / 20;
+        const diffs = testData.map(d => Math.abs(d.total - mean));
+        const stabilitasVal = (diffs.reduce((a, b) => a + b, 0) / 20).toFixed(2);
+        const peakVal = Math.max(...testData.map(d => d.total));
+        const peakLajur = testData.map(d => d.total).indexOf(peakVal) + 1;
+
+        document.getElementById('main-summary-body').innerHTML = `
+            <tr><td>JUMLAH KERJA</td><td>2000 - 2400</td><td>${totalSemua}</td></tr>
+            <tr class="category-row"><td>KATEGORI KERJA</td><td>MIN. 2000</td><td>${totalSemua >= 2000 ? 'BAIK' : (totalSemua >= 1500 ? 'CUKUP' : 'KURANG/KRITIS')}</td></tr>
+            <tr><td>KETELITIAN</td><td>AKURASI > 95%</td><td>${akurasi}%</td></tr>
+            <tr><td>STABILITAS</td><td>KONSISTEN</td><td>${stabilitasVal <= 2 ? 'SANGAT STABIL' : (stabilitasVal <= 5 ? 'STABIL' : 'FLUKTUATIF')}</td></tr>
+            <tr><td>PUNCAK KERJA</td><td>PRODUKTIF</td><td>Lajur ${peakLajur} (Skor: ${peakVal})</td></tr>
+        `;
+        
+        testData.forEach((d, i) => {
+            document.getElementById('detail-lajur-body').innerHTML += `<tr><td>Lajur ${i+1}</td><td>${d.total}</td><td style="color:red">${d.wrong}</td><td>${d.correct}</td><td>${d.total > 0 ? (d.correct/d.total*100).toFixed(1) : 0}%</td></tr>`;
+        });
+        
+        document.getElementById('txt-kesimpulan').innerText = totalSemua < 1500 ? "Hasil Penilaian: KURANG/KRITIS. Daya tahan kerja Anda masih berada di bawah target minimal." : "Hasil Penilaian: BAIK. Menunjukkan potensi energi kerja dan konsentrasi yang prima.";
+        renderChart();
+    }
+
+    function renderChart() {
+        new Chart(document.getElementById('staminaChart'), {
+            type: 'line',
+            data: { labels: Array.from({length: 20}, (_, i) => i + 1), datasets: [{ label: 'Jumlah Jawaban', data: testData.map(d => d.total), borderColor: '#3498db', fill: true, tension: 0.3 }] },
+            options: { maintainAspectRatio: false }
+        });
+    }
+
+    function downloadPDF() { html2pdf().from(document.getElementById('pdf-content')).save('Laporan_Persona_Pauli.pdf'); }
+
+    const kp = document.getElementById('keypad'), dragArea = document.getElementById('drag-area');
+    let isDragging = false, startX, startY, initialLeft, initialTop;
+    dragArea.onmousedown = (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; initialLeft = kp.offsetLeft; initialTop = kp.offsetTop; kp.style.right = 'auto'; };
+    document.onmousemove = (e) => { if (!isDragging) return; kp.style.left = (initialLeft + (e.clientX - startX)) + 'px'; kp.style.top = (initialTop + (e.clientY - startY)) + 'px'; };
+    document.onmouseup = () => isDragging = false;
+    document.addEventListener('keydown', (e) => { if(e.key >= '0' && e.key <= '9') inputAnswer(parseInt(e.key)); });
+</script>
+</body>
+</html>
