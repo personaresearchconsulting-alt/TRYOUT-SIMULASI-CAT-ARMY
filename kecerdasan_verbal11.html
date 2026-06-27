@@ -53,7 +53,6 @@
     <h1 style="letter-spacing:2px; margin:10px 0;">TES KECERDASAN VERBAL</h1>
     <div style="color:#666; margin-bottom:30px;">Persona Research And Consulting</div>
     <input type="text" id="inName" placeholder="NAMA LENGKAP">
-    <input type="password" id="inPass" placeholder="PASSWORD">
     <button class="btn-main" onclick="mulaiTes()">MASUK SESI</button>
     <div class="app-footer">
         <b>Persona Research and Consulting 2026</b><br>
@@ -137,7 +136,7 @@
         { q: "IMPAS ><", o: ["Laba", "Rugi", "Sama", "Untung", "Saldo"], a: 1, h: "Impas berarti posisi di mana tidak ada untung dan tidak ada rugi. Lawan kata yang paling relevan dalam konteks keuangan adalah Rugi." },
         { q: "OVAL : ELIPS = ... : ...", o: ["Bulat : Bola", "Persegi : Kotak", "Segitiga : Prisma", "Lingkaran : Bundar", "Garis : Titik"], a: 3, h: "Hubungan 'Sinonim Bentuk'. Oval dan Elips adalah bentuk yang mirip/sama. Lingkaran dan Bundar juga merupakan sinonim bentuk dua dimensi." },
         { q: "PRESTISE =", o: ["Hadiah", "Wibawa", "Kekayaan", "Usaha", "Gengsi"], a: 1, h: "Prestise bermakna martabat, kehormatan, atau wibawa yang dimiliki seseorang di mata publik." },
-        { q: "REDUKSI ><", o: ["Diskon", "Pemotongan", "Penambahan", "Penyusutan", "Perbaikan"], a: 2, h: "Reduksi berarti pengurangan atau pemotongan. Lawan kata yang paling tepat adalah Penambahan." },
+        { q: "REDUKSI ><", o: ["Diskon", "Pemotongan", "Penambahan", "Penyusutan", "Perbaikan"], a: 2, h: "Reduksi berarti peningkatan atau pemotongan. Lawan kata yang paling tepat adalah Penambahan." },
         { q: "SARJANA : SKRIPSI = ... : ...", o: ["Dokter : Obat", "Magister : Tesis", "Siswa : Ujian", "Guru : Kelas", "Buruh : Gaji"], a: 1, h: "Hubungan 'Lulusan : Tugas Akhir'. Sarjana wajib menulis Skripsi. Magister wajib menulis Tesis." },
         { q: "STAGNAN ><", o: ["Diam", "Berhenti", "Dinamis", "Kaku", "Tetap"], a: 2, h: "Stagnan berarti berhenti, tidak bergerak, atau jalan di tempat. Lawan katanya adalah Dinamis, yang berarti penuh gerak dan perubahan." },
         { q: "HIBRIDA =", o: ["Asli", "Unggul", "Cepat", "Persilangan", "Lokal"], a: 3, h: "Hibrida adalah hasil perkawinan atau persilangan antara dua jenis yang berbeda (tanaman atau hewan) untuk mendapatkan sifat tertentu." },
@@ -156,8 +155,7 @@
 
     function mulaiTes() {
         const name = document.getElementById('inName').value;
-        const pass = document.getElementById('inPass').value;
-        if(!name || !pass) return alert("Harap isi Nama dan Password!");
+        if(!name) return alert("Harap isi Nama Lengkap!");
         document.getElementById('page-login').style.display = 'none';
         document.getElementById('page-quiz').style.display = 'block';
         update();
