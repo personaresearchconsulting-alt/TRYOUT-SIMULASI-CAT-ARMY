@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TES KECERDASAN TNI - Persona Research & Consulting</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #3498db; padding-bottom: 15px; }
+        .header h1 { margin: 0; color: #2c3e50; font-size: 26px; }
+        .header p { margin: 5px 0 0 0; color: #7f8c8d; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { color: #2c3e50; margin-top: 0; }
+        .instruction-card { background: #e8f4fd; padding: 15px; border-left: 5px solid #3498db; margin-bottom: 20px; border-radius: 4px; font-style: italic; font-weight: bold; }
+        .question-card { margin-bottom: 25px; display: none; }
+        .question-card.active { display: block; }
+        .question-text { font-size: 18px; font-weight: bold; margin-bottom: 15px; line-height: 1.5; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { padding: 12px 20px; background: #fff; border: 2px solid #cbd5e1; border-radius: 6px; text-align: left; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .option-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .option-btn.selected { background: #3498db; color: #fff; border-color: #2980b9; }
+        .nav-btn { padding: 12px 25px; background: #2c3e50; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s; }
+        .nav-btn:hover { background: #1a252f; }
+        .progress-container { margin-bottom: 20px; }
+        .progress-text { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; }
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2ecc71; width: 0%; transition: width 0.3s; }
+        
+        /* Result Style */
+        .result-section { display: none; }
+        .score-box { text-align: center; background: #2ecc71; color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
+        .score-box h3 { margin: 0; font-size: 24px; }
+        .score-num { font-size: 64px; font-weight: bold; margin: 10px 0; }
+        .recap-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .recap-header { font-size: 16px; font-weight: bold; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; }
+        .badge.correct { background: #2ecc71; }
+        .badge.wrong { background: #e74c3c; }
+        .badge.unanswered { background: #f1c40f; }
+        .explanation-box { background: #edf2f7; padding: 12px; border-left: 4px solid #4a5568; margin-top: 10px; font-size: 14px; border-radius: 0 4px 4px 0; }
+        .svg-option-wrapper { display: flex; align-items: center; justify-content: center; background: #f8fafc; padding: 10px; border-radius: 4px; border: 1px dashed #cbd5e1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>SIMULASI TRYOUT TES KECERDASAN TNI</h1>
+        <p>Persona Research & Consulting</p>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea">
+        <div class="progress-container">
+            <div class="progress-text">
+                <span id="progressStep">Soal 1 dari ...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        
+        <div id="mainInstruction" class="instruction-card">Memuat Instruksi...</div>
+        <div id="quizContainer"></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <button id="prevBtn" class="nav-btn" onclick="changeQuestion(-1)">Sebelumnya</button>
+            <button id="submitBtn" class="nav-btn" onclick="submitAnswers()" style="display:none; background:#2ecc71;">Selesai & Lihat Hasil</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-section">
+        <div class="score-box">
+            <h3>Hasil Evaluasi Mandiri Anda</h3>
+            <div class="score-num" id="finalScore">0</div>
+            <p id="scoreStats">Benar: 0 | Salah: 0 dari 0 Soal</p>
+        </div>
+        
+        <h2>Rekap Jawaban & Pembahasan Lengkap</h2>
+        <div id="recapContainer"></div>
+    </div>
+</div>
+
+<script>
+// Database Soal Lengkap
+const masterQuestions = [
+    // === SUBTES 1: MELENGKAPI KALIMAT (1-20) ===
+    { id: "q_01", number: 1, type: "multiple-choice", key: "e", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Kewenangan seseorang dalam memimpin jalannya organisasi idealnya didasarkan pada...", options: { a: "kekuatan fisik", b: "daya tarik", c: "aset pribadi", d: "nyali", e: "kapabilitas kepemimpinan" }, explanation: "Otoritas formal kepemimpinan ideal ditentukan oleh kompetensi/kapabilitas manajemen kepemimpinan itu sendiri." },
+    { id: "q_02", number: 2, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Lawan kata yang paling sesuai untuk mendefinisikan sikap 'ekonomis' adalah...", options: { a: "murah", b: "kikir", c: "konsumtif", d: "mewah", e: "berlebihan" }, explanation: "Ekonomis merujuk pada prinsip efisiensi penggunaan anggaran, kebalikannya adalah konsumtif (bersifat menghabiskan)." },
+    { id: "q_03", number: 3, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Benang rajut memiliki keterikatan material yang paling dekat dengan...", options: { a: "kapas", b: "serat kain", c: "bulu domba", d: "sutra", e: "pakaian jahit" }, explanation: "Benang rajut secara konvensional dibuat dari pemrosesan serat protein alami wol yang bersumber dari bulu domba." },
+    { id: "q_04", number: 4, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Suatu alat atau media perantara yang dirancang khusus untuk mempublikasikan keputusan adalah...", options: { a: "buku harian", b: "lembaran berita", c: "surat edaran", d: "papan pengumuman", e: "catatan rapat" }, explanation: "Surat edaran memiliki fungsi yurisdiksi organisasi formal untuk meneruskan instruksi atau keputusan strategis ke lingkup internal." },
+    { id: "q_05", number: 5, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah jam dinding digital selalu menunjukkan indikator kegunaan utama berupa...", options: { a: "jarum penunjuk", b: "putaran mesin", c: "angka digital", d: "sumber energi", e: "bingkai pelindung" }, explanation: "Fitur pembeda dan utama dari jam bertipe digital adalah representasi angka yang langsung memproyeksikan waktu secara numerik." },
+    { id: "q_06", number: 6, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Air sungai yang mengalir deras di wilayah hilir memiliki kecenderungan bermuara di...", options: { a: "telaga", b: "bendungan air", c: "lautan lepas", d: "aliran parit", e: "sumber mata air" }, explanation: "Hilir sungai merupakan area terminasi akhir dari siklus hidrologi permukaan daratan yang melepaskan massanya ke laut." },
+    { id: "q_07", number: 7, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Seseorang yang selalu memandang segala peristiwa dari sudut pandang negatif disebut...", options: { a: "realistis", b: "skeptis", c: "pesimistis", d: "idealis", e: "apatis" }, explanation: "Pesimistis adalah kecenderungan psikologis yang memproyeksikan kegagalan atau sudut pandang buruk/negatif terhadap suatu keadaan." },
+    { id: "q_08", number: 8, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah kompas navigasi lapangan selalu mempunyai fungsi utama untuk mendeteksi...", options: { a: "arah angin", b: "posisi bintang", c: "medan magnet", d: "garis lintang", e: "titik koordinat" }, explanation: "Prinsip dasar kerja jarum kompas beroperasi dengan memanfaatkan penyelarasan orientasi terhadap medan magnet bumi." },
+    { id: "q_09", number: 9, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Perilaku merawat tanaman hias di pekarangan rumah mencerminkan ekspresi dari rasa...", options: { a: "tanggung jawab", b: "keindahan lingkungan", c: "kebutuhan hobi", d: "kesenangan pribadi", e: "kepedulian sosial" }, explanation: "Menanam tanaman hias berorientasi estetika, mengekspresikan nilai estetis kepedulian terhadap keindahan tata ruang hidup sekitar." },
+    { id: "q_10", number: 10, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Benda penanda batas wilayah teritorial darat antarnegara umumnya berbentuk...", options: { a: "pagar kawat", b: "pilar beton", c: "papan besi", d: "pos penjagaan", e: "garis marka" }, explanation: "Secara batas hukum internasional geopolitik, patok batas utama negara resmi ditandai menggunakan pilar beton kokoh bertitik koordinat." },
+    { id: "q_11", number: 11, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Aliran seni musik tradisional yang dimainkan secara ansambel besar disebut...", options: { a: "paduan suara", b: "orkestrasi", c: "karawitan", d: "grup band", e: "tembang puji" }, explanation: "Karawitan merupakan istilah formal ansambel musik tradisional khas Nusantara (seperti Gamelan) yang dimainkan secara orkestratif kelompok." },
+    { id: "q_12", number: 12, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sistem peredaran darah besar pada manusia selalu berpusat dari organ tubuh...", options: { a: "paru-paru", b: "serambi kanan", c: "bilik kiri jantung", d: "pembuluh balik", e: "hati" }, explanation: "Peredaran darah besar memompa darah kaya oksigen keluar dari ventrikel kiri (bilik kiri) jantung ke sirkulasi seluruh jaringan sistemik tubuh." },
+    { id: "q_13", number: 13, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Pola interaksi sosial yang dilakukan secara intensif tanpa tatap muka difasilitasi oleh...", options: { a: "grup diskusi", b: "media digital", c: "ruang kelas", d: "surat menyurat", e: "pertemuan umum" }, explanation: "Ketiadaan interaksi fisik secara sinkronis jarak jauh saat ini diatasi melalui utilitas jaringan infrastruktur media digital." },
+    { id: "q_14", number: 14, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Kondisi penurunan stabilitas ekonomi nasional secara berkala dikenal sebagai...", options: { a: "inflasi nilai", b: "devaluasi mata uang", c: "resesi ekonomi", d: "stagnasi pasar", e: "defisit anggaran" }, explanation: "Penurunan Produk Domestik Bantuan (PDB) atau aktivitas makroekonomi yang terjadi sekurangnya dua kuartal berturut-turut disebut resesi." },
+    { id: "q_15", number: 15, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Tanaman bakau yang tumbuh lebat di sepanjang garis pantai berfungsi menahan...", options: { a: "terpaan angin", b: "intrusi laut", c: "abrasi gelombang", d: "luapan banjir", e: "sedimentasi lumpur" }, explanation: "Struktur morfologi akar mangrove / bakau terbukti kokoh mengabsorpsi hantaman gelombang laut guna mengantisipasi ancaman abrasi pantai." },
+    { id: "q_16", number: 16, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah kapal kargo logistik membutuhkan fasilitas sandar utama berupa...", options: { a: "gudang transit", b: "dermaga pelabuhan", c: "mercusuar pantai", d: "jangkar besi", e: "kanal air" }, explanation: "Struktur fisik pinggir perairan tempat merapat dan mengamankan posisi kapal logistik bongkar muat dinamakan dermaga." },
+    { id: "q_17", number: 17, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Penggunaan helm standar keselamatan berkendara roda dua ditujukan melindungi...", options: { a: "pandangan mata", b: "struktur kepala", c: "pendengaran telinga", d: "kenyamanan wajah", e: "keselamatan fisik" }, explanation: "Secara medis anatomis, fungsi proteksi vital helm dirancang mereduksi cedera impak mekanis langsung pada kranium / struktur kepala." },
+    { id: "q_18", number: 18, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Proses penguapan air permukaan akibat panas matahari ke atmosfer bumi disebut...", options: { a: "kondensasi udara", b: "presipitasi hujan", c: "evaporasi air", d: "transpirasi daun", e: "infiltrasi tanah" }, explanation: "Evaporasi didefinisikan sebagai transisi fase air cair dari permukaan menjadi fase uap gas ke atas lapisan udara bebas." },
+    { id: "q_19", number: 19, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Penghargaan piagam kehormatan diberikan kepada prajurit atas landasan sikap...", options: { a: "keberanian tugas", b: "loyalitas buta", c: "pengabdian luhur", d: "kepatuhan hukum", e: "kedisiplinan kerja" }, explanation: "Piagam kehormatan militer tertinggi disematkan berdasarkan dedikasi luhur luar biasa melampaui panggilan tugas konvensional." },
+    { id: "q_20", number: 20, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Alat pengukur skala intensitas getaran gempa tektonik bumi dinamakan...", options: { a: "barometer udara", b: "termometer suhu", c: "seismograf digital", d: "altimeter tinggi", e: "anemometer angin" }, explanation: "Sinyal seismik pergerakan lempeng litosfer bumi dicatat secara akurat menggunakan perangkat bernama seismograf." },
+
+    // === PERBAIKAN SUBTES 1 KE SUBTES 2 ===
+    { id: "q_20", number: 20, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Alat pengukur skala intensitas getaran gempa tektonik bumi dinamakan...", options: { a: "barometer udara", b: "termometer suhu", c: "seismograf digital", d: "altimeter tinggi", e: "anemometer angin" }, explanation: "Sinyal seismik pergerakan lempeng litosfer bumi dicatat secara akurat menggunakan perangkat bernama seismograf." },
+
+    // === SUBTES 2: MENCARI KATA YANG BERBEDA (21-40) ===
+    // KETERANGAN PENGERJAAN: Bagian memilih 1 kata yang tidak satu jenis atau tidak satu kelompok dengan kata lainnya.
+    { id: "q_21", number: 21, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "meja", b: "kursi", c: "lemari", d: "apartemen", e: "tempat tidur" }, explanation: "Meja, kursi, lemari, tempat tidur adalah benda furnitur rumah tangga, sedangkan apartemen merupakan bangunan struktural tempat tinggal." },
+    { id: "q_22", number: 22, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "singa", b: "harimau", c: "kucing", d: "serigala", e: "leopard" }, explanation: "Singa, harimau, kucing, leopard termasuk famili Felidae (kucing), sedangkan serigala adalah bagian famili Canidae (anjing/serigala)." },
+    { id: "q_23", number: 23, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "bus", b: "kereta", c: "pesawat", d: "sepeda", e: "truk" }, explanation: "Bus, kereta, sepeda, truk merupakan alat transportasi darat, sedangkan pesawat adalah sarana moda udara." },
+    { id: "q_24", number: 24, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "pisang", b: "mangga", c: "bayam", d: "apel", e: "jeruk" }, explanation: "Pisang, mangga, apel, jeruk berada dalam klasifikasi botani buah-buahan, sementara bayam termasuk kategori tanaman sayur." },
+    { id: "q_25", number: 25, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "biola", b: "gitar", c: "seruling", d: "kecapi", e: "ukulele" }, explanation: "Biola, gitar, kecapi, ukulele adalah alat musik petik/gesek yang menggunakan senar/dawai, sedangkan seruling digolongkan alat tiup aerofon." },
+    { id: "q_26", number: 26, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "merah", b: "hijau", c: "biru", d: "gelap", e: "kuning" }, explanation: "Merah, hijau, biru, kuning merepresentasikan spektrum nama warna, sedangkan gelap menyatakan intensitas tingkat cahaya." },
+    { id: "q_27", number: 27, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "dokter", b: "perawat", c: "arsitek", d: "pasien", e: "bidan" }, explanation: "Dokter, perawat, arsitek, bidan mendeskripsikan nama profesi keahlian kerja, sedangkan pasien melambangkan subjek pengguna jasa medis." },
+    { id: "q_28", number: 28, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "rumah", b: "pondok", c: "istana", d: "gedung", e: "jalan" }, explanation: "Rumah, pondok, istana, gedung adalah entitas bangunan fisik, sedangkan jalan adalah sarana infrastruktur lintasan." },
+    { id: "q_29", number: 29, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "buku", b: "majalah", c: "koran", d: "pensil", e: "novel" }, explanation: "Buku, majalah, koran, novel mengacu pada klaster pustaka bacaan, sedangkan pensil diklasifikasikan alat tulis." },
+    { id: "q_30", number: 30, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "sepatu", b: "sandal", c: "kaos kaki", d: "topi", e: "selop" }, explanation: "Sepatu, sandal, kaos kaki, selop difungsikan eksklusif sebagai alas kaki, sedangkan topi digunakan pada kepala." },
+    { id: "q_31", number: 31, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "samudra", b: "laut", c: "danau", d: "sungai", e: "gurun" }, explanation: "Samudra, laut, danau, sungai merupakan kumpulan daerah perairan, sedangkan gurun berupa bentang alam kering." },
+    { id: "q_32", number: 32, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "besi", b: "emas", c: "perak", d: "kayu", e: "tembaga" }, explanation: "Besi, emas, perak, tembaga tergolong dalam unsur material logam, sedangkan kayu adalah jaringan serat tumbuhan." },
+    { id: "q_33", number: 33, type: "multiple-choice", key: "b", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "januari", b: "selasa", c: "maret", d: "agustus", e: "desember" }, explanation: "Januari, maret, agustus, desember menunjukkan nama bulan, sedangkan selasa merupakan sebutan nama hari." },
+    { id: "q_34", number: 34, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "marah", b: "sedih", c: "gembira", d: "kecewa", e: "berjalan" }, explanation: "Marah, sedih, gembira, kecewa menggambarkan manifestasi emosi jiwa, sedangkan berjalan adalah aktivitas gerak fisik." },
+    { id: "q_35", number: 35, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "segitiga", b: "persegi", c: "lingkaran", d: "kubus", e: "trapesium" }, explanation: "Segitiga, persegi, lingkaran, trapesium adalah objek geometri bangun datar 2D, sementara kubus berdimensi ruang 3D." },
+    { id: "q_36", number: 36, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "mentari", b: "bulan", c: "bintang", d: "awan", e: "planet" }, explanation: "Mentari, bulan, bintang, planet dikelompokkan ke benda ruang angkasa, sementara awan kumpulan uap air atmosfer bumi." },
+    { id: "q_37", number: 37, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "koki", b: "wajan", c: "panci", d: "pisau", e: "spatula" }, explanation: "Wajan, panci, pisau, spatula adalah kelompok perkakas instrumen memasak, sedangkan koki merupakan profesi manusia." },
+    { id: "q_38", number: 38, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "inggris", b: "prancis", c: "jerman", d: "italia", e: "mesir" }, explanation: "Inggris, Prancis, Jerman, Italia terletak di kawasan benua Eropa, sedangkan Mesir berada di benua Afrika." },
+    { id: "q_39", number: 39, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "televisi", b: "radio", c: "internet", d: "antena", e: "koran" }, explanation: "Televisi, radio, internet, koran adalah kanal wadah media informasi, sedangkan antena ialah komponen fisik penangkap sinyal." },
+    { id: "q_40", number: 40, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "utara", b: "selatan", c: "barat", d: "timur", e: "atas" }, explanation: "Utara, selatan, barat, timur didasarkan pada orientasi kompas horizontal, sedangkan atas merujuk pada arah vertikal." },
+
+    // === SUBTES 3: HUBUNGAN KATA (41-60) ===
+    { id: "q_41", number: 41, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Hutan : Pohon = Lapangan : ...", options: { a: "Tanah", b: "Rumput", c: "Bola", d: "Garis", e: "Pagar" }, explanation: "Hutan didominasi oleh sekumpulan komponen pohon; lapangan secara analogi ditumbuhi dominan oleh rumput." },
+    { id: "q_42", number: 42, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Suhu : Termometer = Berat : ...", options: { a: "Massa", b: "Timbangan", c: "Gram", d: "Meteran", e: "Muatan" }, explanation: "Suhu diukur menggunakan instrumen termometer; kuantitas nilai berat diukur menggunakan alat timbangan." },
+    { id: "q_43", number: 43, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Siang : Terang = Malam : ...", options: { a: "Bulan", b: "Tidur", c: "Gelap", d: "Sunyi", e: "Bintang" }, explanation: "Karakteristik alami dari kondisi siang adalah terang, sedangkan sifat fisis lingkungan dari malam hari adalah gelap." },
+    { id: "q_44", number: 44, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Haus : Minum = Lapar : ...", options: { a: "Makanan", b: "Kenyang", c: "Masak", d: "Makan", e: "Dapur" }, explanation: "Sensasi haus dihilangkan melalui tindakan minum; sensasi lapar diatasi secara fisiologis dengan aksi makan." },
+    { id: "q_45", number: 45, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Mobil : Bensin = Lampu : ...", options: { a: "Kabel", b: "Saklar", c: "Listrik", d: "Terang", e: "Minyak" }, explanation: "Mobil membutuhkan asupan energi dari bensin; lampu membutuhkan pasokan energi dari aliran listrik." },
+    { id: "q_46", number: 46, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Nelayan : Jaring = Penjahit : ...", options: { a: "Kain", b: "Jarum", c: "Baju", d: "Benang", e: "Gunting" }, explanation: "Alat penangkap utama nelayan adalah jaring; perkakas penyambung utama penjahit adalah jarum." },
+    { id: "q_47", number: 47, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Dokter : Pasien = Guru : ...", options: { a: "Sekolah", b: "Kelas", c: "Buku", d: "Murid", e: "Papan" }, explanation: "Subjek layanan dokter ditujukan kepada pasien; subjek transfer pedagogis guru ditujukan kepada murid." },
+    { id: "q_48", number: 48, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Singa : Daging = Sapi : ...", options: { a: "Susu", b: "Rumput", c: "Tanduk", d: "Ladang", e: "Gembala" }, explanation: "Makanan utama singa sebagai karnivora adalah daging; makanan pokok sapi selaku hewan herbivora adalah rumput." },
+    { id: "q_49", number: 49, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Es : Dingin = Api : ...", options: { a: "Arang", b: "Asap", c: "Panas", d: "Bakar", e: "Merah" }, explanation: "Atribut fisik mendasar alami dari materi es adalah dingin; sifat energi termal dasar dari nyala api adalah panas." },
+    { id: "q_50", number: 50, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Buku : Perpustakaan = Barang : ...", options: { a: "Toko", b: "Gudang", c: "Pasar", d: "Pabrik", e: "Penjual" }, explanation: "Tempat penyimpanan resmi khusus koleksi buku adalah perpustakaan; tempat logistik barang adalah gudang." },
+    { id: "q_51", number: 51, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Gitar : Petik = Seruling : ...", options: { a: "Tiup", b: "Tekan", c: "Pukul", d: "Gesek", e: "Goyang" }, explanation: "Mekanisme membunyikan gitar dengan dipetik; sedangkan seruling dimainkan dengan cara ditiup." },
+    { id: "q_52", number: 52, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Burung : Udara = Ikan : ...", options: { a: "Kolam", b: "Insang", c: "Air", d: "Umpan", e: "Laut" }, explanation: "Medium habitat pergerakan alami burung berada di udara; habitat natural ikan berada di air." },
+    { id: "q_53", number: 53, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Januari : Februari = Senin : ...", options: { a: "Hari", b: "Minggu", c: "Selasa", d: "Rabu", e: "Besok" }, explanation: "Februari adalah urutan nama bulan setelah Januari; Selasa adalah nama hari setelah Senin." },
+    { id: "q_54", number: 54, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Gergaji : Kayu = Pisau : ...", options: { a: "Tajam", b: "Daging", c: "Dapur", d: "Besi", e: "Talenan" }, explanation: "Gergaji dirancang spesifik sebagai alat pemotong kayu; pisau lazim difungsikan memotong komoditas bahan daging." },
+    { id: "q_55", number: 55, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Sepatu : Kaki = Topi : ...", options: { a: "Rambut", b: "Mata", c: "Kepala", d: "Wajah", e: "Payung" }, explanation: "Sepatu dikenakan melekat sebagai pelindung kaki; topi dipasangkan melindungi bagian kepala." },
+    { id: "q_56", number: 56, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Kamera : Foto = Peniti : ...", options: { a: "Kain", b: "Kertas", c: "Jarum", d: "Benang", e: "Pakaian" }, explanation: "Fungsi operasional instrumen kamera menghasilkan foto; fungsional peniti diterapkan mengaitkan lembar kain." },
+    { id: "q_57", number: 57, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Sendok : Makan = Pena : ...", options: { a: "Tinta", b: "Kertas", c: "Menulis", d: "Buku", e: "Gambar" }, explanation: "Sendok merupakan utilitas pembantu jalannya aktivitas makan; pena adalah utilitas khusus menjalankan fungsi menulis." },
+    { id: "q_58", number: 58, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Pilot : Pesawat = Masinis : ...", options: { a: "Rel", b: "Kereta", c: "Stasiun", d: "Terminal", e: "Kapal" }, explanation: "Awak kemudi operasional teknis pesawat dilakukan pilot; kemudi rangkaian moda kereta digerakkan masinis." },
+    { id: "q_59", number: 59, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Mata : Melihat = Telinga : ...", options: { a: "Suara", b: "Mendengar", c: "Nada", d: "Kepala", e: "Mendengarkan" }, explanation: "Fungsi sensorik fisiologis organ mata adalah untuk melihat; kapabilitas fungsi sensorik telinga untuk mendengar." },
+    { id: "q_60", number: 60, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Pesawat : Bandara = Kapal : ...", options: { a: "Laut", b: "Dermaga", c: "Pelabuhan", d: "Jangkar", e: "Sauk" }, explanation: "Pemberhentian dan lepas landas pesawat bertempat di bandara; regulasi logistik kapal bertempat di pelabuhan." },
+
+    // === SUBTES 4: PERSAMAAN SIFAT KATA (61-76) ===
+    { id: "q_61", number: 61, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "anggrek - dahlia", options: { a: "tumbuhan", b: "bunga", c: "hiasan", d: "wangi", e: "kelopak" }, explanation: "Anggrek dan dahlia berada di bawah kategori jenis tanaman bunga." },
+    { id: "q_62", number: 62, type: "multiple-choice", key: "a", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "hidung - kulit", options: { a: "indra", b: "wajah", c: "organ", d: "tubuh", e: "panca" }, explanation: "Hidung (pembau) beserta kulit (peraba) menyatu fungsional dalam klasifikasi organ alat indra manusia." },
+    { id: "q_63", number: 63, type: "multiple-choice", key: "c", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "garam - kuarsa", options: { a: "batu", b: "kristal", c: "mineral", d: "bumbu", e: "putih" }, explanation: "Garam dan kuarsa secara geokimia diklasifikasikan sebagai bentuk padatan senyawa kimia mineral alam." },
+    { id: "q_64", number: 64, type: "multiple-choice", key: "c", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "gerimis - embun", options: { a: "cuaca", b: "air", c: "presipitasi", d: "dingin", e: "basah" }, explanation: "Kedua elemen fenomena tersebut dihasilkan dari proses kondensasi siklus air yang disebut presipitasi." },
+    { id: "q_65", number: 65, type: "multiple-choice", key: "d", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "kurir - satelit", options: { a: "teknologi", b: "informasi", c: "komunikasi", d: "penghubung", e: "pesan" }, explanation: "Kurir (penukar pesan) dan satelit (sistem relai komunikasi) memiliki esensi tugas fungsional sebagai media penghubung." },
+    { id: "q_66", number: 66, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "teropong - lup", options: { a: "lensa", b: "alat optik", c: "kaca", d: "pembesar", e: "alat bantu" }, explanation: "Teropong dan lup memanfaatkan rekayasa pembiasan cahaya lensa, sehingga masuk dalam kategori alat optik." },
+    { id: "q_67", number: 67, type: "multiple-choice", key: "a", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "jantung - ginjal", options: { a: "organ dalam", b: "tubuh", c: "darah", d: "sistem imun", e: "vital" }, explanation: "Jantung dan ginjal secara komparatif berkedudukan menetap di ruang viseral dalam tubuh (organ dalam)." },
+    { id: "q_68", number: 68, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "tinggi - rendah", options: { a: "dimensi", b: "ukuran", c: "jarak", d: "tingkatan", e: "posisi" }, explanation: "Tinggi dan rendah mengekspresikan variabel metrikasi gradasi dari suatu nilai ukuran." },
+    { id: "q_69", number: 69, type: "multiple-choice", key: "e", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "tunas - spora", options: { a: "tanaman", b: "pembiakan", c: "benih", d: "bakal hidup", e: "reproduksi" }, explanation: "Tunas beserta spora sama-sama merupakan sistem biologis sarana reproduksi tanaman." },
+    { id: "q_70", number: 70, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "spanduk - poster", options: { a: "iklan", b: "media", c: "lambang", d: "informasi", e: "tanda" }, explanation: "Spanduk dan poster merupakan ragam saluran fisik komunikasi visual untuk keperluan penyebaran media." },
+    { id: "q_71", number: 71, type: "multiple-choice", key: "c", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "semak - singa", options: { a: "alam", b: "hutan", c: "makhluk hidup", d: "biologi", e: "lingkungan" }, explanation: "Semak (tanaman) dan singa (hewan) dipersatukan dalam definisi besar kategori materi makhluk hidup." },
+    { id: "q_72", number: 72, type: "multiple-choice", key: "a", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "baskom - karung", options: { a: "wadah", b: "tempat", c: "benda", d: "penyimpanan", e: "alat rumah" }, explanation: "Baskom dan karung memiliki fungsi mekanis penampung muatan atau wadah." },
+    { id: "q_73", number: 73, type: "multiple-choice", key: "c", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "fajar - senja", options: { a: "hari", b: "langit", c: "waktu", d: "momen", e: "perubahan" }, explanation: "Fajar (transisi terbit) dan senja (transisi tenggelam) mengekspresikan penanda dimensi bagian waktu." },
+    { id: "q_74", number: 74, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "pelit - tamak", options: { a: "perilaku", b: "sifat buruk", c: "karakter", d: "emosi", e: "sikap" }, explanation: "Pelit dan tamak dikategorikan ke dalam bentuk ekspresi distorsi moral pribadi berupa sifat buruk." },
+    { id: "q_75", number: 75, type: "multiple-choice", key: "b", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "penjualan - pembelian", options: { a: "pasar", b: "transaksi", c: "bisnis", d: "ekonomi", e: "perdagangan" }, explanation: "Aksi pelepasan barang (penjualan) dan perolehan barang (pembelian) menyusun mekanisme aktivitas keuangan berupa transaksi." },
+    { id: "q_76", number: 76, type: "multiple-choice", key: "a", instruction: "Subtes 4: Pilihlah satu kata yang paling tepat yang dapat meliputi pengertian atau sifat dari kedua kata!", text: "depan - belakang", options: { a: "posisi", b: "arah", c: "lokasi", d: "pandangan", e: "ruang" }, explanation: "Indikasi penunjukan letak spasial relatif garis horizontal dari suatu koordinat dinamakan representasi posisi." },
+
+    // === SUBTES 5: BERHITUNG MATEMATIKA (77-96) ===
+    { id: "q_77", number: 77, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Jika seseorang membeli barang seharga 95 rupiah lalu memberikan uang sebesar 120 rupiah, berapakah sisa uang kembalian yang ia terima?", options: { a: "15 rupiah", b: "20 rupiah", c: "25 rupiah", d: "30 rupiah", e: "35 rupiah" }, explanation: "Formulasi pengurangan aritmetika sederhana: Uang Kembalian = 120 - 95 = 25 rupiah." },
+    { id: "q_78", number: 78, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah kendaraan logistik melaju konstan dengan kecepatan 65 km/jam. Berapa km jarak total yang ditempuh kendaraan tersebut dalam waktu 4 jam?", options: { a: "240 km", b: "250 km", c: "260 km", d: "270 km", e: "280 km" }, explanation: "Rumus Gerak Lurus Beraturan (GLB): Jarak (s) = Kecepatan (v) x Waktu (t) = 65 km/jam x 4 jam = 260 km." },
+    { id: "q_79", number: 79, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebanyak 10 peti pasokan memiliki berat total 250 kg. Jika berat masing-masing peti kosong adalah 3 kg, berapakah berat murni dari seluruh muatan di dalamnya?", options: { a: "210 kg", b: "220 kg", c: "230 kg", d: "240 kg", e: "247 kg" }, explanation: "Berat total wadah kosong = 10 peti x 3 kg = 30 kg. Berat bersih muatan murni (Netto) = Bruto - Tara = 250 kg - 30 kg = 220 kg." },
+    { id: "q_80", number: 80, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah pabrik memiliki persediaan bahan baku yang cukup untuk 8 mesin selama 30 hari. Jika pabrik tersebut mengoperasikan 24 mesin yang sama, berapa harikah persediaan bahan baku tersebut akan habis?", options: { a: "10 hari", b: "12 hari", c: "15 hari", d: "20 hari", e: "25 hari" }, explanation: "Prinsip perbandingan berbalik nilai: Hari baru = (Mesin Awal x Hari Awal) / Mesin Baru = (8 x 30) / 24 = 240 / 24 = 10 hari." },
+    { id: "q_81", number: 81, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Seseorang berbelanja 5 buah alat tulis dengan harga masing-masing 25 rupiah, serta membeli sebuah penggaris seharga 15 rupiah. Jika ia membayar dengan lembaran uang 200 rupiah, berapakah rupiah uang kembaliannya?", options: { a: "50 rupiah", b: "60 rupiah", c: "70 rupiah", d: "80 rupiah", e: "90 rupiah" }, explanation: "Biaya Total Belanja = (5 x 25) + 15 = 125 + 15 = 140 rupiah. Nilai Uang Kembalian Sisa = 200 - 140 = 60 rupiah." },
+    { id: "q_82", number: 82, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Jika harga dari 3 1/2 meter bahan kain hias adalah 70 rupiah, berapakah harga yang harus dibayar untuk membeli 2 1/2 meter kain tersebut?", options: { a: "40 rupiah", b: "45 rupiah", c: "50 rupiah", d: "55 rupiah", e: "60 rupiah" }, explanation: "Harga satuan per meter kain = 70 / (3.5) = 20 rupiah per meter. Harga untuk ukuran panjang 2.5 meter = 2.5 x 20 = 50 rupiah." },
+    { id: "q_83", number: 83, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Seorang pekerja mampu merakit 6 unit produk dalam waktu 1 jam. Berapa total unit produk yang bisa diselesaikan oleh 4 orang pekerja jika mereka bekerja bersama-sama selama 5 jam?", options: { a: "100 unit", b: "110 unit", c: "120 unit", d: "130 unit", e: "140 unit" }, explanation: "Total Kapasitas Produksi Gabungan = Kecepatan Individu x Jumlah Anggota x Durasi Kerja = 6 unit/jam x 4 orang x 5 jam = 120 unit." },
+    { id: "q_84", number: 84, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Dalam sebuah uji coba laju kecepatan, sebuah objek bergerak sejauh 120 meter dalam rentang waktu 1/5 detik. Berapa meter jarak yang dapat ditempuh objek tersebut jika terus bergerak konstan selama 3 detik?", options: { a: "1.200 meter", b: "1.400 meter", c: "1.600 meter", d: "1.800 meter", e: "2.000 meter" }, explanation: "Kecepatan objek per detik = 120 meter / (1/5 detik) = 120 x 5 = 600 meter/detik. Jarak dalam jangka 3 detik = 600 x 3 = 1800 meter." },
+    { id: "q_85", number: 85, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah bak penampungan air berbentuk silinder terisi sebanyak 1/4 bagian. Setelah ditambahkan air sebanyak 20 liter, kondisi bak tersebut berubah menjadi tepat setengah penuh. Berapa liter kapasitas muat maksimal dari bak penampungan air tersebut?", options: { a: "60 liter", b: "70 liter", c: "80 liter", d: "90 liter", e: "100 liter" }, explanation: "Kenaikan fraksi isi volume = 1/2 - 1/4 = 1/4 bagian. Berarti 1/4 dari total kapasitas = 20 liter. Kapasitas Penuh (100%) = 20 x 4 = 80 liter." },
+    { id: "q_86", number: 86, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Seorang teknisi membutuhkan waktu 6 hari untuk menyelesaikan instalasi di 3 lantai bangunan. Berapa hari waktu kerja yang ia perlukan jika harus melakukan instalasi serupa pada gedung setinggi 9 lantai?", options: { a: "12 hari", b: "15 hari", c: "18 hari", d: "21 hari", e: "24 hari" }, explanation: "Prinsip perbandingan senilai linear: Durasi = (9 lantai / 3 lantai) x 6 hari = 3 x 6 hari = 18 hari pengerjaan." },
+    { id: "q_87", number: 87, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Berat total sebuah wadah yang berisi penuh oleh cairan pelarut adalah 52 kg. Jika berat wadah tersebut saat kosong adalah 6 kg, berapakah berat murni dari cairan pelarut tersebut?", options: { a: "42 kg", b: "44 kg", c: "46 kg", d: "48 kg", e: "50 kg" }, explanation: "Formulasi pengurangan berat bersih: Massa Zat Pelarut Murni = Massa Total Isi - Massa Wadah Kosong = 52 kg - 6 kg = 46 kg." },
+    { id: "q_88", number: 88, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah saluran pipa mampu mengalirkan zat cair sebanyak 15 liter dalam durasi 5 menit. Berapa liter zat cair yang dialirkan oleh pipa tersebut jika dibiarkan mengalir selama 40 menit?", options: { a: "100 liter", b: "110 liter", c: "120 liter", d: "130 liter", e: "140 liter" }, explanation: "Debit aliran konstan pipa = 15 liter / 5 menit = 3 liter/menit. Akumulasi volume zat dalam 40 menit = 3 liter/menit x 40 menit = 120 liter." },
+    { id: "q_89", number: 89, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah bengkel konveksi mempekerjakan 4 orang penjahit yang mampu menghasilkan 24 kemeja dalam satu hari. Jika pemilik bengkel menambah tenaga kerja sehingga totalnya menjadi 10 orang penjahit, berapakah total kemeja yang dapat diproduksi dalam sehari?", options: { a: "50 kemeja", b: "55 kemeja", c: "60 kemeja", d: "65 kemeja", e: "70 kemeja" }, explanation: "Produktivitas per individu penjahit = 24 kemeja / 4 orang = 6 kemeja/orang per hari. Hasil jika dikerjakan 10 orang = 10 x 6 = 60 kemeja." },
+    { id: "q_90", number: 90, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah kotak penyimpanan logistik berbentuk kubus simetris memiliki volume total sebesar 64 meter kubik. Berapakah meter ukuran panjang dari rusuk alas kotak penyimpanan tersebut?", options: { a: "2 meter", b: "4 meter", c: "6 meter", d: "8 meter", e: "10 meter" }, explanation: "Formulasi mencari dimensi rusuk kubus dari besaran volume ruang: s = ³√64 = 4 meter." },
+    { id: "q_91", number: 91, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Seorang sales marketing mendapatkan bagi hasil sebesar 6% dari nilai penjualan barang. Jika ia berhasil menjual produk dengan nilai total 50.000 rupiah, berapakah uang bagi hasil yang berhak ia terima?", options: { a: "2.500 rupiah", b: "3.000 rupiah", c: "3.500 rupiah", d: "4.000 rupiah", e: "4.500 rupiah" }, explanation: "Perhitungan nilai nominal persentase: Profit Bagi Hasil = 6/100 x 50.000 = 3.000 rupiah." },
+    { id: "q_92", number: 92, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah material cetakan campuran dibuat dari kombinasi 4 bagian silika dan 3 bagian semen. Jika berat total material cetakan utuh tersebut adalah 210 gram, berapakah gram kandungan silika di dalamnya?", options: { a: "90 gram", b: "100 gram", c: "110 gram", d: "120 gram", e: "130 gram" }, explanation: "Jumlah perbandingan rasio total = 4 + 3 = 7 bagian. Bobot kandungan silika = (4 / 7) x 210 gram = 120 gram." },
+    { id: "q_93", number: 93, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah kendaraan menghabiskan 8 liter bahan bakar untuk menempuh jarak 96 km. Berapa liter bahan bakar yang dihabiskan kendaraan tersebut jika menempuh jarak sejauh 120 km?", options: { a: "10 liter", b: "11 liter", c: "12 liter", d: "13 liter", e: "14 liter" }, explanation: "Efisiensi konsumsi bahan bakar = 96 km / 8 liter = 12 km per liter. Kebutuhan volume BBM jarak 120 km = 120 / 12 = 10 liter." },
+    { id: "q_94", number: 94, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Seorang petani membagikan hasil panen kepada 3 kelompok warga dengan rasio perbandingan 2:3:5. Jika total hasil panen yang dibagikan adalah 500 kg, berapakah bagian yang didapatkan oleh kelompok kedua?", options: { a: "100 kg", b: "150 kg", c: "200 kg", d: "250 kg", e: "300 kg" }, explanation: "Total proporsi pembagi rasio = 2 + 3 + 5 = 10 bagian. Berat perolehan bersih kelompok kedua = (3 / 10) x 500 kg = 150 kg." },
+    { id: "q_95", number: 95, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah toko memberikan diskon ganda sebesar 10% lalu ditambah lagi potongan langsung 5.000 rupiah untuk pembelian jaket seharga 100.000 rupiah. Berapakah harga akhir yang harus dibayarkan pembeli?", options: { a: "80.000 rupiah", b: "82.000 rupiah", c: "85.000 rupiah", d: "87.000 rupiah", e: "90.000 rupiah" }, explanation: "Harga pasca pangkasan diskon 10% = 100.000 - 10.000 = 90.000 rupiah. Dikurangi potongan langsung = 90.000 - 5.000 = 85.000 rupiah." },
+    { id: "q_96", number: 96, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan persoalan matematika berikut dan pilihlah jawaban yang paling tepat!", text: "Sebuah pompa air membutuhkan waktu 12 menit untuk mengisi bak mandi berkapasitas 240 liter sampai penuh. Berapa liter air yang dialirkan pompa tersebut dalam waktu 7 menit pertama pengerjaan?", options: { a: "140 liter", b: "150 liter", c: "160 liter", d: "170 liter", e: "180 liter" }, explanation: "Debit pancaran aliran pompa air = 240 liter / 12 menit = 20 liter/menit. Volume terisi dalam durasi 7 menit = 20 x 7 = 140 liter." },
+
+    // === SUBTES 6: DERET ANGKA (97-116) ===
+    { id: "q_97", number: 97, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "3  6  9  12  15  18  ...", options: { a: "19", b: "20", c: "21", d: "22", e: "24" }, explanation: "Pola deret aritmetika reguler dengan penambahan nilai konstan +3 di tiap suku. Angka berikutnya: 18 + 3 = 21." },
+    { id: "q_98", number: 98, type: "multiple-choice", key: "a", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "40  35  31  28  26  ...", options: { a: "25", b: "24", c: "23", d: "22", e: "21" }, explanation: "Pola pengurangan bergradasi menurun: -5, -4, -3, -2, selanjutnya berkurang -1. Angka berikutnya: 26 - 1 = 25." },
+    { id: "q_99", number: 99, type: "multiple-choice", key: "d", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "2  4  8  16  32  64  ...", options: { a: "72", b: "96", c: "120", d: "128", e: "256" }, explanation: "Deret geometri berbasis rasio perkalian konstan x2 pada suku sebelumnya. Angka selanjutnya: 64 x 2 = 128." },
+    { id: "q_100", number: 100, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "5  9  14  20  27  35  ...", options: { a: "40", b: "42", c: "44", d: "46", e: "48" }, explanation: "Pola lompatan penjumlahan bertingkat naik dinamis: +4, +5, +6, +7, +8, dilanjutkan +9. Angka berikutnya: 35 + 9 = 44." },
+    { id: "q_101", number: 101, type: "multiple-choice", key: "a", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "4  9  6  11  8  13  ...", options: { a: "10", b: "12", c: "14", d: "15", e: "16" }, explanation: "Deret bercabang selang-seling ganda. Larik ganjil: 4, 6, 8 (+2). Larik genap: 9, 11, 13 (+2). Target suku ganjil berikutnya: 8 + 2 = 10." },
+    { id: "q_102", number: 102, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "80  40  44  22  26  13  ...", options: { a: "15", b: "17", c: "18", d: "20", e: "22" }, explanation: "Pola operasi matematika berulang berpasangan: pembagian (:2) diikuti penjumlahan (+4). Suku akhir: 13 + 4 = 17." },
+    { id: "q_103", number: 103, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "15  16  18  21  25  30  ...", options: { a: "34", b: "35", c: "36", d: "37", e: "38" }, explanation: "Penambahan berurutan naik linear dari angka satu: +1, +2, +3, +4, +5, selanjutnya berpola +6. Angka berikutnya: 30 + 6 = 36." },
+    { id: "q_104", number: 104, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "3  6  5  10  9  18  ...", options: { a: "15", b: "17", c: "19", d: "20", e: "21" }, explanation: "Pola kombinasi berulang berurutan: perkalian (x2) dilanjutkan pengurangan berselisih satu (-1). Suku akhir: 18 - 1 = 17." },
+    { id: "q_105", number: 105, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "42  39  35  32  28  25  ...", options: { a: "20", b: "21", c: "22", d: "23", e: "24" }, explanation: "Siklus berulang operasi pengurangan berpasangan: -3, kemudian -4, balik ke -3, lalu -4. Suku akhir: 25 - 4 = 21." },
+    { id: "q_106", number: 106, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "6  12  7  14  9  18  ...", options: { a: "11", b: "13", c: "15", d: "17", e: "19" }, explanation: "Operasi berantai berulang: perkalian ganda (x2) diikuti lompatan pengurangan ganjil (-5). Suku akhir: 18 - 5 = 13." },
+    { id: "q_107", number: 107, type: "multiple-choice", key: "d", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "3  4  7  11  18  29  ...", options: { a: "36", b: "40", c: "44", d: "47", e: "52" }, explanation: "Deret pola barisan bilangan Fibonacci, di mana nilai suatu suku adalah hasil jumlah 2 suku sebelumnya: 18 + 29 = 47." },
+    { id: "q_108", number: 108, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "48  46  42  40  36  34  ...", options: { a: "28", b: "30", c: "32", d: "33", e: "35" }, explanation: "Pola perulangan konstan pengurangan nilai: -2 diikuti -4 secara kontinu bergantian. Langkah terakhir: 34 - 4 = 30." },
+    { id: "q_109", number: 109, type: "multiple-choice", key: "d", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "1  3  7  15  31  63  ...", options: { a: "95", b: "115", c: "125", d: "127", e: "131" }, explanation: "Pola pembentukan suku baru dirumuskan: (Suku sebelumnya x 2) + 1. Suku kelanjutan: (63 x 2) + 1 = 127." },
+    { id: "q_110", number: 110, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "5  7  11  19  35  67  ...", options: { a: "111", b: "121", c: "131", d: "141", e: "151" }, explanation: "Pola pertambahan antar suku membentuk barisan geometri kelipatan dua: +2, +4, +8, +16, +32, maka setelah ini +64. 67 + 64 = 131." },
+    { id: "q_111", number: 111, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "10  12  9  14  8  16  ...", options: { a: "5", b: "7", c: "9", d: "11", e: "13" }, explanation: "Deret terpecah ganda dua lajur. Suku ganjil: 10, 9, 8 (-1). Suku genap: 12, 14, 16 (+2). Sasaran pengisian di suku ganjil: 8 - 1 = 7." },
+    { id: "q_112", number: 112, type: "multiple-choice", key: "b", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "100  95  85  70  50  ...", options: { a: "15", b: "20", c: "25", d: "30", e: "35" }, explanation: "Deret pengurangan progresif diperbesar berbasis kelipatan -5: -5, -10, -15, -20, selanjutnya dikurangi -25. Angka baru: 50 - 25 = 25." },
+    { id: "q_113", number: 113, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "1  4  9  16  25  36  ...", options: { a: "41", b: "45", c: "49", d: "54", e: "60" }, explanation: "Barisan deret urutan deret kuadrat sempurna bilangan bulat asli (n²): 1², 2², 3², 4², 5², 6², sesudah ini adalah 7² = 49." },
+    { id: "q_114", number: 114, type: "multiple-choice", key: "d", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "2  3  6  7  14  15  ...", options: { a: "20", b: "25", c: "28", d: "30", e: "32" }, explanation: "Pola pengerjaan baris angka berulang beruntun: tambah satu (+1) diikuti kali dua (x2). Suku ujung akhir: 15 x 2 = 30." },
+    { id: "q_115", number: 115, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "64  32  16  8  4  ...", options: { a: "0", b: "1", c: "2", d: "3", e: "4" }, explanation: "Pola deret pembagian konstan setengah berlanjut (:2) dari suku pendahulu. Hasil kelanjutan angka: 4 / 2 = 2." },
+    { id: "q_116", number: 116, type: "multiple-choice", key: "c", instruction: "Subtes 6: Tentukan angka berikutnya yang paling logis untuk melanjutkan pola deret angka yang tersedia!", text: "2  6  4  12  10  30  ...", options: { a: "24", b: "26", c: "28", d: "32", e: "34" }, explanation: "Aturan deret matematis: dikalikan tiga (x3) dilanjutkan pemotongan minus dua (-2). Suku paling ujung: 30 - 2 = 28." },
+
+    // === SUBTES 7: POTONGAN BIDANG / FIGURE ASSEMBLY (117-136) ===
+    { id: "q_117", number: 117, type: "multiple-choice", key: "a", instruction: "Subtes 7: Amati potongan-potongan bidang di bawah ini. Bayangkan jika disatukan secara tepat, lalu pilih bentuk utuh yang benar!", text: `<div style="text-align:center; margin:15px 0;"><svg width="150" height="90" viewBox="0 0 150 90" style="background:#ffffff; border:1px dashed #bbb;"><polygon points="15,75 55,75 55,35" fill="none" stroke="#000" stroke-width="2"/><rect x="70" y="35" width="20" height="40" fill="none" stroke="#000" stroke-width="2"/><polygon points="105,75 145,75 105,35" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, options: { a: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="10,60 70,60 50,20 30,20" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, b: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="15,60 75,60 55,20 15,20" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, c: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><rect x="15" y="20" width="50" height="40" fill="none" stroke="#000" stroke-width="2"/></svg></div>` }, explanation: "Dua segitiga siku-siku mengapit satu persegi panjang di tengah menghasilkan bangun simetris Trapesium Sama Kaki (Pilihan A)." },
+    { id: "q_118", number: 118, type: "multiple-choice", key: "a", instruction: "Subtes 7: Amati potongan-potongan bidang di bawah ini. Bayangkan jika disatukan secara tepat, lalu pilih bentuk utuh yang benar!", text: `<div style="text-align:center; margin:15px 0;"><svg width="150" height="90" viewBox="0 0 150 90" style="background:#ffffff; border:1px dashed #bbb;"><polygon points="15,30 45,30 45,60" fill="none" stroke="#000" stroke-width="2"/><polygon points="60,30 90,30 60,60" fill="none" stroke="#000" stroke-width="2"/><polygon points="105,60 135,60 135,30" fill="none" stroke="#000" stroke-width="2"/><polygon points="60,75 90,75 60,45" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, options: { a: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="40" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, b: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="40,15 65,40 40,65 15,40" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, c: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="15,60 65,60 50,20 20,20" fill="none" stroke="#000" stroke-width="2"/></svg></div>` }, explanation: "Penggabungan 4 buah segitiga siku-siku sama kaki dengan mempertemukan sudut siku-sikunya di pusat simetri membentuk bidang Kotak Persegi Sempurna (Pilihan A)." },
+    { id: "q_119", number: 119, type: "multiple-choice", key: "a", instruction: "Subtes 7: Amati potongan-potongan bidang di bawah ini. Bayangkan jika disatukan secara tepat, lalu pilih bentuk utuh yang benar!", text: `<div style="text-align:center; margin:15px 0;"><svg width="150" height="90" viewBox="0 0 150 90" style="background:#ffffff; border:1px dashed #bbb;"><path d="M 25,45 A 25,25 0 0,1 75,45" fill="none" stroke="#000" stroke-width="2"/><path d="M 85,45 A 25,25 0 0,1 135,45" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, options: { a: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="25" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, b: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><path d="M 40,15 A 20,20 0 0,1 40,45 A 20,20 0 0,0 40,75" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, c: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><path d="M 15,25 A 25,15 0 0,1 65,25 Z" fill="none" stroke="#000" stroke-width="2"/></svg></div>` }, explanation: "Dua buah busur lengkung setengah lingkaran yang disatukan pada diameternya menghasilkan sebuah geometri Lingkaran Utuh (Pilihan A)." },
+    { id: "q_120", number: 120, type: "multiple-choice", key: "b", instruction: "Subtes 7: Amati potongan-potongan bidang di bawah ini. Bayangkan jika disatukan secara tepat, lalu pilih bentuk utuh yang benar!", text: `<div style="text-align:center; margin:15px 0;"><svg width="150" height="90" viewBox="0 0 150 90" style="background:#ffffff; border:1px dashed #bbb;"><polygon points="20,25 70,25 50,65 20,65" fill="none" stroke="#000" stroke-width="2"/><polygon points="100,25 130,65 100,65" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, options: { a: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="15,25 65,25 45,65 15,65" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, b: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="15,65 65,65 65,25 15,25" fill="none" stroke="#000" stroke-width="2"/></svg></div>`, c: `<div class="svg-option-wrapper"><svg width="80" height="80" viewBox="0 0 80 80"><polygon points="15,65 65,65 40,25" fill="none" stroke="#000" stroke-width="2"/></svg></div>` }, explanation: "Potongan jajaran genjang digabungkan di sisi miringnya dengan sebuah segitiga siku-siku pelengkap merestorasi total bidang menjadi Persegi Panjang (Pilihan B)." },
+
+   // === TAMBAHAN 10 SOAL SUBTES 8: KUBUS 3D (123-132) dengan Pilihan ABCDE ===
+    {
+        id: "q_123",
+        number: 123,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 123):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="30" y1="70" x2="70" y2="70" stroke="#e74c3c" stroke-width="4"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="65" cy="27" r="6" fill="#2980b9"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="87" y="45" width="12" height="12" fill="#2ecc71"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="50" cy="70" r="10" fill="#000"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><text x="40" y="70" font-size="20">A</text></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="44" y="64" width="12" height="12" fill="#2ecc71"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="6" fill="#2980b9"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="45" y1="27" x2="80" y2="27" stroke="#e74c3c" stroke-width="3"/>
+                </svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><line x1="30" y1="50" x2="70" y2="90" stroke="#000" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="50" cy="70" r="15" fill="none" stroke="#000"/></svg></div>`
+        },
+        explanation: "Pilihan C benar karena merepresentasikan rotasi kubus secara horizontal sebesar 90 derajat ke arah kiri, sehingga bentuk kotak hijau berpindah dari kanan menuju depan."
+    },
+    {
+        id: "q_124",
+        number: 124,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 124):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="12" fill="#9b59b6"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="50" y="22" width="15" height="5" fill="#34495e"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="85" y1="45" x2="100" y2="65" stroke="#f1c40f" stroke-width="4"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="35" y1="45" x2="65" y2="85" stroke="#f1c40f" stroke-width="4"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="10" fill="#9b59b6"/>
+                </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="30" y="30" width="40" height="40" fill="#f1c40f"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="20" fill="#34495e"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="20" y1="20" x2="100" y2="100" stroke="#000" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="50,20 90,80 10,80" fill="#9b59b6"/></svg></div>`
+        },
+        explanation: "Pilihan A benar, jika kubus diputar 90 derajat secara horizontal ke arah kiri, garis kuning miring akan menghadap depan dan lingkaran ungu beralih ke sisi kanan."
+    },
+    {
+        id: "q_125",
+        number: 125,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 125):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <text x="35" y="80" font-size="40" fill="#e67e22" font-weight="bold">X</text>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="55" cy="27" r="8" fill="#1abc9c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="85" y1="70" x2="100" y2="30" stroke="#2c3e50" stroke-width="3"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><text x="40" y="70" font-size="30">Y</text></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="8" fill="#1abc9c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <text x="85" y="65" font-size="25" fill="#e67e22">X</text>
+                </svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="30" y="30" width="30" height="30" fill="#1abc9c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#e67e22"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="10" y1="50" x2="110" y2="50" stroke="#1abc9c" stroke-width="5"/></svg></div>`
+        },
+        explanation: "Pilihan B benar karena merupakan hasil pemutaran rotasi vertikal ke arah depan bawah sehingga lingkaran toska di atap maju menempati posisi muka depan."
+    },
+    {
+        id: "q_126",
+        number: 126,
+        type: "multiple-choice",
+        key: "d",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 126):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <polygon points="35,80 65,80 50,50" fill="#3498db"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="45" y="20" width="15" height="15" fill="#e74c3c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="7" fill="#f1c40f"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="25" fill="#3498db"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="40" y="40" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,80 80,80 50,20" fill="#f1c40f"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="7" fill="#f1c40f"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="88" y="40" width="12" height="12" fill="#e74c3c"/>
+                </svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><text x="30" y="80" font-size="50">O</text></svg></div>`
+        },
+        explanation: "Pilihan d benar karena jika kubus dirotasikan ke sisi samping kanan sejauh 90 derajat, bulatan kuning akan menghadap ke depan, sedangkan balok merah atap bergeser ke sisi kanan."
+    },
+    {
+        id: "q_127",
+        number: 127,
+        type: "multiple-choice",
+        key: "e",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 127):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="35" y="55" width="30" height="30" fill="none" stroke="#2c3e50" stroke-width="3"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="30" y1="20" x2="95" y2="35" stroke="#9b59b6" stroke-width="3"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <polygon points="85,70 100,70 92,45" fill="#e74c3c"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="none" stroke="#e74c3c" stroke-width="5"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="60" cy="60" r="30" fill="#9b59b6"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="10,90 110,90 60,10" fill="#2c3e50"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="10" y1="10" x2="110" y2="110" stroke="#e74c3c" stroke-width="4"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <polygon points="35,80 65,80 50,50" fill="#e74c3c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="88" y="50" width="12" height="12" fill="none" stroke="#2c3e50" stroke-width="2"/>
+                </svg></div>`
+        },
+        explanation: "Pilihan E benar karena jika kubus berputar secara horizontal ke sebelah kiri, bentuk segitiga merah akan menempati posisi depan secara tegak lurus."
+    },
+    {
+        id: "q_128",
+        number: 128,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 128):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="10" fill="none" stroke="#1abc9c" stroke-width="3"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="60" cy="27" r="5" fill="#e74c3c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="5" fill="#e74c3c"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="40" cy="65" r="5" fill="#e74c3c"/>
+                    <circle cx="60" cy="75" r="5" fill="#e74c3c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="55" r="8" fill="none" stroke="#1abc9c" stroke-width="2"/>
+                </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="25" y="25" width="50" height="50" fill="#1abc9c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="30" fill="#e74c3c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="10,10 90,50 10,90" fill="#1abc9c"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><text x="40" y="60" font-size="20">12</text></svg></div>`
+        },
+        explanation: "Pilihan A benar, rotasi sejauh 90 derajat ke arah kanan menggeser dua bulatan merah kecil menjadi berada di sisi depan, dan lingkaran toska beralih ke samping kanan."
+    },
+    {
+        id: "q_129",
+        number: 129,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 129):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="30" y1="50" x2="70" y2="90" stroke="#34495e" stroke-width="4"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="45" y="20" width="15" height="15" fill="#e67e22"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="8" fill="#3498db"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="10" fill="#e67e22"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="8" fill="#3498db"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="88" y="40" width="12" height="12" fill="#e67e22"/>
+                </svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="20" y="20" width="50" height="50" fill="#34495e"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="20" y1="50" x2="100" y2="50" stroke="#e67e22" stroke-width="4"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="30,70 70,70 50,30" fill="#3498db"/></svg></div>`
+        },
+        explanation: "Pilihan B benar karena memutar kubus secara horizontal sebesar 90 derajat ke kiri membuat bulatan biru maju ke muka depan dan persegi oranye bergeser ke sisi kanan."
+    },
+    {
+        id: "q_130",
+        number: 130,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 130):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <text x="45" y="75" font-size="30" fill="#27ae60">■</text>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="55" cy="27" r="7" fill="#e74c3c"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="85" y1="40" x2="100" y2="60" stroke="#f1c40f" stroke-width="4"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#27ae60"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="35" y="35" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="35" y1="45" x2="65" y2="85" stroke="#f1c40f" stroke-width="4"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <text x="85" y="65" font-size="25" fill="#27ae60">■</text>
+                </svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="10" y1="90" x2="90" y2="10" stroke="#27ae60" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="20,20 80,50 20,80" fill="#f1c40f"/></svg></div>`
+        },
+        explanation: "Pilihan C benar karena jika dilakukan rotasi horizontal 90 derajat ke kiri, garis kuning miring beralih ke bagian depan dan kotak hijau bergeser presisi ke sisi kanan."
+    },
+    {
+        id: "q_131",
+        number: 131,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 131):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="12" fill="#e74c3c"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <text x="45" y="32" font-size="20" fill="#34495e">▲</text>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="87" y="45" width="12" height="12" fill="#3498db"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <rect x="44" y="64" width="12" height="12" fill="#3498db"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="10" fill="#e74c3c"/>
+                </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#3498db"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="30" y="30" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="50,15 85,85 15,85" fill="#34495e"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><text x="40" y="70" font-size="30">K</text></svg></div>`
+        },
+        explanation: "Pilihan A benar. Dengan memutar kubus secara horizontal 90 derajat ke arah kiri, kotak biru akan menghadap ke depan dan lingkaran merah berpindah tempat ke sisi kanan."
+    },
+    {
+        id: "q_132",
+        number: 132,
+        type: "multiple-choice",
+        key: "e",
+        instruction: "Subtes 8: Analisis spasial kubus 3D. Pilihlah kubus mana yang merupakan hasil rotasi logis dari gambar contoh utama!",
+        text: `<div style="text-align:center; margin:15px 0;"><p><b>KUBUS ACUAN CONTOH (No. 132):</b></p>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <line x1="30" y1="70" x2="70" y2="70" stroke="#2c3e50" stroke-width="4"/>
+                    <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="60" cy="27" r="6" fill="#e67e22"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="45" r="6" fill="#2ecc71"/>
+                </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><circle cx="50" cy="50" r="20" fill="#e67e22"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><rect x="40" y="40" width="30" height="30" fill="#2ecc71"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><line x1="20" y1="20" x2="100" y2="100" stroke="#000" stroke-width="5"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120"><polygon points="50,20 80,80 20,80" fill="#e67e22"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="70" height="70" viewBox="0 0 120 120">
+                    <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="6" fill="#e67e22"/>
+                    <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                    <circle cx="92" cy="55" r="6" fill="#2ecc71"/>
+                </svg></div>`
+        },
+        explanation: "Pilihan E benar karena merupakan rotasi vertikal ke arah depan bawah sehingga lingkaran oranye di bagian atas berpindah tempat menghadap ke depan."
+    }
+];
+
+let questions = masterQuestions;
+let currentIndex = 0;
+let userAnswers = {};
+
+function initQuiz() {
+    currentIndex = 0;
+    userAnswers = {};
+    document.getElementById('quizArea').style.display = 'block';
+    document.getElementById('resultArea').style.display = 'none';
+    renderQuiz();
+}
+
+function renderQuiz() {
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '';
+    
+    if (questions.length === 0) return;
+    const q = questions[currentIndex];
+    
+    const card = document.createElement('div');
+    card.className = "question-card active";
+    card.id = `q-card-${currentIndex}`;
+    
+    let optionsHtml = '<div class="options-container">';
+    for (let key in q.options) {
+        let isSelected = userAnswers[q.id] === key ? 'selected' : '';
+        optionsHtml += `
+            <button class="option-btn ${isSelected}" onclick="selectOption('${q.id}', '${key}')">
+                <strong>${key.toUpperCase()}.</strong> ${q.options[key]}
+            </button>`;
+    }
+    optionsHtml += '</div>';
+    
+    // Menyusun teks atau visual media soal
+    card.innerHTML = `
+        <div class="question-text">${q.number}. ${q.text || ''}</div>
+        ${optionsHtml}
+    `;
+    container.appendChild(card);
+    updateNavigation();
+}
+
+function selectOption(questionId, selectedKey) {
+    userAnswers[questionId] = selectedKey;
+    
+    // Beri tanda visual pada tombol opsi pilihan pengguna
+    renderQuiz();
+    
+    // Auto next setelah jeda singkat
+    setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuiz();
+        } else {
+            submitAnswers();
+        }
+    }, 200);
+}
+
+function changeQuestion(step) {
+    if ((currentIndex + step) >= 0 && (currentIndex + step) < questions.length) {
+        currentIndex += step;
+        renderQuiz();
+    }
+}
+
+function updateNavigation() {
+    const total = questions.length;
+    if(total === 0) return;
+    
+    document.getElementById('prevBtn').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+    document.getElementById('submitBtn').style.display = currentIndex === total - 1 ? 'inline-block' : 'none';
+    
+    const currentQuestion = questions[currentIndex];
+    document.getElementById('mainInstruction').innerText = currentQuestion.instruction || "Pilihlah salah satu jawaban yang paling tepat!";
+    
+    // Update teks progress bar
+    document.getElementById('progressStep').innerText = `Soal ${currentIndex + 1} dari ${total}`;
+    const progressPercent = Math.round(((currentIndex + 1) / total) * 100);
+    document.getElementById('progressPercent').innerText = `${progressPercent}%`;
+    document.getElementById('progressFill').style.width = `${progressPercent}%`;
+}
+
+function submitAnswers() {
+    let totalQuestions = questions.length;
+    let correctCount = 0;
+    
+    questions.forEach(q => {
+        if (userAnswers[q.id] === q.key) {
+            correctCount++;
+        }
+    });
+    
+    let finalScoreRaw = (correctCount / totalQuestions) * 100;
+    let finalScoreFormatted = finalScoreRaw % 1 === 0 ? finalScoreRaw.toFixed(0) : finalScoreRaw.toFixed(1);
+    let wrongCount = totalQuestions - correctCount;
+
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('resultArea').style.display = 'block';
+    
+    document.getElementById('finalScore').innerText = finalScoreFormatted;
+    document.getElementById('scoreStats').innerText = `Benar: ${correctCount} | Salah: ${wrongCount} dari Total ${totalQuestions} Soal`;
+    
+    const recapContainer = document.getElementById('recapContainer');
+    recapContainer.innerHTML = '';
+    
+    questions.forEach((q) => {
+        const uAns = userAnswers[q.id];
+        const isCorrect = uAns === q.key;
+        
+        let statusBadge = '';
+        if (!uAns) {
+            statusBadge = '<span class="badge unanswered">Kosong</span>';
+        } else if (isCorrect) {
+            statusBadge = '<span class="badge correct">Benar</span>';
+        } else {
+            statusBadge = '<span class="badge wrong">Salah</span>';
+        }
+        
+        const recapCard = document.createElement('div');
+        recapCard.className = 'recap-card';
+        recapCard.innerHTML = `
+            <div class="recap-header">
+                <span>Nomor ${q.number}</span>
+                ${statusBadge}
+            </div>
+            <div style="margin-bottom:10px; font-weight:bold;">${q.text || ''}</div>
+            <div style="font-size:14px; color:#4a5568;">
+                • Jawaban Anda: <b style="color:${isCorrect ? '#2ecc71':'#e74c3c'}">${uAns ? uAns.toUpperCase() : '-'}</b><br>
+                • Kunci Jawaban Resmi: <b style="color:#2ecc71">${q.key.toUpperCase()}</b>
+            </div>
+            <div class="explanation-box">
+                <b>Pembahasan:</b> ${q.explanation}
+            </div>
+        `;
+        recapContainer.appendChild(recapCard);
+    });
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Menjalankan aplikasi langsung saat dokumen HTML siap
+window.onload = initQuiz;
+</script>
+
+</body>
+</html>
