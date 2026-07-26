@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAT ARMY ALPHA INTELLIGENCE TEST - PERSONA RESEARCH & CONSULTING</title>
+    
+    <!-- External Libraries (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #2980b9;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg-main: #f5f7fa;
+            --panel-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #bdc3c7;
+            --warning: #e67e22;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 960px;
+            padding: 10px 15px;
+            margin: 5px auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        header p {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .login-form {
+            max-width: 600px;
+            margin: 10px auto;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        .info-desc-box {
+            background-color: #ebf5fb;
+            border-left: 4px solid var(--accent);
+            padding: 12px 15px;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .info-desc-box h3 {
+            font-size: 13px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .info-desc-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 11px;
+            background: #fff;
+        }
+
+        .info-desc-box th, .info-desc-box td {
+            border: 1px solid #d6eaf8;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .info-desc-box th {
+            background-color: #d4e6f1;
+            color: #1b4f72;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #2171a3;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #219653;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #a93226;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eaedf1;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .soal-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .timer-badge {
+            background-color: #fce8e6;
+            color: var(--danger);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(192, 57, 43, 0.2);
+        }
+
+        .focus-anchor {
+            scroll-margin-top: 15px;
+        }
+
+        .instruksi-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent);
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #2c3e50;
+        }
+
+        .instruksi-box strong {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--primary);
+        }
+
+        .activation-bar {
+            background-color: #e8f8f5;
+            border: 1px solid #a3e4d7;
+            border-radius: 6px;
+            padding: 8px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activation-bar span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #117a65;
+        }
+
+        .workspace {
+            position: relative;
+            background: #ffffff;
+            border: 2px solid #dcdde1;
+            border-radius: 8px;
+            margin: 5px auto;
+            overflow: hidden;
+            touch-action: none;
+            width: 100%;
+            max-width: 920px;
+            height: 240px;
+        }
+
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .svg-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .svg-bg * {
+            cursor: pointer;
+        }
+
+        .lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.03);
+            z-index: 10;
+            cursor: not-allowed;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .tool-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .score-large {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .result-table td {
+            padding: 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .text-hint {
+            font-size: 11px;
+            color: #d35400;
+            font-weight: 500;
+            margin-left: auto;
+            line-height: 1.4;
+        }
+
+        .text-input-node {
+            position: absolute;
+            border: 2px solid var(--accent);
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+            padding: 2px;
+            text-align: center;
+            z-index: 15;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .eval-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .rekap-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .rekap-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rekap-item {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 9px;
+            text-align: center;
+        }
+
+        .status-correct { background-color: #d4edda; color: #155724; }
+        .status-wrong { background-color: #f8d7da; color: #721c24; }
+        .status-empty { background-color: #e2e3e5; color: #383d41; }
+        .status-violation { background-color: #fff3cd; color: #856404; }
+
+        .narrative-box {
+            background-color: #fdfefe;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 15px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #34495e;
+        }
+
+        .metric-progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .metric-progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .charts-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .charts-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #pdf-report-content {
+            background: #ffffff;
+            padding: 20px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>ARMY ALPHA INTELLIGENCE TEST</h1>
+        <p>Persona Research & Consulting</p>
+    </header>
+
+    <!-- SCREEN 1: LOGIN / REGISTRASI -->
+    <div id="screen-login" class="screen card active">
+        <div class="login-form">
+            <h2 style="text-align: center; margin-bottom: 12px; color: var(--primary); font-size: 16px;">Registrasi Peserta Ujian</h2>
+            
+            <div class="info-desc-box">
+                <h3>📌 Informasi & Perbedaan Sistem Tes</h3>
+                <p><strong>Tes Army Alpha CAT (Computer-Assisted Testing)</strong> dirancang untuk mengukur daya tangkap instruksi verbal, kecepatan pemrosesan informasi, ketelitian, serta konsentrasi kognitif secara langsung dan otomatis.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fitur / Parameter</th>
+                            <th>Army Alpha Manual</th>
+                            <th>Army Alpha CAT (Sistem Ini)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Media Kerja</strong></td>
+                            <td>Kertas Soal & Pensil</td>
+                            <td>Interaktif Web (Digital Canvas)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instruksi & Waktu</strong></td>
+                            <td>Dibaca lisan oleh pengawas kelas</td>
+                            <td>Instruksi visual & timer otomatis per soal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Skoring & Analisis</strong></td>
+                            <td>Pemeriksaan kunci jawaban manual</td>
+                            <td>Kalkulasi otomatis real-time & analisis indikator psikologis lengkap</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-group">
+                <label for="input-nama">Nama Lengkap Peserta</label>
+                <input type="text" id="input-nama" placeholder="Masukkan nama lengkap Anda..." required autocomplete="off">
+            </div>
+            
+            <button class="btn btn-block" onclick="startExamSession()" style="margin-top: 15px;">MULAI TES ARMY ALPHA</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: EXAM WORKSPACE -->
+    <div id="screen-exam" class="screen card">
+        <div class="test-header focus-anchor" id="test-view-focus">
+            <div class="soal-info" id="txt-soal-nomor">Soal No. 1</div>
+            <div class="timer-badge">
+                <span>⏱️ Sisa Waktu:</span>
+                <span id="txt-timer-value">15</span> dtk
+            </div>
+        </div>
+
+        <div class="instruksi-box" id="panel-instruksi-text">
+            <strong>Instruksi Pengerjaan:</strong>
+            <span id="txt-instruksi-value">Memuat instruksi...</span>
+        </div>
+
+        <div class="activation-bar" id="panel-activation-bar">
+            <span id="txt-activation-status">Silakan baca instruksi & amati lembar soal di bawah...</span>
+            <button class="btn btn-success" id="btn-trigger-start" onclick="activateCurrentSoal()" style="padding: 6px 15px; font-size: 12px; border-radius: 4px;">▶️ JALANKAN WAKTU & KERJAKAN</button>
+        </div>
+
+        <div class="toolbar">
+            <button class="tool-btn active" id="btn-tool-pen">✏️ Mode Interaktif</button>
+            <span class="text-hint" id="txt-hint-tool">💡 Klik/Sentuh objek untuk merespon perintah instruksi secara langsung.</span>
+        </div>
+
+        <div class="workspace" id="exam-workspace">
+            <div class="lock-overlay" id="canvas-lock-layer"></div>
+            <svg class="svg-bg" id="soal-svg-bg" viewBox="0 0 920 240" xmlns="http://www.w3.org/2000/svg"></svg>
+            <canvas class="canvas-container" id="interaction-canvas" width="920" height="240"></canvas>
+        </div>
+
+        <div class="nav-controls">
+            <button class="btn" style="background-color: #7f8c8d; padding: 8px 20px; font-size: 13px;" onclick="navPrevSoal()" id="btn-nav-prev">⬅️ Kembali</button>
+            <button class="btn" style="background-color: #2980b9; padding: 8px 20px; font-size: 13px;" onclick="navNextSoal()" id="btn-nav-next">Lanjut ➡️</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: DASHBOARD HASIL & REKAPITULASI -->
+    <div id="screen-result" class="screen card">
+        <div id="pdf-report-content">
+            <div style="text-align: center; border-bottom: 2px solid #2c3e50; padding-bottom: 8px; margin-bottom: 12px;">
+                <h2 style="color: #2c3e50; font-size: 18px; font-weight: bold; margin-bottom: 2px;">PERSONA RESEARCH & CONSULTING</h2>
+                <h3 style="color: #2980b9; font-size: 14px; font-weight: bold;">ARMY ALPHA CAT REPORT</h3>
+            </div>
+            
+            <div class="result-box" style="margin-bottom: 12px;">
+                <table class="result-table">
+                    <tr>
+                        <td style="width: 140px; font-weight: bold;">Nama Peserta</td>
+                        <td id="res-nama">-</td>
+                        <td style="width: 120px; font-weight: bold;">Tanggal Ujian</td>
+                        <td id="res-tanggal">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Total Durasi Tes</td>
+                        <td id="res-durasi-total" colspan="3">-</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-box">
+                    <h4 style="font-size: 13px;">Kalkulasi Skor Utama (Raw Score)</h4>
+                    <div class="score-large" id="res-raw-score">0 <span style="font-size: 13px; color: #718096; font-weight: normal;">/ 12 Benar</span></div>
+                    <div style="font-size: 11px; color: #718096;" id="res-metrics-summary">Akurasi: 0% | Penyelesaian: 0%</div>
+                </div>
+                <div class="result-box" style="border-left-color: var(--success);">
+                    <h4 style="font-size: 13px;">Weighted Score & Kategori</h4>
+                    <div class="score-large" id="res-weighted-score" style="color: var(--success);">0</div>
+                    <div style="font-weight: bold; font-size: 14px; color: #2c3e50;" id="res-kategori">KURANG SEKALI</div>
+                </div>
+            </div>
+
+            <div class="eval-section-title">📊 Visualisasi Performance & Profil Error</div>
+            <div class="charts-wrapper">
+                <div class="chart-card">
+                    <canvas id="chartStatusPie"></canvas>
+                </div>
+                <div class="chart-card">
+                    <canvas id="chartPsychRadar"></canvas>
+                </div>
+            </div>
+
+            <div class="eval-section-title">🧠 Indikator Profil Psikologis (Psychological Metrics)</div>
+            <div class="narrative-box" style="margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;" id="metrics-grid">
+                </div>
+            </div>
+
+            <div class="eval-section-title">📋 Ringkasan & Diagnostik Tiap Soal</div>
+            <div class="rekap-container" id="rekap-jawaban-list">
+            </div>
+
+            <div class="eval-section-title">📝 Kesimpulan & Uraian Interpretasi Psikologis</div>
+            <div class="narrative-box" id="pembahasan-teks-box">
+                Memuat interpretasi...
+            </div>
+
+            <div style="margin-top: 25px; border-top: 1px solid #cbd5e0; padding-top: 8px; text-align: center; font-size: 10px; color: #718096;">
+                Generated by Persona Research & Consulting — Automated CAT Psychological Testing Engine
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center; display: flex; justify-content: center; gap: 12px;">
+            <button class="btn btn-success" onclick="downloadPDFReport()">📥 DOWNLOAD PDF REPORT</button>
+            <button class="btn" onclick="resetExamAppInstance()" style="background-color: var(--primary);">🔄 Uji Kembali</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // 1. QUESTION DATA STRUCTURE (12 ARMY ALPHA QUESTIONS)
+    // =========================================================================
+    const QUESTIONS_DATA = [
+        {
+            id: 1,
+            duration: 15,
+            instruction: "Lihatlah lingkaran-lingkaran pada soal No.1 Buatlah sebuah silang dalam lingkaran ke duapuluh atau lingkaran ke dua dan sebuah huruf dalam lingkaran ke lima.",
+            svgMarkup: `
+                <circle cx="210" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle1" data-action="toggle-x" />
+                <circle cx="330" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle2" data-action="toggle-x" />
+                <circle cx="450" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle3" data-action="toggle-x" />
+                <circle cx="570" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle4" data-action="text-edit" />
+                <circle cx="690" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle5" data-action="text-edit" />
+            `,
+            validator: {
+                required: [
+                    { id: "circle2", value: "X" },
+                    { id: "circle5", regex: "^[A-Z]$", notValue: "X" }
+                ],
+                forbidden: ["circle1", "circle3", "circle4"]
+            }
+        },
+        {
+            id: 2,
+            duration: 15,
+            instruction: "Lihatlah No. 2. Lingkaran-lingkaran itu bernomor. Tariklah sebuah garis dari lingkaran ke tiga ke lingkaran ke enam. Garis itu lewat di bawah lingkaran ke empat dan di atas lingkaran ke lima.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" dominant-baseline="central">
+                    <circle cx="130" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c1" data-action="connect" /><text x="130" y="121" pointer-events="none">1</text>
+                    <circle cx="210" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c2" data-action="connect" /><text x="210" y="121" pointer-events="none">2</text>
+                    <circle cx="290" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c3" data-action="connect" /><text x="290" y="121" pointer-events="none">3</text>
+                    <circle cx="370" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c4" data-action="connect" /><text x="370" y="121" pointer-events="none">4</text>
+                    <circle cx="450" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c5" data-action="connect" /><text x="450" y="121" pointer-events="none">5</text>
+                    <circle cx="530" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c6" data-action="connect" /><text x="530" y="121" pointer-events="none">6</text>
+                    <circle cx="610" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c7" data-action="connect" /><text x="610" y="121" pointer-events="none">7</text>
+                    <circle cx="690" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c8" data-action="connect" /><text x="690" y="121" pointer-events="none">8</text>
+                    <circle cx="770" cy="120" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="c9" data-action="connect" /><text x="770" y="121" pointer-events="none">9</text>
+                </g>
+            `,
+            validator: {
+                path: {
+                    from: "c3",
+                    to: "c6",
+                    passBelow: ["c4"],
+                    passAbove: ["c5"]
+                },
+                forbidden: ["c1", "c2", "c7", "c8", "c9"]
+            }
+        },
+        {
+            id: 3,
+            duration: 15,
+            instruction: "Lihatlah soal No.3: Jika betul bahwa pesawat udara lebih cepat dari mobil, buatlah koma dalam lingkaran pertama. Jika tidak, coretlah perkataan 'tidak'.",
+            svgMarkup: `
+                <circle cx="250" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="commaCircle" data-action="toggle-comma" />
+                <g font-family="Arial" font-size="22" font-weight="bold">
+                    <text x="420" y="128" fill="#333" data-id="textYa" data-action="cross-line">Ya</text>
+                    <text x="540" y="128" fill="#333" data-id="textTidak" data-action="cross-line">Tidak</text>
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "commaCircle", value: "," }
+                ],
+                forbidden: ["textYa", "textTidak"]
+            }
+        },
+        {
+            id: 4,
+            duration: 15,
+            instruction: "Soal No. 4: Tulislah dalam lingkaran ke tiga jawaban yang betul dari pertanyaan: 'Berapa harikah 1 minggu itu?' Dalam lingkaran ke empat tidak dibuat suatu apapun, tetapi tulislah dalam lingkaran ke lima jawaban yang salah dari pertanyaan tadi.",
+            svgMarkup: `
+                <circle cx="210" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle1" data-action="text-edit" />
+                <circle cx="330" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle2" data-action="text-edit" />
+                <circle cx="450" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle3" data-action="text-edit" />
+                <circle cx="570" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle4" data-action="text-edit" />
+                <circle cx="690" cy="120" r="28" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle5" data-action="text-edit" />
+            `,
+            validator: {
+                required: [
+                    { id: "circle3", value: "7" },
+                    { id: "circle5", notValue: "7", regex: "^.+$" }
+                ],
+                forbidden: ["circle1", "circle2", "circle4"]
+            }
+        },
+        {
+    id: 5,
+    duration: 15,
+    instruction: "Lihatlah segi tiga dan lingkaran pada No. 5. Buatlah sebuah silang pada bidang yang terletak dalam lingkaran, tetapi tidak dalam segitiga. Dan tulislah huruf 'A' pada bidang yang terletak dalam lingkaran dan juga dalam segitiga.",
+
+    svgMarkup: `
+        <!-- GAMBAR NO. 5 -->
+        <circle
+            cx="420"
+            cy="120"
+            r="70"
+            stroke="#333"
+            stroke-width="2.5"
+            fill="transparent"
+            data-id="circleB"
+            data-action="none"
+        />
+
+        <polygon
+            points="370,175 570,175 470,65"
+            stroke="#333"
+            stroke-width="2.5"
+            fill="transparent"
+            data-id="polyA"
+            data-action="none"
+        />
+
+        <!--
+        AREA JAWABAN X
+        Bagian lingkaran yang berada di LUAR segitiga.
+        Titik klik berada di dalam lingkaran sisi kiri.
+        -->
+        <circle
+            cx="390"
+            cy="115"
+            r="28"
+            fill="transparent"
+            stroke="transparent"
+            data-id="circleOutsideTriangle"
+            data-action="toggle-x"
+        />
+
+        <!--
+        AREA JAWABAN A
+        Bagian yang berada DI DALAM LINGKARAN
+        DAN DI DALAM SEGITIGA.
+        -->
+        <circle
+            cx="445"
+            cy="130"
+            r="28"
+            fill="transparent"
+            stroke="transparent"
+            data-id="circleAndTriangle"
+            data-action="text-edit"
+        />
+    `,
+
+    validator: {
+        required: [
+            { id: "circleOutsideTriangle", value: "X" },
+            { id: "circleAndTriangle", value: "A" }
+        ],
+        forbidden: []
+    }
+},
+
+       {
+    id: 6,
+    duration: 15,
+    instruction: "Lihatlah soal No. 6: Buatlah sebuah silang pada bidang yang terletak dalam segitiga tetapi tidak dalam bujur sangkar, dan tulislah huruf Y pada bidang yang terletak dalam bujur sangkar dan segitiga tetapi tidak dalam lingkaran.",
+
+    svgMarkup: `
+        <!-- GAMBAR NO. 6 -->
+
+        <!-- SEGITIGA -->
+        <polygon
+            points="120,180 350,55 800,180"
+            stroke="#333"
+            stroke-width="2.5"
+            fill="transparent"
+            data-id="triangleMain"
+            data-action="none"
+        />
+
+        <!-- LINGKARAN -->
+        <circle
+            cx="380"
+            cy="100"
+            r="70"
+            stroke="#333"
+            stroke-width="2.5"
+            fill="transparent"
+            data-id="circleMid"
+            data-action="none"
+        />
+
+        <!-- BUJUR SANGKAR -->
+        <rect
+            x="380"
+            y="55"
+            width="110"
+            height="110"
+            stroke="#333"
+            stroke-width="2.5"
+            fill="transparent"
+            data-id="squareMain"
+            data-action="none"
+        />
+
+        <!--
+        AREA JAWABAN X
+        DALAM SEGITIGA
+        TETAPI DI LUAR BUJUR SANGKAR.
+
+        Posisi target berada di bagian kiri segitiga.
+        -->
+        <circle
+            cx="280"
+            cy="140"
+            r="30"
+            fill="transparent"
+            stroke="transparent"
+            data-id="triangleNotSquare"
+            data-action="toggle-x"
+        />
+
+        <!--
+        AREA JAWABAN Y
+        DALAM BUJUR SANGKAR
+        DAN DALAM SEGITIGA
+        TETAPI DI LUAR LINGKARAN.
+
+        Posisi target berada di bagian kanan-bawah
+        bujur sangkar.
+        -->
+        <circle
+            cx="455"
+            cy="145"
+            r="28"
+            fill="transparent"
+            stroke="transparent"
+            data-id="squareAndTriangleNotCircle"
+            data-action="text-edit"
+        />
+    `,
+
+    validator: {
+        required: [
+            { id: "triangleNotSquare", value: "X" },
+            { id: "squareAndTriangleNotCircle", value: "Y" }
+        ],
+        forbidden: []
+    }
+},
+        {
+            id: 7,
+            duration: 15,
+            instruction: "Lihatlah No. 7: Buatlah sebuah garis di bawah huruf yang tepat mendahului huruf E, dan buatlah pula sebuah garis yang melintang huruf kedua yang mendahului 'J'.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">
+                    <text x="80" y="125" fill="#333" data-id="A" data-action="toggle-line">A</text>
+                    <text x="130" y="125" fill="#333" data-id="B" data-action="toggle-line">B</text>
+                    <text x="180" y="125" fill="#333" data-id="C" data-action="toggle-line">C</text>
+                    <text x="230" y="125" fill="#333" data-id="D" data-action="toggle-line">D</text>
+                    <text x="280" y="125" fill="#333" data-id="E" data-action="toggle-line">E</text>
+                    <text x="330" y="125" fill="#333" data-id="F" data-action="toggle-line">F</text>
+                    <text x="380" y="125" fill="#333" data-id="G" data-action="toggle-line">G</text>
+                    <text x="430" y="125" fill="#333" data-id="H" data-action="toggle-line">H</text>
+                    <text x="480" y="125" fill="#333" data-id="I" data-action="toggle-line">I</text>
+                    <text x="530" y="125" fill="#333" data-id="J" data-action="toggle-line">J</text>
+                    <text x="580" y="125" fill="#333" data-id="K" data-action="toggle-line">K</text>
+                    <text x="630" y="125" fill="#333" data-id="L" data-action="toggle-line">L</text>
+                    <text x="680" y="125" fill="#333" data-id="M" data-action="toggle-line">M</text>
+                    <text x="730" y="125" fill="#333" data-id="N" data-action="toggle-line">N</text>
+                    <text x="780" y="125" fill="#333" data-id="O" data-action="toggle-line">O</text>
+                    <text x="830" y="125" fill="#333" data-id="P" data-action="toggle-line">P</text>
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "D", value: "underlined" },
+                    { id: "H", value: "underlined" }
+                ],
+                forbidden: ["A", "B", "C", "E", "F", "G", "I", "J", "K", "L", "M", "N", "O", "P"]
+            }
+        },
+        {
+            id: 8,
+            duration: 15,
+            instruction: "Lihatlah No. 8: Tulislah dalam lingkaran pertama, huruf kedua dari perkataan pertama. Dalam lingkaran kedua, huruf ketiga dari perkataan kedua, dan dalam lingkaran ketiga, huruf penghabisan dari perkataan ketiga.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">
+                    <text x="250" y="80" fill="#333" pointer-events="none">KAPAL</text>
+                    <text x="450" y="80" fill="#333" pointer-events="none">MUATAN</text>
+                    <text x="650" y="80" fill="#333" pointer-events="none">GUDANG</text>
+                </g>
+                <circle cx="250" cy="150" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle1" data-action="text-edit" />
+                <circle cx="450" cy="150" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle2" data-action="text-edit" />
+                <circle cx="650" cy="150" r="24" stroke="#333" stroke-width="2.5" fill="transparent" data-id="circle3" data-action="text-edit" />
+            `,
+            validator: {
+                required: [
+                    { id: "circle1", value: "A" },
+                    { id: "circle2", value: "A" },
+                    { id: "circle3", value: "G" }
+                ],
+                forbidden: []
+            }
+        },
+        {
+            id: 9,
+            duration: 15,
+            instruction: "Lihatlah No. 9: Coretlah tiap-tiap bilangan yang lebih besar dari 30 tetapi kurang dari 40.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">
+                    <text x="70" y="125" fill="#333" data-id="num45" data-action="cross-line">45</text><text x="110" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="150" y="125" fill="#333" data-id="num87" data-action="cross-line">87</text><text x="190" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="230" y="125" fill="#333" data-id="num54" data-action="cross-line">54</text><text x="270" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="310" y="125" fill="#333" data-id="num33" data-action="cross-line">33</text><text x="350" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="390" y="125" fill="#333" data-id="num66" data-action="cross-line">66</text><text x="430" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="470" y="125" fill="#333" data-id="num78" data-action="cross-line">78</text><text x="510" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="550" y="125" fill="#333" data-id="num81" data-action="cross-line">81</text><text x="590" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="630" y="125" fill="#333" data-id="num49" data-action="cross-line">49</text><text x="670" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="710" y="125" fill="#333" data-id="num36" data-action="cross-line">36</text><text x="750" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="790" y="125" fill="#333" data-id="num41" data-action="cross-line">41</text><text x="830" y="125" fill="#333" pointer-events="none">-</text>
+                    <text x="870" y="125" fill="#333" data-id="num71" data-action="cross-line">71</text>
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "num33", value: "crossed" },
+                    { id: "num36", value: "crossed" }
+                ],
+                forbidden: ["num45", "num87", "num54", "num66", "num78", "num81", "num49", "num41", "num71"]
+            }
+        },
+        {
+            id: 10,
+            duration: 15,
+            instruction: "Lihatlah No. 10: Tulislah angka 8 atau 6 pada dua bagian yang kecil, dan tulislah angka 1 sampai 5 pada bagian yang hampir paling besar.",
+            svgMarkup: `
+                <g transform="translate(120, 100)">
+                    <rect x="0" y="0" width="620" height="40" stroke="#333" stroke-width="2" fill="transparent" pointer-events="none" />
+                    <line x1="35" y1="0" x2="35" y2="40" stroke="#333" stroke-width="2" pointer-events="none" />
+                    <line x1="315" y1="0" x2="315" y2="40" stroke="#333" stroke-width="2" pointer-events="none" />
+                    <line x1="480" y1="0" x2="480" y2="40" stroke="#333" stroke-width="2" pointer-events="none" />
+                    <line x1="570" y1="0" x2="570" y2="40" stroke="#333" stroke-width="2" pointer-events="none" />
+
+                    <!-- RUANG 1 (Kecil) -->
+                    <rect x="0" y="0" width="35" height="40" fill="transparent" data-id="space1" data-action="text-edit" data-custom-x="137" data-custom-y="120" />
+                    <!-- RUANG 2 (Hampir Paling Besar / Sedang-Besar) -->
+                    <rect x="35" y="0" width="280" height="40" fill="transparent" data-id="space2" data-action="text-edit" data-custom-x="295" data-custom-y="120" />
+                    <!-- RUANG 3 (Sedang) -->
+                    <rect x="315" y="0" width="165" height="40" fill="transparent" data-id="space3" data-action="text-edit" data-custom-x="517" data-custom-y="120" />
+                    <!-- RUANG 4 (Kecil) -->
+                    <rect x="480" y="0" width="90" height="40" fill="transparent" data-id="space4" data-action="text-edit" data-custom-x="645" data-custom-y="120" />
+                    <!-- RUANG 5 (Paling Kecil) -->
+                    <rect x="570" y="0" width="50" height="40" fill="transparent" data-id="space5" data-action="text-edit" data-custom-x="695" data-custom-y="120" />
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "space1", values: ["6", "8"] },
+                    { id: "space4", values: ["6", "8"] },
+                    { id: "space2", values: ["1", "2", "3", "4", "5"] }
+                ],
+                forbidden: [
+                    "space3",
+                    "space5"
+                ]
+            }
+        },
+        {
+            id: 11,
+            duration: 15,
+            instruction: "Lihatlah No.11: Coret tiap-tiap angka ganjil yang tidak berhuruf dan tidak terletak dalam segitiga, dan coretlah pula tiap angka genap yang berhuruf dalam lingkaran.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">
+                    <circle cx="110" cy="120" r="26" stroke="#333" stroke-width="2" fill="transparent" data-id="circle6A" data-action="cross-line" />
+                    <text x="110" y="126" fill="#333" pointer-events="none">6A</text>
+
+                    <rect x="160" y="90" width="50" height="60" stroke="#333" stroke-width="2" fill="transparent" data-id="rect5" data-action="cross-line" />
+                    <text x="185" y="126" fill="#333" pointer-events="none">5</text>
+
+                    <polygon points="260,150 220,90 300,90" stroke="#333" stroke-width="2" fill="transparent" data-id="poly7" data-action="cross-line" />
+                    <text x="260" y="126" fill="#333" pointer-events="none">7</text>
+
+                    <circle cx="340" cy="120" r="26" stroke="#333" stroke-width="2" fill="transparent" data-id="circle9" data-action="cross-line" />
+                    <text x="340" y="126" fill="#333" pointer-events="none">9</text>
+
+                    <polygon points="420,150 380,90 460,90" stroke="#333" stroke-width="2" fill="transparent" data-id="poly8" data-action="cross-line" />
+                    <text x="420" y="126" fill="#333" pointer-events="none">8</text>
+
+                    <rect x="480" y="90" width="60" height="60" stroke="#333" stroke-width="2" fill="transparent" data-id="rect2F" data-action="cross-line" />
+                    <text x="510" y="126" fill="#333" pointer-events="none">2F</text>
+
+                    <circle cx="585" cy="120" r="26" stroke="#333" stroke-width="2" fill="transparent" data-id="circle5P" data-action="cross-line" />
+                    <text x="585" y="126" fill="#333" pointer-events="none">5P</text>
+
+                    <rect x="630" y="90" width="50" height="60" stroke="#333" stroke-width="2" fill="transparent" data-id="rect3" data-action="cross-line" />
+                    <text x="655" y="126" fill="#333" pointer-events="none">3</text>
+
+                    <polygon points="730,150 690,90 770,90" stroke="#333" stroke-width="2" fill="transparent" data-id="poly1" data-action="cross-line" />
+                    <text x="730" y="126" fill="#333" pointer-events="none">1</text>
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "circle6A", value: "crossed" },
+                    { id: "rect5", value: "crossed" },
+                    { id: "poly7", value: "crossed" },
+                    { id: "circle9", value: "crossed" },
+                    { id: "poly8", value: "crossed" },
+                    { id: "rect2F", value: "crossed" },
+                    { id: "circle5P", value: "crossed" },
+                    { id: "rect3", value: "crossed" },
+                    { id: "poly1", value: "crossed" }
+                ],
+                forbidden: []
+            }
+        },
+        {
+            id: 12,
+            duration: 15,
+            instruction: "Apabila 5 lebih besar dari 3, coretlah angka 4, kecuali kalau 4 lebih besar dari pada 6, dalam hal ini buatlah sebuah garis dibawah angka 5.",
+            svgMarkup: `
+                <g font-family="Arial" font-size="22" font-weight="bold" text-anchor="middle">
+                    <text x="130" y="125" fill="#333" data-id="n1" data-action="toggle-line">1</text>
+                    <text x="210" y="125" fill="#333" data-id="n2" data-action="toggle-line">2</text>
+                    <text x="290" y="125" fill="#333" data-id="n3" data-action="toggle-line">3</text>
+                    <text x="370" y="125" fill="#333" data-id="n4" data-action="cross-line">4</text>
+                    <text x="450" y="125" fill="#333" data-id="n5" data-action="toggle-line">5</text>
+                    <text x="530" y="125" fill="#333" data-id="n6" data-action="toggle-line">6</text>
+                    <text x="610" y="125" fill="#333" data-id="n7" data-action="toggle-line">7</text>
+                    <text x="690" y="125" fill="#333" data-id="n8" data-action="toggle-line">8</text>
+                    <text x="770" y="125" fill="#333" data-id="n9" data-action="toggle-line">9</text>
+                </g>
+            `,
+            validator: {
+                required: [
+                    { id: "n4", value: "crossed" }
+                ],
+                forbidden: ["n1", "n2", "n3", "n5", "n6", "n7", "n8", "n9"]
+            }
+        }
+    ];
+
+    // =========================================================================
+    // 2. CENTRAL STATE MANAGER & ACTIVITY LOGGER
+    // =========================================================================
+    class StateManagerClass {
+        constructor() {
+            this.reset();
+        }
+
+        reset() {
+            this.peserta = { nama: "", tanggal: "", globalStartTime: null, globalEndTime: null };
+            this.jawaban = {};
+            for (let i = 1; i <= 12; i++) {
+                this.jawaban[i] = {
+                    started: false,
+                    timeLeft: QUESTIONS_DATA[i - 1].duration,
+                    startTime: null,
+                    firstClickTime: null,
+                    endTime: null,
+                    durationTaken: 0,
+                    data: {},
+                    logs: []
+                };
+            }
+        }
+
+        initPeserta(nama) {
+            this.peserta = {
+                nama: nama,
+                tanggal: new Date().toLocaleDateString('id-ID'),
+                globalStartTime: Date.now(),
+                globalEndTime: null
+            };
+        }
+
+        getAnswers(noSoal) {
+            return this.jawaban[noSoal] ? this.jawaban[noSoal].data : {};
+        }
+
+        getSoalState(noSoal) {
+            return this.jawaban[noSoal];
+        }
+
+        logActivity(noSoal, type, details) {
+            if (!this.jawaban[noSoal]) return;
+            const now = Date.now();
+            if (!this.jawaban[noSoal].firstClickTime) {
+                this.jawaban[noSoal].firstClickTime = now;
+            }
+            this.jawaban[noSoal].logs.push({
+                timestamp: now,
+                type: type,
+                details: details
+            });
+        }
+
+        updateAnswer(noSoal, id, value, actionType = 'interact') {
+            if (!this.jawaban[noSoal]) return;
+            
+            this.logActivity(noSoal, actionType, { id, value });
+
+            if (value === null || value === undefined || value === false || value === "") {
+                delete this.jawaban[noSoal].data[id];
+            } else {
+                this.jawaban[noSoal].data[id] = value;
+            }
+            RendererEngine.drawState();
+        }
+
+        markStarted(noSoal) {
+            if (this.jawaban[noSoal] && !this.jawaban[noSoal].started) {
+                this.jawaban[noSoal].started = true;
+                this.jawaban[noSoal].startTime = Date.now();
+            }
+        }
+
+        markEnded(noSoal) {
+            if (this.jawaban[noSoal]) {
+                const now = Date.now();
+                this.jawaban[noSoal].endTime = now;
+                if (this.jawaban[noSoal].startTime) {
+                    this.jawaban[noSoal].durationTaken = Math.round((now - this.jawaban[noSoal].startTime) / 1000);
+                }
+            }
+        }
+    }
+
+    const AppState = new StateManagerClass();
+
+    // =========================================================================
+    // 3. DRAWING GEOMETRY ENGINE
+    // =========================================================================
+    class GeometryEngineClass {
+        getCenterCoordinates(el) {
+            const tagName = el.tagName.toLowerCase();
+            let customX = el.getAttribute('data-custom-x');
+            let customY = el.getAttribute('data-custom-y');
+            
+            if (customX && customY) {
+                return { x: parseFloat(customX), y: parseFloat(customY) };
+            }
+
+            if (tagName === 'circle') {
+                return { x: parseFloat(el.getAttribute('cx')), y: parseFloat(el.getAttribute('cy')) };
+            } else if (tagName === 'text' || tagName === 'rect') {
+                let x = parseFloat(el.getAttribute('x'));
+                let y = parseFloat(el.getAttribute('y'));
+                if (tagName === 'text') {
+                    const anchor = el.getAttribute('text-anchor');
+                    if (anchor === 'middle') return { x: x, y: y - 8 };
+                    return { x: x + 15, y: y - 8 };
+                }
+                return { x: x + (parseFloat(el.getAttribute('width')) / 2), y: y + (parseFloat(el.getAttribute('height')) / 2) };
+            } else if (tagName === 'polygon') {
+                return { x: 450, y: 140 };
+            }
+            return { x: 100, y: 100 };
+        }
+
+        validateLineGeometry(connection, pathConfig, svgBgNode) {
+            if (!connection || !pathConfig) return false;
+            
+            const fromValid = connection.from === pathConfig.from && connection.to === pathConfig.to;
+            const toValid = connection.from === pathConfig.to && connection.to === pathConfig.from;
+            
+            if (!fromValid && !toValid) return false;
+
+            if (pathConfig.passBelow && pathConfig.passBelow.includes("c4")) {
+                const c4El = svgBgNode.querySelector('[data-id="c4"]');
+                if (c4El) {
+                    const c4Pos = this.getCenterCoordinates(c4El);
+                    const curveYAtC4 = 210;
+                    if (curveYAtC4 <= c4Pos.y) return false;
+                }
+            }
+
+            if (pathConfig.passAbove && pathConfig.passAbove.includes("c5")) {
+                const c5El = svgBgNode.querySelector('[data-id="c5"]');
+                if (c5El) {
+                    const c5Pos = this.getCenterCoordinates(c5El);
+                    const curveYAtC5 = 40;
+                    if (curveYAtC5 >= c5Pos.y) return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    const GeometryHelper = new GeometryEngineClass();
+
+    // =========================================================================
+    // 4. UNIVERSAL VALIDATION ENGINE (STRICT MANUAL VALIDATION)
+    // =========================================================================
+    class ValidationEngineClass {
+        validate(question, userState) {
+            const answers = userState ? userState.data : {};
+            const keys = Object.keys(answers).filter(k => k !== '_pendingNode');
+            
+            let status = {
+                isValid: false,
+                code: 'EMPTY',
+                details: []
+            };
+
+            if (keys.length === 0) {
+                status.code = 'EMPTY';
+                return status;
+            }
+
+            const validator = question.validator || {};
+            let hasExtraActions = false;
+            let missingRequired = false;
+            let wrongValue = false;
+
+            if (validator.forbidden && Array.isArray(validator.forbidden)) {
+                for (let forbId of validator.forbidden) {
+                    if (answers[forbId]) {
+                        hasExtraActions = true;
+                        status.details.push(`Extra action on ${forbId}`);
+                    }
+                }
+            }
+
+            const allowedKeys = new Set();
+            if (validator.required) validator.required.forEach(r => allowedKeys.add(r.id));
+            if (validator.forbidden) validator.forbidden.forEach(f => allowedKeys.add(f));
+            if (validator.path) {
+                allowedKeys.add(`line_${validator.path.from}_${validator.path.to}`);
+                allowedKeys.add(`line_${validator.path.to}_${validator.path.from}`);
+            }
+
+            for (let k of keys) {
+                if (!k.startsWith('line_') && !allowedKeys.has(k)) {
+                    hasExtraActions = true;
+                    status.details.push(`Undeclared action on ${k}`);
+                }
+            }
+
+            if (validator.required) {
+                for (let req of validator.required) {
+                    const val = answers[req.id];
+                    if (!val) {
+                        missingRequired = true;
+                    } else {
+                        if (req.value && val !== req.value) {
+                            if (!req.values || !req.values.includes(val)) {
+                                wrongValue = true;
+                            }
+                        }
+                        if (req.values && !req.values.includes(val)) {
+                            wrongValue = true;
+                        }
+                        if (req.notValue && val === req.notValue) {
+                            wrongValue = true;
+                        }
+                        if (req.regex) {
+                            const re = new RegExp(req.regex);
+                            if (!re.test(val)) {
+                                wrongValue = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (validator.path) {
+                const lineKey1 = `line_${validator.path.from}_${validator.path.to}`;
+                const lineKey2 = `line_${validator.path.to}_${validator.path.from}`;
+                const connection = answers[lineKey1] || answers[lineKey2];
+
+                if (!connection) {
+                    missingRequired = true;
+                } else {
+                    const svgBg = document.getElementById('soal-svg-bg');
+                    const isGeoValid = GeometryHelper.validateLineGeometry(connection, validator.path, svgBg);
+                    if (!isGeoValid) {
+                        wrongValue = true;
+                    }
+                }
+            }
+
+            if (hasExtraActions && (!missingRequired && !wrongValue)) {
+                status.code = 'EXTRA_ACTION';
+                status.isValid = false;
+            } else if (hasExtraActions || (wrongValue && missingRequired)) {
+                status.code = 'INSTRUCTION_VIOLATION';
+                status.isValid = false;
+            } else if (missingRequired) {
+                status.code = 'INCOMPLETE';
+                status.isValid = false;
+            } else if (wrongValue) {
+                status.code = 'WRONG';
+                status.isValid = false;
+            } else {
+                status.code = 'CORRECT';
+                status.isValid = true;
+            }
+
+            return status;
+        }
+    }
+
+    const ValidationEngine = new ValidationEngineClass();
+
+    // =========================================================================
+    // 5. SCORING ENGINE
+    // =========================================================================
+    class ScoringEngineClass {
+        calculate() {
+            let totalCorrect = 0;
+            this.detailedResults = [];
+
+            QUESTIONS_DATA.forEach((q) => {
+                const stateObj = AppState.getSoalState(q.id);
+                const valResult = ValidationEngine.validate(q, stateObj);
+
+                if (valResult.isValid) {
+                    totalCorrect++;
+                }
+
+                this.detailedResults.push({
+                    questionId: q.id,
+                    result: valResult,
+                    state: stateObj
+                });
+            });
+
+            return totalCorrect;
+        }
+
+        getDetailedResults() {
+            return this.detailedResults || [];
+        }
+    }
+
+    const ScoringEngine = new ScoringEngineClass();
+
+    // =========================================================================
+    // 6. RENDERER ENGINE
+    // =========================================================================
+    class RendererEngineClass {
+        constructor() {
+            this.canvas = null;
+            this.ctx = null;
+            this.svgBg = null;
+        }
+
+        init(canvasEl, ctxEl, svgBgEl) {
+            this.canvas = canvasEl;
+            this.ctx = ctxEl;
+            this.svgBg = svgBgEl;
+        }
+
+        drawState() {
+            if (!this.ctx || !this.canvas) return;
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            const noSoal = QUESTIONS_DATA[currentIdx].id;
+            const currentAnswers = AppState.getAnswers(noSoal);
+
+            const elements = this.svgBg.querySelectorAll('[data-action]');
+            elements.forEach(el => {
+                const id = el.getAttribute('data-id');
+                const val = currentAnswers[id];
+                if (!val) return;
+
+                const center = GeometryHelper.getCenterCoordinates(el);
+
+                if (val === 'X') {
+                    this.ctx.strokeStyle = '#1e3799';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(center.x - 12, center.y - 12);
+                    this.ctx.lineTo(center.x + 12, center.y + 12);
+                    this.ctx.moveTo(center.x + 12, center.y - 12);
+                    this.ctx.lineTo(center.x - 12, center.y + 12);
+                    this.ctx.stroke();
+                } else if (val === ',') {
+                    this.ctx.fillStyle = '#1e3799';
+                    this.ctx.font = 'bold 40px Arial';
+                    this.ctx.fillText(',', center.x - 4, center.y - 10);
+                } else if (val === 'crossed') {
+                    this.ctx.strokeStyle = '#c0392b';
+                    this.ctx.lineWidth = 3.5;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(center.x - 30, center.y);
+                    this.ctx.lineTo(center.x + 30, center.y);
+                    this.ctx.stroke();
+                } else if (val === 'underlined') {
+                    this.ctx.strokeStyle = '#27ae60';
+                    this.ctx.lineWidth = 3.5;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(center.x - 20, center.y + 18);
+                    this.ctx.lineTo(center.x + 20, center.y + 18);
+                    this.ctx.stroke();
+                } else if (typeof val === 'string' && val !== 'crossed' && val !== 'underlined') {
+                    this.ctx.fillStyle = '#1e3799';
+                    this.ctx.font = 'bold 22px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText(val, center.x, center.y);
+                }
+            });
+
+            Object.keys(currentAnswers).forEach(key => {
+                if (key.startsWith('line_')) {
+                    const connection = currentAnswers[key];
+                    const fromEl = this.svgBg.querySelector(`[data-id="${connection.from}"]`);
+                    const toEl = this.svgBg.querySelector(`[data-id="${connection.to}"]`);
+                    if (fromEl && toEl) {
+                        const pt1 = GeometryHelper.getCenterCoordinates(fromEl);
+                        const pt2 = GeometryHelper.getCenterCoordinates(toEl);
+                        
+                        this.ctx.strokeStyle = '#2980b9';
+                        this.ctx.lineWidth = 3;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(pt1.x, pt1.y);
+                        if ((connection.from === 'c3' && connection.to === 'c6') || (connection.from === 'c6' && connection.to === 'c3')) {
+                            this.ctx.bezierCurveTo(370, 210, 450, 40, pt2.x, pt2.y);
+                        } else {
+                            this.ctx.lineTo(pt2.x, pt2.y);
+                        }
+                        this.ctx.stroke();
+                    }
+                }
+            });
+
+            if (currentAnswers._pendingNode) {
+                const nodeEl = this.svgBg.querySelector(`[data-id="${currentAnswers._pendingNode}"]`);
+                if (nodeEl) {
+                    const pt = GeometryHelper.getCenterCoordinates(nodeEl);
+                    this.ctx.strokeStyle = '#e67e22';
+                    this.ctx.lineWidth = 2.5;
+                    this.ctx.beginPath();
+                    this.ctx.arc(pt.x, pt.y, 28, 0, 2 * Math.PI);
+                    this.ctx.stroke();
+                }
+            }
+        }
+    }
+
+    const RendererEngine = new RendererEngineClass();
+
+    // =========================================================================
+    // 7. INTERACTION ENGINE
+    // =========================================================================
+    class InteractionEngineClass {
+        constructor() {
+            this.svgBg = null;
+        }
+
+        init(svgBgEl) {
+            this.svgBg = svgBgEl;
+        }
+
+        bindElements() {
+            if (!this.svgBg) return;
+            const elements = this.svgBg.querySelectorAll('[data-action]');
+            elements.forEach(el => {
+                el.style.pointerEvents = 'auto';
+                el.replaceWith(el.cloneNode(true));
+            });
+
+            const freshlyClonedElements = this.svgBg.querySelectorAll('[data-action]');
+            freshlyClonedElements.forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const action = el.getAttribute('data-action');
+                    if (action === 'none') return;
+                    const id = el.getAttribute('data-id');
+                    const noSoal = QUESTIONS_DATA[currentIdx].id;
+                    const currentAnswers = AppState.getAnswers(noSoal);
+
+                    if (action === 'toggle-x') {
+                        const newVal = currentAnswers[id] === 'X' ? null : 'X';
+                        AppState.updateAnswer(noSoal, id, newVal, 'toggle-x');
+                    } else if (action === 'toggle-comma') {
+                        const newVal = currentAnswers[id] === ',' ? null : ',';
+                        AppState.updateAnswer(noSoal, id, newVal, 'toggle-comma');
+                    } else if (action === 'cross-line') {
+                        const newVal = currentAnswers[id] === 'crossed' ? null : 'crossed';
+                        AppState.updateAnswer(noSoal, id, newVal, 'cross-line');
+                    } else if (action === 'toggle-line') {
+                        const newVal = currentAnswers[id] === 'underlined' ? null : 'underlined';
+                        AppState.updateAnswer(noSoal, id, newVal, 'toggle-line');
+                    } else if (action === 'text-edit') {
+                        this.triggerInlineEdit(el, noSoal, id);
+                    } else if (action === 'connect') {
+                        this.handleConnection(id, noSoal);
+                    }
+                });
+            });
+        }
+
+        triggerInlineEdit(el, noSoal, id) {
+            removeExistingTextInputElements();
+            const pRect = document.getElementById('exam-workspace').getBoundingClientRect();
+            
+            let customX = el.getAttribute('data-custom-x');
+            let customY = el.getAttribute('data-custom-y');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'text-input-node';
+            input.maxLength = 10;
+
+            if (customX && customY) {
+                const scaleX = pRect.width / 920;
+                const scaleY = pRect.height / 240;
+                input.style.left = (parseInt(customX) * scaleX) - 30 + 'px';
+                input.style.top = (parseInt(customY) * scaleY) - 15 + 'px';
+            } else {
+                const centerCoord = GeometryHelper.getCenterCoordinates(el);
+                const scaleX = pRect.width / 920;
+                const scaleY = pRect.height / 240;
+                input.style.left = (centerCoord.x * scaleX) - 30 + 'px';
+                input.style.top = (centerCoord.y * scaleY) - 15 + 'px';
+            }
+            
+            input.style.width = '60px';
+            
+            const currentAnswers = AppState.getAnswers(noSoal);
+            input.value = currentAnswers[id] || '';
+            
+            document.getElementById('exam-workspace').appendChild(input);
+            input.focus();
+            input.select();
+
+            const saveAndClose = () => {
+                const val = input.value.trim().toUpperCase();
+                AppState.updateAnswer(noSoal, id, val, 'text-type');
+                input.remove();
+            };
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveAndClose();
+            });
+            input.addEventListener('blur', saveAndClose);
+        }
+
+        handleConnection(id, noSoal) {
+            const currentAnswers = AppState.getAnswers(noSoal);
+            if (!currentAnswers._pendingNode) {
+                AppState.updateAnswer(noSoal, '_pendingNode', id, 'connect-start');
+            } else {
+                const fromNode = currentAnswers._pendingNode;
+                if (fromNode !== id) {
+                    const lineKey = `line_${fromNode}_${id}`;
+                    const reversedKey = `line_${id}_${fromNode}`;
+                    
+                    if (currentAnswers[lineKey] || currentAnswers[reversedKey]) {
+                        delete currentAnswers[lineKey];
+                        delete currentAnswers[reversedKey];
+                        AppState.logActivity(noSoal, 'connect-remove', { from: fromNode, to: id });
+                    } else {
+                        currentAnswers[lineKey] = { from: fromNode, to: id };
+                        AppState.logActivity(noSoal, 'connect-end', { from: fromNode, to: id });
+                    }
+                }
+                delete currentAnswers._pendingNode;
+                RendererEngine.drawState();
+            }
+        }
+    }
+
+    const InteractionEngine = new InteractionEngineClass();
+
+    // =========================================================================
+    // 8. PSYCHOLOGICAL METRICS & REPORT ENGINE
+    // =========================================================================
+    class ReportEngineClass {
+        generateReport(rawScore, detailedResults) {
+            let totalQuestions = QUESTIONS_DATA.length;
+            let attempted = 0;
+            let correct = rawScore;
+            let wrong = 0;
+            let empty = 0;
+            let instructionViolation = 0;
+            let extraAction = 0;
+            let totalResponseTime = 0;
+
+            detailedResults.forEach(item => {
+                const resCode = item.result.code;
+                const duration = item.state.durationTaken || 0;
+                totalResponseTime += duration;
+
+                if (resCode === 'EMPTY') empty++;
+                else {
+                    attempted++;
+                    if (resCode === 'WRONG') wrong++;
+                    else if (resCode === 'INSTRUCTION_VIOLATION') instructionViolation++;
+                    else if (resCode === 'EXTRA_ACTION') extraAction++;
+                    else if (resCode === 'INCOMPLETE') wrong++;
+                }
+            });
+
+            const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+            const completion = Math.round((attempted / totalQuestions) * 100);
+            const avgResponseTime = attempted > 0 ? (totalResponseTime / attempted).toFixed(1) : 0;
+
+            const psychMetrics = this.calculatePsychologicalMetrics({
+                accuracy,
+                completion,
+                correct,
+                instructionViolation,
+                extraAction,
+                avgResponseTime
+            });
+
+            return {
+                rawScore,
+                accuracy,
+                completion,
+                correct,
+                wrong,
+                empty,
+                instructionViolation,
+                extraAction,
+                totalResponseTime,
+                avgResponseTime,
+                psychMetrics
+            };
+        }
+
+        calculatePsychologicalMetrics(data) {
+            const accuracy = data.accuracy;
+            const completion = data.completion;
+            const instructionCompliance = Math.min(100, Math.max(0, Math.round(((12 - (data.instructionViolation + data.extraAction)) / 12) * 100)));
+            const attentionToDetail = Math.min(100, Math.max(0, Math.round((data.correct / 12) * (data.extraAction === 0 ? 100 : 80))));
+            const concentration = Math.min(100, Math.max(0, Math.round((data.correct / 12) * 100)));
+            const visualMotor = Math.min(100, Math.max(0, Math.round((completion * 0.4) + (accuracy * 0.6))));
+            const workingMemory = Math.min(100, Math.max(0, Math.round(instructionCompliance * 0.9)));
+            const processingSpeed = data.avgResponseTime > 0 ? Math.min(100, Math.max(10, Math.round(110 - (data.avgResponseTime * 6)))) : 0;
+            const impulsivityIndicator = data.extraAction > 1 || data.instructionViolation > 2 ? "Tinggi (Impulsif)" : (data.extraAction === 1 ? "Sedang" : "Rendah (Terkontrol)");
+
+            return {
+                accuracy,
+                completion,
+                instructionCompliance,
+                attentionToDetail,
+                concentration,
+                visualMotor,
+                workingMemory,
+                processingSpeed,
+                impulsivityIndicator
+            };
+        }
+
+        generateComprehensiveNarrative(rawScore, report) {
+            const pm = report.psychMetrics;
+            let levelHeader = "";
+            let coreAnalysis = "";
+            let strengths = [];
+            let areasToDevelop = [];
+            let recommendation = "";
+
+            if (rawScore >= 11) {
+                levelHeader = "KATEGORI: BAIK SEKALI (Weighted Score: 5)";
+                coreAnalysis = `Peserta menunjukkan kemampuan intelijensi umum, daya tangkap instruksi lisan (auditory comprehension), serta koordinasi visuomotorik yang **Sangat Unggul**. Berhasil menyelesaikan tes dengan akurasi ${report.accuracy}% dan tingkat kepatuhan instruksi sebesar ${pm.instructionCompliance}%. Peserta memiliki tingkat konsentrasi yang sangat fokus, mampu memproses informasi bertingkat/majemuk secara cepat dan tepat di bawah tekanan waktu (time pressure).`;
+                strengths = [
+                    "Daya tangkap instruksi lisan/verbal sangat cepat dan akurat.",
+                    "Konsentrasi dan ketelitian tinggi tanpa terdistraksi oleh instruksi kompleks.",
+                    "Kontrol impulsif sangat baik (bebas dari kesalahan tindakan ekstra/pelanggaran instruksi)."
+                ];
+                areasToDevelop = [
+                    "Pertahankan konsistensi kerja pada tugas-tugas bertempo tinggi lainnya."
+                ];
+                recommendation = "Sangat Direkomendasikan (Recommended) untuk posisi yang membutuhkan kecepatan analisis verbal, ketepatan eksekusi prosedur formal, serta daya tahan mental di bawah tekanan tinggi.";
+            } else if (rawScore >= 8) {
+                levelHeader = "KATEGORI: BAIK (Weighted Score: 4)";
+                coreAnalysis = `Peserta menunjukkan tingkat intelijensi dan daya tangkap instruksi lisan yang **Baik**. Dengan tingkat akurasi ${report.accuracy}% dan pemrosesan waktu rata-rata ${report.avgResponseTime} detik per soal, peserta mampu mencerna sebagian besar aturan kerja majemuk secara efektif. Terdapat tingkat ketelitian yang stabil dengan daya ingat kerja (working memory) yang adekuat.`;
+                strengths = [
+                    "Daya paham terhadap instruksi kerja berada di atas rata-rata.",
+                    "Fokus dan daya ingat jangka pendek tergolong solid.",
+                    "Kemampuan koordinasi visual-spasial dan respon kognitif berjalan seimbang."
+                ];
+                areasToDevelop = [
+                    "Peningkatan kewaspadaan pada instruksi ganda/kondisional yang memerlukan pemilahan detail secara bersamaan."
+                ];
+                recommendation = "Direkomendasikan (Recommended) untuk tugas operasional dan manajerial tingkat menengah yang menuntut kepatuhan SOP dan akurasi kerja yang konsisten.";
+            } else if (rawScore >= 5) {
+                levelHeader = "KATEGORI: RATA-RATA / CUKUP (Weighted Score: 3)";
+                coreAnalysis = `Peserta berada pada kategori **Rata-Rata (Cukup)**. Mampu menangkap instruksi lisan yang bersifat langsung dan sederhana, namun menunjukkan fluktuasi konsentrasi ketika dihadapkan pada perintah bertingkat atau bersyarat. Terlihat pula beberapa respon terburu-buru yang memicu timbulnya kesalahan atau ketidaklengkapan jawaban.`;
+                strengths = [
+                    "Mampu mengeksekusi perintah kerja berstruktur sederhana dengan baik.",
+                    "Memiliki ritme kerja yang wajar dalam merespon sinyal instruksi."
+                ];
+                areasToDevelop = [
+                    "Membutuhkan pengulangan atau verifikasi instruksi untuk tugas yang kompleks.",
+                    "Manajemen kecemasan dan kestabilan konsentrasi saat dibatasi oleh durasi waktu ketat."
+                ];
+                recommendation = "Dapat Dipertimbangkan (Considered) dengan catatan perbaikan pada aspek ketelitian dan perlunya supervisi awal pada pelaksanaan instruksi kerja baru.";
+            } else if (rawScore >= 3) {
+                levelHeader = "KATEGORI: KURANG (Weighted Score: 2)";
+                coreAnalysis = `Peserta berada pada kategori **Kurang**. Menunjukkan hambatan dalam pemahaman instruksi lisan yang cepat serta daya ingat kerja yang terbatas. Banyak soal yang mengalami kegagalan akibat ketidakmampuan mengikuti instruksi secara presisi atau terlewatnya aspek kunci perintah.`;
+                strengths = [
+                    "Masih menunjukkan usaha untuk merespon lembar kerja meskipun terbatas pada instruksi dasar."
+                ];
+                areasToDevelop = [
+                    "Daya tangkap instruksi verbal perlu dilatih secara intensif.",
+                    "Tingkat ketelitian dan rentang perhatian (attention span) cenderung pendek.",
+                    "Kecenderungan reaksi impulsif atau sebaliknya, ketidakyakinan dalam mengambil keputusan."
+                ];
+                recommendation = "Kurang Direkomendasikan (Need Improvement) untuk peran yang membutuhkan kemandirian tinggi dalam menerjemahkan prosedur dan instruksi kompleks.";
+            } else {
+                levelHeader = "KATEGORI: KURANG SEKALI (Weighted Score: 1)";
+                coreAnalysis = `Peserta berada pada kategori **Kurang Sekali**. Menunjukkan kesulitan yang signifikan dalam memahami serta mengeksekusi instruksi lisan terstruktur. Hasil tes mengindikasikan tingkat konsentrasi yang mudah terdistraksi, pemrosesan informasi yang terhambat, atau adanya kegagalan dalam menjaga fokus selama pengujian berlangsung.`;
+                strengths = [
+                    "Perlu pembimbingan intensif dan evaluasi pendekatan belajar/kerja secara bertahap."
+                ];
+                areasToDevelop = [
+                    "Kemampuan mendengarkan aktif dan pemahaman verbal dasar.",
+                    "Ketelitian dasar dan kepatuhan terhadap aturan kerja formal."
+                ];
+                recommendation = "Tidak Direkomendasikan (Not Recommended) untuk tuntutan tugas yang berpatokan pada kecepatan daya tangkap instruksi dan akurasi operasional tinggi.";
+            }
+
+            return `
+                <div style="font-weight: bold; font-size: 13px; color: var(--primary); margin-bottom: 6px;">${levelHeader}</div>
+                <p style="margin-bottom: 10px; text-align: justify;">${coreAnalysis}</p>
+                
+                <div style="margin-bottom: 8px;">
+                    <strong style="color: var(--success); font-size: 12px;">A. Kekuatan Utama (Strengths):</strong>
+                    <ul style="padding-left: 18px; margin-top: 4px;">
+                        ${strengths.map(s => `<li style="margin-bottom: 2px;">${s}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <strong style="color: var(--warning); font-size: 12px;">B. Area Pengembangan (Areas for Development):</strong>
+                    <ul style="padding-left: 18px; margin-top: 4px;">
+                        ${areasToDevelop.map(a => `<li style="margin-bottom: 2px;">${a}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div style="margin-top: 10px; padding: 8px; background-color: #edf2f7; border-left: 3px solid var(--accent); border-radius: 4px;">
+                    <strong style="color: var(--primary); font-size: 11px;">C. Rekomendasi / Catatan Asesor:</strong>
+                    <div style="font-size: 11px; margin-top: 2px;">${recommendation}</div>
+                </div>
+            `;
+        }
+    }
+
+    const ReportEngine = new ReportEngineClass();
+
+    // =========================================================================
+    // 9. CONTROLLER & UI APPLICATION LIFECYCLE
+    // =========================================================================
+    let currentIdx = 0;
+    let countdownInterval = null;
+    let pieChartInstance = null;
+    let radarChartInstance = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('interaction-canvas');
+        const ctx = canvas.getContext('2d');
+        const svgBg = document.getElementById('soal-svg-bg');
+        
+        RendererEngine.init(canvas, ctx, svgBg);
+        InteractionEngine.init(svgBg);
+    });
+
+    function scrollToActiveTestHeader() {
+        setTimeout(() => {
+            const anchor = document.getElementById('test-view-focus');
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 80);
+    }
+
+    function startExamSession() {
+        const namaInput = document.getElementById('input-nama');
+        const nama = namaInput ? namaInput.value.trim() : "";
+        
+        if (!nama) {
+            alert('Silakan masukkan Nama Lengkap Peserta terlebih dahulu.');
+            if (namaInput) namaInput.focus();
+            return;
+        }
+
+        AppState.reset();
+        AppState.initPeserta(nama);
+
+        document.getElementById('screen-login').classList.remove('active');
+        document.getElementById('screen-exam').classList.add('active');
+        
+        renderSoalIndex(0);
+    }
+
+    function renderSoalIndex(idx) {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
+        currentIdx = idx;
+        const question = QUESTIONS_DATA[idx];
+
+        document.getElementById('txt-soal-nomor').innerText = `Soal No. ${question.id}`;
+        document.getElementById('txt-instruksi-value').innerText = question.instruction;
+
+        const svgBg = document.getElementById('soal-svg-bg');
+        svgBg.innerHTML = question.svgMarkup;
+        InteractionEngine.bindElements();
+        
+        removeExistingTextInputElements();
+
+        const stateObj = AppState.getSoalState(question.id);
+        document.getElementById('txt-timer-value').innerText = stateObj.timeLeft;
+
+        const lockLayer = document.getElementById('canvas-lock-layer');
+        const activationBar = document.getElementById('panel-activation-bar');
+
+        if (stateObj.started) {
+            lockLayer.style.display = 'none';
+            activationBar.style.backgroundColor = '#fdf2e9';
+            activationBar.style.borderColor = '#f5cba7';
+            document.getElementById('txt-activation-status').innerHTML = "🟢 <span style='color:#a04000;'>Waktu Sedang Berjalan! Silakan kerjakan.</span>";
+            document.getElementById('btn-trigger-start').style.display = 'none';
+            resumeTimerCounter();
+        } else {
+            lockLayer.style.display = 'block';
+            activationBar.style.backgroundColor = '#e8f8f5';
+            activationBar.style.borderColor = '#a3e4d7';
+            document.getElementById('txt-activation-status').innerHTML = "📋 <span style='color:#117a65;'>Soal terbuka. Klik tombol di kanan untuk memulai timer.</span>";
+            document.getElementById('btn-trigger-start').style.display = 'block';
+        }
+
+        document.getElementById('btn-nav-prev').disabled = idx === 0;
+        if (idx === QUESTIONS_DATA.length - 1) {
+            document.getElementById('btn-nav-next').innerText = "Selesai & Kirim";
+        } else {
+            document.getElementById('btn-nav-next').innerText = "Lanjut ➡️";
+        }
+        
+        RendererEngine.drawState();
+        scrollToActiveTestHeader();
+    }
+
+    function activateCurrentSoal() {
+        const question = QUESTIONS_DATA[currentIdx];
+        AppState.markStarted(question.id);
+        
+        document.getElementById('canvas-lock-layer').style.display = 'none';
+        const activationBar = document.getElementById('panel-activation-bar');
+        activationBar.style.backgroundColor = '#fdf2e9';
+        activationBar.style.borderColor = '#f5cba7';
+        document.getElementById('txt-activation-status').innerHTML = "🟢 <span style='color:#a04000;'>Waktu Sedang Berjalan! Silakan kerjakan.</span>";
+        document.getElementById('btn-trigger-start').style.display = 'none';
+        
+        resumeTimerCounter();
+    }
+
+    function resumeTimerCounter() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        const question = QUESTIONS_DATA[currentIdx];
+        let stateObj = AppState.getSoalState(question.id);
+
+        document.getElementById('txt-timer-value').innerText = stateObj.timeLeft;
+
+        countdownInterval = setInterval(() => {
+            stateObj.timeLeft--;
+            document.getElementById('txt-timer-value').innerText = stateObj.timeLeft;
+
+            if (stateObj.timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                AppState.markEnded(question.id);
+                if (currentIdx < QUESTIONS_DATA.length - 1) {
+                    navNextSoal();
+                } else {
+                    finalizeExamSessionCalculations();
+                }
+            }
+        }, 1000);
+    }
+
+    function removeExistingTextInputElements() {
+        document.querySelectorAll('.text-input-node').forEach(el => el.remove());
+    }
+
+    function navPrevSoal() {
+        if (currentIdx > 0) {
+            AppState.markEnded(QUESTIONS_DATA[currentIdx].id);
+            renderSoalIndex(currentIdx - 1);
+        }
+    }
+
+    function navNextSoal() {
+        AppState.markEnded(QUESTIONS_DATA[currentIdx].id);
+        if (currentIdx < QUESTIONS_DATA.length - 1) {
+            renderSoalIndex(currentIdx + 1);
+        } else {
+            if (confirm('Apakah Anda yakin ingin menyelesaikan tes ini dan melihat hasil?')) {
+                finalizeExamSessionCalculations();
+            }
+        }
+    }
+
+    function finalizeExamSessionCalculations() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
+        AppState.markEnded(QUESTIONS_DATA[currentIdx].id);
+        AppState.peserta.globalEndTime = Date.now();
+
+        const rawScore = ScoringEngine.calculate();
+        const detailedResults = ScoringEngine.getDetailedResults();
+        const report = ReportEngine.generateReport(rawScore, detailedResults);
+
+        let weightedScore = 1;
+        let kategori = "KURANG SEKALI";
+
+        if (rawScore >= 11) { 
+            weightedScore = 5; 
+            kategori = "BAIK SEKALI"; 
+        } else if (rawScore >= 8) { 
+            weightedScore = 4; 
+            kategori = "BAIK"; 
+        } else if (rawScore >= 5) { 
+            weightedScore = 3; 
+            kategori = "RATA-RATA"; 
+        } else if (rawScore >= 3) { 
+            weightedScore = 2; 
+            kategori = "KURANG"; 
+        } else {
+            weightedScore = 1; 
+            kategori = "KURANG SEKALI";
+        }
+
+        const narasiPembahasan = ReportEngine.generateComprehensiveNarrative(rawScore, report);
+
+        const totalSecs = Math.round((AppState.peserta.globalEndTime - AppState.peserta.globalStartTime) / 1000);
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+
+        document.getElementById('res-nama').innerText = AppState.peserta.nama;
+        document.getElementById('res-tanggal').innerText = AppState.peserta.tanggal;
+        document.getElementById('res-durasi-total').innerText = `${mins}m ${secs}s`;
+
+        document.getElementById('res-raw-score').innerHTML = `${rawScore} <span style="font-size: 13px; color: #718096; font-weight: normal;">/ 12 Benar</span>`;
+        document.getElementById('res-metrics-summary').innerText = `Akurasi: ${report.accuracy}% | Completion: ${report.completion}% | Rata Waktu: ${report.avgResponseTime}s`;
+        document.getElementById('res-weighted-score').innerText = weightedScore;
+        document.getElementById('res-kategori').innerText = kategori;
+        document.getElementById('pembahasan-teks-box').innerHTML = narasiPembahasan;
+
+        // Render Psychological Metrics Grid
+        const pm = report.psychMetrics;
+        const metricsGrid = document.getElementById('metrics-grid');
+        metricsGrid.innerHTML = `
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Accuracy: ${pm.accuracy}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.accuracy}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Completion: ${pm.completion}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.completion}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Instruction Compliance: ${pm.instructionCompliance}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.instructionCompliance}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Attention to Detail: ${pm.attentionToDetail}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.attentionToDetail}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Concentration: ${pm.concentration}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.concentration}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Visual Motor: ${pm.visualMotor}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.visualMotor}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Working Memory: ${pm.workingMemory}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.workingMemory}%;"></div></div>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:bold;">Processing Speed: ${pm.processingSpeed}%</div>
+                <div class="metric-progress-bar"><div class="metric-progress-fill" style="width: ${pm.processingSpeed}%;"></div></div>
+            </div>
+            <div style="grid-column: span 2;">
+                <div style="font-size:11px; font-weight:bold;">Impulsivity Indicator: <span style="color:${pm.impulsivityIndicator.includes('Tinggi') ? '#c0392b' : '#27ae60'};">${pm.impulsivityIndicator}</span></div>
+            </div>
+        `;
+
+        // Render Answer Rekapitulasi
+        const rekapContainer = document.getElementById('rekap-jawaban-list');
+        rekapContainer.innerHTML = "";
+        detailedResults.forEach(item => {
+            const code = item.result.code;
+            let badgeClass = 'status-empty';
+            let badgeText = 'KOSONG';
+
+            if (code === 'CORRECT') { badgeClass = 'status-correct'; badgeText = 'BENAR'; }
+            else if (code === 'WRONG') { badgeClass = 'status-wrong'; badgeText = 'SALAH'; }
+            else if (code === 'INCOMPLETE') { badgeClass = 'status-wrong'; badgeText = 'BELUM LENGKAP'; }
+            else if (code === 'INSTRUCTION_VIOLATION') { badgeClass = 'status-violation'; badgeText = 'PELANGGARAN INSTRUKSI'; }
+            else if (code === 'EXTRA_ACTION') { badgeClass = 'status-violation'; badgeText = 'TINDAKAN EKSTRA'; }
+
+            const rekapItem = document.createElement('div');
+            rekapItem.className = 'rekap-item';
+            rekapItem.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:bold;">No. ${item.questionId}</span>
+                    <span class="status-badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div style="font-size:9px; color:#718096; margin-top:2px;">
+                    Waktu: ${item.state.durationTaken || 0}s
+                </div>
+            `;
+            rekapContainer.appendChild(rekapItem);
+        });
+
+        // Render Dashboard Charts
+        renderDashboardCharts(report);
+
+        document.getElementById('screen-exam').classList.remove('active');
+        document.getElementById('screen-result').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDashboardCharts(report) {
+        if (pieChartInstance) pieChartInstance.destroy();
+        if (radarChartInstance) radarChartInstance.destroy();
+
+        const ctxPie = document.getElementById('chartStatusPie').getContext('2d');
+        pieChartInstance = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Benar', 'Salah', 'Kosong', 'Pelanggaran'],
+                datasets: [{
+                    data: [report.correct, report.wrong, report.empty, report.instructionViolation + report.extraAction],
+                    backgroundColor: ['#27ae60', '#c0392b', '#bdc3c7', '#f39c12']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Distribusi Status Jawaban', font: { size: 11 } },
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }
+                }
+            }
+        });
+
+        const pm = report.psychMetrics;
+        const ctxRadar = document.getElementById('chartPsychRadar').getContext('2d');
+        radarChartInstance = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: ['Akurasi', 'Kepatuhan', 'Ketelitian', 'Konsentrasi', 'Visual Motor', 'Memori', 'Kecepatan'],
+                datasets: [{
+                    label: 'Skor Psikologis',
+                    data: [pm.accuracy, pm.instructionCompliance, pm.attentionToDetail, pm.concentration, pm.visualMotor, pm.workingMemory, pm.processingSpeed],
+                    backgroundColor: 'rgba(41, 128, 185, 0.2)',
+                    borderColor: '#2980b9',
+                    pointBackgroundColor: '#2980b9'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: { min: 0, max: 100, ticks: { display: false } } },
+                plugins: {
+                    title: { display: true, text: 'Radar Profil Psikologis', font: { size: 11 } },
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function downloadPDFReport() {
+        const element = document.getElementById('pdf-report-content');
+        const namaPeserta = AppState.peserta.nama.replace(/\s+/g, '_') || 'Peserta';
+        const dateStr = new Date().toISOString().slice(0,10);
+        const fileName = `ArmyAlpha_Report_${namaPeserta}_${dateStr}.pdf`;
+
+        const opt = {
+            margin:       [8, 8, 8, 8],
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    }
+
+    function resetExamAppInstance() {
+        AppState.reset();
+        document.getElementById('screen-result').classList.remove('active');
+        document.getElementById('screen-login').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
